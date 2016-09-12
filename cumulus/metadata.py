@@ -25,7 +25,7 @@ METADATA_TEMPLATE = '''
 '''
 
 
-def write_metadata(filename, dataname='', dataid=0, outdir='./'):
+def write_metadata(filename, dataname='', dataid='0', outdir='./'):
     """ Write metadata for data file filename of type data_name """
     # output metadata
     bname = os.path.basename(filename)
