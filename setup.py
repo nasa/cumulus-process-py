@@ -24,7 +24,6 @@ setup(
     license='Apache 2.0',
     classifiers=[
         'Framework :: Pytest',
-        'Topic :: Scientific/Engineering :: GIS',
         'Topic :: Scientific/Engineering',
         'Intended Audience :: Developers',
         'Intended Audience :: Science/Research',
