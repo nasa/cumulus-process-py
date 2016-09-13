@@ -21,7 +21,7 @@ setup(
     author='Matthew Hanson (matthewhanson), Miles Watkings (mileswwatkins), Alireza J (scisco)',
     description='Library for creating sensor command line utils',
     url='https://github.com/nasa-cumulus/py-cumulus',
-    license='MIT',
+    license='Apache 2.0',
     classifiers=[
         'Framework :: Pytest',
         'Topic :: Scientific/Engineering :: GIS',
