@@ -1,5 +1,5 @@
 import os
-import logging as log
+import logging
 from logging import *
 import datetime
 from splunk_handler import SplunkHandler
@@ -14,10 +14,10 @@ if set(['SPLUNK_HOST', 'SPLUNK_USERNAME', 'SPLUNK_PASSWORD']).issubset(set(os.en
         index=os.environ.get('SPLUNK_INDEX', 'main'),
         verify=False
     )
-    log.getLogger().addHandler(splunk)
+    logging.getLogger().addHandler(splunk)
     # Need to `setLevel` to INFO, otherwise only levels above INFO will write to Splunk
     # DEBUG is now useful in that it will _not_ be sent to Splunk
-    log.getLogger().setLevel(log.INFO)
+    logging.getLogger().setLevel(logging.INFO)
 
 
 def make_log_string(data_pipeline_id=os.environ.get('PIPELINE_ID'), dataset_id=os.environ.get('DATASET_ID'), is_error=0, **kwargs):
