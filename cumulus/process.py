@@ -3,7 +3,8 @@ Utilities for processing cumulus data sources
 '''
 
 import os
-import cumulus.logging as logging
+import cumulus.logutils as logutils
+import logging
 
 
 def check_output(filename):
@@ -11,7 +12,7 @@ def check_output(filename):
     if not os.path.exists(filename):
         bname = os.path.basename(filename)
         logging.error(
-            logging.make_log_string(
+            logutils.make_log_string(
                 granule_id=bname, process='processing', is_error=1, message='Unable to process %s' % filename
             )
         )
