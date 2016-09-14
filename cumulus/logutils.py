@@ -21,6 +21,7 @@ def get_logger():
         log.addHandler(splunk)
         # by default, only levels above INFO will write to Splunk
         # DEBUG is useful in that it will _not_ be sent to Splunk
+        print('SPLUNK !')
     log.setLevel(logging.INFO)
     return log
 
