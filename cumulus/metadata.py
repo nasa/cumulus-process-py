@@ -13,7 +13,8 @@ METADATA_TEMPLATE = '''
    <InsertTime>{insert_time}</InsertTime>
    <LastUpdate>{last_update}</LastUpdate>
    <Collection>
-     <DataSetId>{data_set_id}</DataSetId>
+     <ShortName>{short_name}</ShortName>
+     <VersionId>1</VersionId>
    </Collection>
    <OnlineAccessURLs>
         <OnlineAccessURL>
@@ -25,7 +26,7 @@ METADATA_TEMPLATE = '''
 '''
 
 
-def write_metadata(filename, dataname='', dataid='0', outdir='./'):
+def write_metadata(filename, dataid, dataname='', outdir='./'):
     """ Write metadata for data file filename of type data_name """
     # output metadata
     bname = os.path.basename(filename)
@@ -35,7 +36,7 @@ def write_metadata(filename, dataname='', dataid='0', outdir='./'):
         'granule_ur': bname,
         'insert_time': datetime.datetime.utcnow().isoformat(),
         'last_update': datetime.datetime.utcnow().isoformat(),
-        'data_set_id': dataid
+        'short_name': dataid
     }
     # Ensure that no XML-invalid characters are included
     info = {k: xml.sax.saxutils.escape(v) for k, v in info.items()}
