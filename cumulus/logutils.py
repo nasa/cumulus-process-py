@@ -7,6 +7,7 @@ from splunk_handler import SplunkHandler
 def get_logger():
     """ Return a logger """
     log = logging.getLogger()
+    log.addHandler(logging.StreamHandler())
     # if splunk envvars all set then use splunk!
     if set(['SPLUNK_HOST', 'SPLUNK_USERNAME', 'SPLUNK_PASSWORD']).issubset(set(os.environ.keys())):
         splunk = SplunkHandler(
