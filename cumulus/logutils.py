@@ -18,7 +18,7 @@ def get_logger():
             index=os.environ.get('SPLUNK_INDEX', 'main'),
             verify=False
         )
-        log = log.addHandler(splunk)
+        log.addHandler(splunk)
         # by default, only levels above INFO will write to Splunk
         # DEBUG is useful in that it will _not_ be sent to Splunk
     log.setLevel(logging.INFO)
