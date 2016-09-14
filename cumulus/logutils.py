@@ -20,7 +20,8 @@ def get_logger():
         log = log.addHandler(splunk)
         # by default, only levels above INFO will write to Splunk
         # DEBUG is useful in that it will _not_ be sent to Splunk
-    return log.setLevel(logging.INFO)
+    log.setLevel(logging.INFO)
+    return log
 
 
 def make_log_string(data_pipeline_id=os.environ.get('PIPELINE_ID'), dataset_id=os.environ.get('DATASET_ID'), is_error=0, **kwargs):
