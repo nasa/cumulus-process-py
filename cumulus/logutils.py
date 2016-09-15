@@ -5,7 +5,7 @@ from splunk_handler import SplunkHandler
 
 
 def get_logger():
-    """ Return a logger """
+    """ Return a logger, with Splunk handler attached """
     log = logging.getLogger()
     log.addHandler(logging.StreamHandler())
     # if splunk envvars all set then use splunk!
@@ -19,9 +19,9 @@ def get_logger():
             verify=False
         )
         log.addHandler(splunk)
-        # by default, only levels above INFO will write to Splunk
-        # DEBUG is useful in that it will _not_ be sent to Splunk
-        print('SPLUNK !')
+        logging.debug('Splunk handler attached')
+    # by default, only levels above INFO will write to Splunk
+    # DEBUG is useful in that it will _not_ be sent to Splunk
     log.setLevel(logging.INFO)
     return log
 
