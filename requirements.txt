@@ -1,1 +1,2 @@
+requests==2.11.1
 splunk-handler==1.1.3

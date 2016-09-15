@@ -4,7 +4,7 @@ from cumulus.metadata import write_metadata
 
 
 class TestMetadata(unittest.TestCase):
-    """ Test sat-util generic parser class """
+    """ Test metadata generation module """
 
     def test_write_metadata(self):
         """ Write metadata into file """
