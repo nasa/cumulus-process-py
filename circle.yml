@@ -1,6 +1,10 @@
 machine:
   python:
     version: 2.7
+  environment:
+    GIT_TRACE_PACKET: 1
+    GIT_TRACE: 1
+    GIT_CURL_VERBOSE: 1
 
 dependencies:
   override:
