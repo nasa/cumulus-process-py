@@ -49,3 +49,15 @@ class TestS3(unittest.TestCase):
         self.assertTrue(s3.exists(uri))
         self.assertTrue(s3.delete(uri))
         self.assertFalse(s3.exists(uri))
+
+    #def test_download(self):
+        """ Download file from S3 """
+
+    def test_download_as_text(self):
+        """ Downlaod file from S3 as text """
+        f = os.path.join(os.path.dirname(__file__), 'payload.json')
+        uri = s3.upload(f, self.uri('testing'))
+        record = s3.download_json(uri)
+        self.assertTrue('granuleRecord' in record.keys())
+        s3.delete(uri)
+        

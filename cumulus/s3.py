@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import os
+import json
 import logging
 import boto3
 
@@ -32,17 +33,28 @@ def uri_parser(uri):
     }
 
 
-def download(uri, d='data/input'):
+def download(uri, path=''):
     """ Download object from S3 """
+    s3_uri = uri_parser(uri)
+    fout = os.path.join(path, s3_uri['filename'])
+    logger.debug("Downloading %s as %s" % (uri, fout))
     s3 = s3_client()
-    s3_obj = uri_parser(uri)
 
-    with open(os.path.join(d, s3_obj['filename']), 'wb') as data:
+    with open(fout, 'wb') as data:
         s3.download_fileobj(
-            Bucket=s3_obj['bucket'],
-            Key=s3_obj['key'],
+            Bucket=s3_uri['bucket'],
+            Key=s3_uri['key'],
             Fileobj=data
         )
+
+
+def download_json(uri):
+    """ Download object from S3 as JSON """
+    logger.debug("Downloading %s as JSON" % (uri))
+    s3 = s3_client()
+    s3_uri = uri_parser(uri)
+    response = s3.get_object(Bucket=s3_uri['bucket'], Key=s3_uri['key'])
+    return json.loads(response['Body'].read())
 
 
 def upload(filename, uri):
