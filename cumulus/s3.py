@@ -33,11 +33,20 @@ def uri_parser(uri):
     }
 
 
+def mkdirp(path):
+    """ Recursively make directory """
+    if not os.path.isdir(path):
+        os.makedirs(path)
+    return path
+
+
 def download(uri, path=''):
     """ Download object from S3 """
     s3_uri = uri_parser(uri)
     fout = os.path.join(path, s3_uri['filename'])
     logger.debug("Downloading %s as %s" % (uri, fout))
+    mkdirp(path)
+
     s3 = s3_client()
 
     with open(fout, 'wb') as data:
@@ -46,6 +55,7 @@ def download(uri, path=''):
             Key=s3_uri['key'],
             Fileobj=data
         )
+    return fout
 
 
 def download_json(uri):

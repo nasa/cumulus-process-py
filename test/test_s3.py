@@ -14,6 +14,7 @@ class TestS3(unittest.TestCase):
     """ Test utiltiies for publishing data on AWS PDS """
 
     bucket = 'cumulus-internal'
+    payload = os.path.join(os.path.dirname(__file__), 'payload.json')
 
     def uri(self, key):
         return 's3://%s' % os.path.join(self.bucket, key)
@@ -50,14 +51,18 @@ class TestS3(unittest.TestCase):
         self.assertTrue(s3.delete(uri))
         self.assertFalse(s3.exists(uri))
 
-    #def test_download(self):
+    def test_download(self):
         """ Download file from S3 """
+        uri = s3.upload(self.payload, self.uri('testing'))
+        d = os.path.join('test', 'tmp')
+        f = s3.download(uri, path=d)
+        self.assertTrue(os.path.exists(f))
+        os.remove(f)
+        os.rmdir(d)
 
     def test_download_as_text(self):
-        """ Downlaod file from S3 as text """
-        f = os.path.join(os.path.dirname(__file__), 'payload.json')
-        uri = s3.upload(f, self.uri('testing'))
+        """ Download file from S3 as JSON """
+        uri = s3.upload(self.payload, self.uri('testing'))
         record = s3.download_json(uri)
         self.assertTrue('granuleRecord' in record.keys())
         s3.delete(uri)
-        
