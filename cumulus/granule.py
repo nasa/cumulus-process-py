@@ -1,8 +1,10 @@
 
 import os
 import re
+import datetime
 import logging
 import json
+import xml.sax.saxutils
 import cumulus.s3 as s3
 
 
@@ -26,10 +28,35 @@ class Granule(object):
         self._check_payload()
         self.path = path
 
+    @property
+    def id(self):
+        """ Granule ID """
+        return self.payload['granuleRecord']['granuleId']
+
     def process(self):
         """ Process a granule locally """
         # this function should operate on input files and generate output files
         pass
+
+    def metadata(self, save=False):
+        """ Retrieve metada for granule """
+        info = {
+            'data_name': self.payload['granuleRecord']['collectionName'],
+            'granule_ur': self.payload['granuleRecord']['granuleId'],
+            'insert_time': datetime.datetime.utcnow().isoformat(),
+            'last_update': datetime.datetime.utcnow().isoformat(),
+            'short_name': self.payload['granuleRecord']['collectionName']
+        }
+        # Ensure that no XML-invalid characters are included
+        info = {k: xml.sax.saxutils.escape(v) for k, v in info.items()}
+        md = METADATA_TEMPLATE.format(**info)
+        if save:
+            fout = os.path.join(self.path, info['data_name'] + '.meta.xml')
+            with open(fout, 'w') as f:
+                f.write(md)
+            return fout
+        else:
+            return md
 
     def _check_payload(self):
         """ Test validity of payload """
@@ -111,3 +138,22 @@ class Granule(object):
         self.payload['nextStep'] = self.payload['nextStep'] + 1
         # invoke dispatcher lambda
         s3.invoke_lambda(self.payload)
+
+
+METADATA_TEMPLATE = '''
+    <Granule>
+       <GranuleUR>{granule_ur}</GranuleUR>
+       <InsertTime>{insert_time}</InsertTime>
+       <LastUpdate>{last_update}</LastUpdate>
+       <Collection>
+         <ShortName>{short_name}</ShortName>
+         <VersionId>1</VersionId>
+       </Collection>
+       <OnlineAccessURLs>
+            <OnlineAccessURL>
+                <URL>https://72a8qx4iva.execute-api.us-east-1.amazonaws.com/dev/getGranule?granuleKey={data_name}/{granule_ur}</URL>
+            </OnlineAccessURL>
+        </OnlineAccessURLs>
+       <Orderable>true</Orderable>
+    </Granule>
+'''

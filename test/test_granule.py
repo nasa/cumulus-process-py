@@ -1,3 +1,7 @@
+"""
+This testing module relies on some testing data available in s3://cumulus-internal/testing
+"""
+
 import os
 import unittest
 import logging
@@ -49,6 +53,20 @@ class TestGranule(unittest.TestCase):
         self.assertTrue('archive' in granule.recipe)
         self.assertTrue('order' in granule.recipe)
         self.assertTrue('processStep' in granule.recipe)
+
+    def test_metadata(self):
+        """ Get metadata for granule """
+        granule = Granule(self.payload)
+        md = granule.metadata()
+        self.assertTrue('<Granule>' in md)
+        self.assertTrue('<GranuleUR>%s</GranuleUR>' % granule.id in md)
+
+    def test_metadata_file(self):
+        """ Save metadata as file """
+        granule = Granule(self.payload, path=self.testdir)
+        fout = granule.metadata(save=True)
+        self.assertTrue(os.path.exists(fout))
+        os.remove(fout)
 
     def test_input_files(self):
         """ Get input files parsed from payload """
