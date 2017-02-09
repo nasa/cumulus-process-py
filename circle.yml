@@ -1,11 +1,43 @@
+# cumulus-py CircleCI
+
+# environment variables added through the CircleCI webpage:
+#   AWS_ACCESS_KEY_ID
+#   AWS_SECRET_ACCESS_KEY
+#   SPLUNK_HOST
+#   SPLUNK_USERNAME
+#   SPLUNK_PASSWORD
+
+
 machine:
   python:
     version: 2.7
-  environment:
-    GIT_TRACE_PACKET: 1
-    GIT_TRACE: 1
-    GIT_CURL_VERBOSE: 1
+  pre:
+    - curl -sSL https://s3.amazonaws.com/circle-downloads/install-circleci-docker.sh | bash -s -- 1.10.0 
+  services:
+    - docker
 
 dependencies:
+  pre:
+    - sudo apt-get update; sudo apt-get install -y python-dev
   override:
-    - git push --mirror https://$EARTHDATA_USER:$EARTHDATA_PASS@git.earthdata.nasa.gov/scm/cumulus/py-cumulus.git
+    - sudo pip install --upgrade docker-compose==1.10.0  
+
+test:
+  pre:
+    - echo "AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID" >> .env
+    - echo "AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY" >> .env
+    - echo "SPLUNK_HOST=$SPLUNK_HOST" >> .env
+    - echo "SPLUNK_USERNAME=$SPLUNK_USERNAME" >> .env
+    - echo "SPLUNK_PASSWORD=$SPLUNK_PASSWORD" >> .env
+    - pip install -r requirements.txt
+    - pip install -r requirements-dev.txt
+  override:
+    - nosetests --with-coverage --cover-package cumulus --cover-inclusive --with-timer -v -s
+
+deployment:
+  master:
+    branch: master
+    owner: cumulus-nasa
+    commands:
+      - docker tag cumulus:base developmentseed/cumulus:base
+      - docker push developmentseed/cumulus:base
