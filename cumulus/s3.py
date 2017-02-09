@@ -4,7 +4,6 @@ import os
 import json
 import logging
 import boto3
-
 from dotenv import load_dotenv, find_dotenv
 
 # environment variables

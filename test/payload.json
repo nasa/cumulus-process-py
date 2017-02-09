@@ -63,7 +63,8 @@
 				"config": {
 					"image": "985962406024.dkr.ecr.us-east-1.amazonaws.com/cumulus-data-acquisition:latest",
 					"inputFiles": [
-						"origin-hdf5"
+						"origin-hdf5",
+						"origin-thumbnail"
 					],
 					"outputFiles": [
 						"processed-hdf5",
@@ -71,7 +72,7 @@
 						"thumbnail-2",
 						"thumbnail-3",
 						"meta-xml"
-					],
+					]
 				},
 				"description": "UpdateHDF5fileandextractthumbnail"
 			},
