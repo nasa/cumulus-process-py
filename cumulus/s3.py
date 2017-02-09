@@ -10,6 +10,7 @@ from dotenv import load_dotenv, find_dotenv
 load_dotenv(find_dotenv())
 AWS_ACCESS_KEY_ID = os.getenv('AWS_ACCESS_KEY_ID')
 AWS_SECRET_ACCESS_KEY = os.getenv('AWS_SECRET_ACCESS_KEY')
+DISPATCHER = os.getenv('dispatcherLambda')
 
 logger = logging.getLogger(__name__)
 
@@ -123,7 +124,7 @@ def exists(uri):
             raise
 
 
-def invoke_lambda(lambda_name, payload):
+def invoke_lambda(payload, lambda_name=DISPATCHER):
     """ Invoke Lambda function with payload """
     client = get_client('lambda')
     logger.debug('Invoking %s with payload: %s' % (lambda_name, json.dumps(payload)))
