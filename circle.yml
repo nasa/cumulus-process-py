@@ -11,8 +11,6 @@
 machine:
   python:
     version: 2.7
-    version: 3.4
-    version: 3.5
   pre:
     - curl -sSL https://s3.amazonaws.com/circle-downloads/install-circleci-docker.sh | bash -s -- 1.10.0 
   services:
