@@ -1,18 +1,18 @@
 {
 	"granuleRecord": {
 		"archivedAt": 1480962569,
-		"collectionName": "TEST",
+		"collectionName": "TESTCOLLECTION",
 		"createdAt": 1480962569,
 		"files": {
 			"input-1": {
 				"archivedFile": null,
 				"sipFile": "https://developmentseed.org/nosuchfile",
-				"stagingFile": "s3://cumulus-internal/testdata/aster/input/pg-PR1A0000-2002070401_000_001"
+				"stagingFile": "s3://cumulus-internal/testing/pycumulus/input-1.txt"
 			},
 			"input-2": {
 				"archivedFile": null,
 				"sipFile": "https://developmentseed.org/nosuchfile",
-				"stagingFile": "s3://cumulus-internal/testdata/aster/input/pg-BR1A0000-2002070401_000_001"
+				"stagingFile": "s3://cumulus-internal/testing/pycumulus/input-2.txt"
 			},
 			"output-1": {
 				"regex": "^payload.json$",
@@ -27,8 +27,8 @@
 				"stagingFile": null
 			}
 		},
-		"granuleId": "D20120907_022056_P",
-		"granuleShortName": "D20120907_022056_P",
+		"granuleId": "TESTGRANULE",
+		"granuleShortName": "TESTGRANULE",
 		"processedAt": 1480962569,
 		"pushedToCMRAt": 1480962569,
 		"readyForProcess": 1480962569,
