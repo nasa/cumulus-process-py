@@ -7,12 +7,12 @@
 			"input-1": {
 				"archivedFile": null,
 				"sipFile": "https://developmentseed.org/nosuchfile",
-				"stagingFile": "s3://cumulus-internal/testing/pycumulus/input-1.txt"
+				"stagingFile": "s3://cumulus-internal/testing/py-cumulus/input-1.txt"
 			},
 			"input-2": {
 				"archivedFile": null,
 				"sipFile": "https://developmentseed.org/nosuchfile",
-				"stagingFile": "s3://cumulus-internal/testing/pycumulus/input-2.txt"
+				"stagingFile": "s3://cumulus-internal/testing/py-cumulus/input-2.txt"
 			},
 			"output-1": {
 				"regex": "^payload.json$",
