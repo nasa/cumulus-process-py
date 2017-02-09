@@ -1,47 +1,29 @@
 {
 	"granuleRecord": {
 		"archivedAt": 1480962569,
-		"collectionName": "ASTER",
+		"collectionName": "TEST",
 		"createdAt": 1480962569,
 		"files": {
-			"origin-hdf5": {
+			"input-1": {
 				"archivedFile": null,
-				"sipFile": "https://e4ftl01.cr.usgs.gov:40521/TEST_B/Cumulus/DATA/ID1611101225/pg-PR1A0000-2016111001_005_039",
-				"stagingFile": "s3://cumulus-1st-test-private/staging/pg-PR1A0000-2016111001_005_039"
+				"sipFile": "https://developmentseed.org/nosuchfile",
+				"stagingFile": "s3://cumulus-internal/testdata/aster/input/pg-PR1A0000-2002070401_000_001"
 			},
-			"origin-thumbnail": {
+			"input-2": {
 				"archivedFile": null,
-				"sipFile": "https://e4ftl01.cr.usgs.gov:40521/TEST_B/Cumulus/DATA/ID1611101225/pg-BR1A0000-2016111001_005_039",
-				"stagingFile": "s3://cumulus-1st-test-private/staging/pg-BR1A0000-2016111001_005_039"
+				"sipFile": "https://developmentseed.org/nosuchfile",
+				"stagingFile": "s3://cumulus-internal/testdata/aster/input/pg-BR1A0000-2002070401_000_001"
 			},
-			"processed-hdf5": {
-				"regex": "^AST_L1A_[\\d]*_[\\d]*\\.hdf$",
+			"output-1": {
+				"regex": "^payload.json$",
 				"archivedFile": null,
 				"sipFile": null,
 				"stagingFile": null
 			},
-			"thumbnail-1": {
-				"regex": "^AST_L1A_[\\d]*_[\\d]*\\_1.jpg$",
+			"output-2": {
+				"regex": "^test_granule.py$",
 				"archivedFile": null,
 				"sipFile": null,
-				"stagingFile": null
-			},
-			"thumbnail-2": {
-				"regex": "^AST_L1A_[\\d]*_[\\d]*\\_2.jpg$",
-				"archivedFile": null,
-				"sipFile": null,
-				"stagingFile": null
-			},
-			"thumbnail-3": {
-				"regex": "^AST_L1A_[\\d]*_[\\d]*\\_3.jpg$",
-				"archivedFile": null,
-				"sipFile": null,
-				"stagingFile": null
-			},
-			"meta-xml": {
-				"regex": "^AST_L1A_[\\d]*_[\\d]*\\.hdf\\.meta\\.xml$",
-				"sipFile": null,
-				"archivedFile": null,
 				"stagingFile": null
 			}
 		},
@@ -61,20 +43,16 @@
 			],
 			"processStep": {
 				"config": {
-					"image": "985962406024.dkr.ecr.us-east-1.amazonaws.com/cumulus-data-acquisition:latest",
+					"image": "developmentseed/nosuchimage:nosuchtag",
 					"inputFiles": [
-						"origin-hdf5",
-						"origin-thumbnail"
+						"input-1",
+						"input-2"
 					],
 					"outputFiles": [
-						"processed-hdf5",
-						"thumbnail-1",
-						"thumbnail-2",
-						"thumbnail-3",
-						"meta-xml"
+						"output-1",
+						"output-2"
 					]
-				},
-				"description": "UpdateHDF5fileandextractthumbnail"
+				}
 			},
 			"pushToCMR": {
 				"config": {}
