@@ -1,3 +1,5 @@
+# pycumulus CircleCI
+
 machine:
   python:
     version: 2.7
@@ -5,7 +7,3 @@ machine:
     GIT_TRACE_PACKET: 1
     GIT_TRACE: 1
     GIT_CURL_VERBOSE: 1
-
-dependencies:
-  override:
-    - git push --mirror https://$EARTHDATA_USER:$EARTHDATA_PASS@git.earthdata.nasa.gov/scm/cumulus/py-cumulus.git
