@@ -38,11 +38,9 @@ class TestS3(unittest.TestCase):
 
     def test_list(self):
         """ Get list of objects under a path on S3 """
-        uri = s3.upload(__file__, self.uri('testing'))
-        fnames = s3.list(os.path.dirname(uri))
-        self.assertEqual(len(fnames), 1)
-        self.assertEqual(fnames[0], uri)
-        s3.delete(uri)
+        uri = self.uri('testing/cumulus-py')
+        fnames = s3.list(uri)
+        self.assertEqual(len(fnames), 2)
 
     def test_upload_and_delete(self):
         """ Upload file to S3 then delete """
@@ -53,7 +51,7 @@ class TestS3(unittest.TestCase):
 
     def test_download(self):
         """ Download file from S3 """
-        uri = s3.upload(self.payload, self.uri('testing'))
+        uri = s3.upload(self.payload, self.uri('testing/cumulus-py'))
         d = os.path.join('test', 'tmp')
         f = s3.download(uri, path=d)
         self.assertTrue(os.path.exists(f))
@@ -62,7 +60,7 @@ class TestS3(unittest.TestCase):
 
     def test_download_as_text(self):
         """ Download file from S3 as JSON """
-        uri = s3.upload(self.payload, self.uri('testing'))
+        uri = s3.upload(self.payload, self.uri('testing/cumulus-py'))
         record = s3.download_json(uri)
         self.assertTrue('granuleRecord' in record.keys())
         s3.delete(uri)
