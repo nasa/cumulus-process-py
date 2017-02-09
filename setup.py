@@ -18,7 +18,7 @@ dependency_links = [x.strip().replace('git+', '') for x in all_reqs if 'git+' no
 setup(
     name='cumulus',
     version=__version__,
-    author='Matthew Hanson (matthewhanson), Miles Watkings (mileswwatkins), Alireza J (scisco)',
+    author='Matthew Hanson (matthewhanson), Miles Watkins (mileswwatkins), Alireza J (scisco)',
     description='Library for creating sensor command line utils',
     url='https://github.com/nasa-cumulus/py-cumulus',
     license='Apache 2.0',
