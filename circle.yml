@@ -1,9 +1,35 @@
 # cumulus-py CircleCI
 
+# environment variables added through the CircleCI webpage:
+#   AWS_ACCESS_KEY_ID
+#   AWS_SECRET_ACCESS_KEY
+#   SPLUNK_HOST
+#   SPLUNK_USERNAME
+#   SPLUNK_PASSWORD
+
+
 machine:
   python:
     version: 2.7
-  environment:
-    GIT_TRACE_PACKET: 1
-    GIT_TRACE: 1
-    GIT_CURL_VERBOSE: 1
+    version: 3.4
+    version: 3.5
+  pre:
+    - curl -sSL https://s3.amazonaws.com/circle-downloads/install-circleci-docker.sh | bash -s -- 1.10.0 
+  services:
+    - docker
+
+dependencies:
+  pre:
+    - sudo apt-get update; sudo apt-get install -y python-dev
+  override:
+    - sudo pip install --upgrade docker-compose==1.10.0  
+
+test:
+  pre:
+    - echo "AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID" >> .env
+    - echo "AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY" >> .env
+    - echo "SPLUNK_HOST=$SPLUNK_HOST" >> .env
+    - echo "SPLUNK_USERNAME=$SPLUNK_USERNAME" >> .env
+    - echo "SPLUNK_PASSWORD=$SPLUNK_PASSWORD" >> .env
+  override:
+    - nosetests --with-coverage --cover-package cumulus --cover-inclusive --with-timer -v -s
