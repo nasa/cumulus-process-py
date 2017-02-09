@@ -14,8 +14,11 @@ AWS_SECRET_ACCESS_KEY = os.getenv('AWS_SECRET_ACCESS_KEY')
 logger = logging.getLogger(__name__)
 
 
-def s3_client():
-    return boto3.client('s3', aws_access_key_id=AWS_ACCESS_KEY_ID, aws_secret_access_key=AWS_SECRET_ACCESS_KEY)
+def get_client(client='s3'):
+    return boto3.client(client,
+                        aws_access_key_id=AWS_ACCESS_KEY_ID,
+                        aws_secret_access_key=AWS_SECRET_ACCESS_KEY
+                        )
 
 
 def uri_parser(uri):
@@ -46,7 +49,7 @@ def download(uri, path=''):
     logger.debug("Downloading %s as %s" % (uri, fout))
     mkdirp(path)
 
-    s3 = s3_client()
+    s3 = get_client()
 
     with open(fout, 'wb') as data:
         s3.download_fileobj(
@@ -60,7 +63,7 @@ def download(uri, path=''):
 def download_json(uri):
     """ Download object from S3 as JSON """
     logger.debug("Downloading %s as JSON" % (uri))
-    s3 = s3_client()
+    s3 = get_client()
     s3_uri = uri_parser(uri)
     response = s3.get_object(Bucket=s3_uri['bucket'], Key=s3_uri['key'])
     return json.loads(response['Body'].read())
@@ -69,7 +72,7 @@ def download_json(uri):
 def upload(filename, uri):
     """ Upload object to S3 uri (bucket + prefix), keeping same base filename """
     logger.debug("Uploading %s to %s" % (filename, uri))
-    s3 = s3_client()
+    s3 = get_client()
     s3_uri = uri_parser(uri)
     bname = os.path.basename(filename)
     uri_out = 's3://%s' % os.path.join(s3_uri['bucket'], os.path.join(s3_uri['key'], bname))
@@ -81,7 +84,7 @@ def upload(filename, uri):
 def list(uri):
     """ Get list of objects within bucket and path """
     logger.debug("Listing contents of %s" % uri)
-    s3 = s3_client()
+    s3 = get_client()
     s3_uri = uri_parser(uri)
     response = s3.list_objects_v2(Bucket=s3_uri['bucket'], Prefix=s3_uri['key'])
 
@@ -95,7 +98,7 @@ def list(uri):
 def delete(uri):
     """ Remove an item from S3 """
     logger.debug('Deleting %s' % uri)
-    s3 = s3_client()
+    s3 = get_client()
     s3_uri = uri_parser(uri)
     # TODO - parse response and return success/failure
     try:
@@ -108,7 +111,7 @@ def delete(uri):
 def exists(uri):
     """ Check if this URI exists on S3 """
     logger.debug('Checking existence of %s' % uri)
-    s3 = s3_client()
+    s3 = get_client()
     s3_uri = uri_parser(uri)
     try:
         s3.get_object(Bucket=s3_uri['bucket'], Key=s3_uri['key'])
@@ -118,3 +121,14 @@ def exists(uri):
             return False
         else:
             raise
+
+
+def invoke_lambda(lambda_name, payload):
+    """ Invoke Lambda function with payload """
+    client = get_client('lambda')
+    logger.debug('Invoking %s with payload: %s' % (lambda_name, json.dumps(payload)))
+    client.invoke(
+        FunctionName=lambda_name,
+        InvocationType='Event',
+        Payload=json.dumps(payload),
+    )
