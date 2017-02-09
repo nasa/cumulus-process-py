@@ -29,6 +29,7 @@ test:
     - echo "SPLUNK_HOST=$SPLUNK_HOST" >> .env
     - echo "SPLUNK_USERNAME=$SPLUNK_USERNAME" >> .env
     - echo "SPLUNK_PASSWORD=$SPLUNK_PASSWORD" >> .env
+    - pip install -r requirements.txt
     - pip install -r requirements-dev.txt
   override:
     - nosetests --with-coverage --cover-package cumulus --cover-inclusive --with-timer -v -s
