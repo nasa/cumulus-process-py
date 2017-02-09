@@ -1,5 +1,5 @@
-py-cumulus
+cumulus-py
 +++++++++++
 
-py-cumulus is a collection of python utilities and tools for the NASA Cumulus project.
+cumulus-py is a collection of python utilities and tools for the NASA Cumulus project.
 

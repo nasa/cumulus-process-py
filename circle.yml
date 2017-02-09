@@ -1,4 +1,4 @@
-# pycumulus CircleCI
+# cumulus-py CircleCI
 
 machine:
   python:

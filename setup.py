@@ -20,7 +20,7 @@ setup(
     version=__version__,
     author='Matthew Hanson (matthewhanson), Miles Watkins (mileswwatkins), Alireza J (scisco)',
     description='Library for creating sensor command line utils',
-    url='https://github.com/nasa-cumulus/py-cumulus',
+    url='https://github.com/nasa-cumulus/cumulus-py',
     license='Apache 2.0',
     classifiers=[
         'Framework :: Pytest',

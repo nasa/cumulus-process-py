@@ -96,7 +96,7 @@ class TestGranule(unittest.TestCase):
     def test_upload(self):
         """ Upload output files given in payload """
         granule = Granule(self.payload, path=self.testdir)
-        uris = granule.upload(self.uri('testing/py-cumulus'))
+        uris = granule.upload(self.uri('testing/cumulus-py'))
         for uri in uris:
             self.assertTrue(s3.exists(uri))
             s3.delete(uri)
