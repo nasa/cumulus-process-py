@@ -6,19 +6,19 @@ cumulus-py is a collection of python utilities and a base Docker image for the N
 
 The Docker image is automatically built and pushed to Dockerhub when merging into master. To manually build this image for development:
 
-    $ docker-compose build -t
+    $ docker-compose build
 
 Which will create a local cumulus:base Docker image.
 
 	$ docker-compose run test
 
-This image is tagged as developmentseed/cumulus:base in Dockerhub, which can be retrieved without cloning this repository at all with:
+This image is tagged as developmentseed/cumulus:base in Dockerhub, which can be retrieved without cloning this repository with:
 
 	$ docker pull developmentseed/cumulus:base
 
-## Build a Cumulus Process Docker
+## Build a Cumulus Process Image
 
-The base image can be used to build a new process Docker for processing a new dataset (Collection). Use this template for creating a new Dockerfile:
+The base image can be used to build a new process image for processing a specific dataset (Collection). Use this template for creating a new Dockerfile:
 
 ```
 FROM developmentseed/cumulus:base
