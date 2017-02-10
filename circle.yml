@@ -33,16 +33,22 @@ test:
     - echo "SPLUNK_PASSWORD=$SPLUNK_PASSWORD" >> .env
     - pip install -r requirements.txt
     - pip install -r requirements-dev.txt
-    - docker-compose build
   override:
     - nosetests --with-coverage --cover-package cumulus --cover-inclusive --with-timer -v -s
-    - docker-compose run test
 
 deployment:
   master:
     branch: master
     owner: cumulus-nasa
     commands:
+      - docker-compose build
+      - docker-compose run test
       - docker login -e $DOCKER_EMAIL -u $DOCKER_USER -p $DOCKER_PASS
       - docker tag cumulus:base developmentseed/cumulus:base
       - docker push developmentseed/cumulus:base
+  develop:
+    branch: develop
+    owner: cumulus-nasa
+    commands:
+      - docker-compose build
+      - docker-compose run test
