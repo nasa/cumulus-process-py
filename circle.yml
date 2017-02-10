@@ -35,8 +35,6 @@ test:
   override:
     - nosetests --with-coverage --cover-package cumulus --cover-inclusive --with-timer -v -s
     - docker-compose run test
-  post_command:
-    - cp .coverage $CIRCLE_ARTIFACTS/
 
 deployment:
   master:
