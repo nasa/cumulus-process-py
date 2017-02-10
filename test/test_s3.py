@@ -51,7 +51,7 @@ class TestS3(unittest.TestCase):
 
     def test_download(self):
         """ Download file from S3 """
-        uri = s3.upload(self.payload, self.uri('testing/cumulus-py'))
+        uri = s3.uri('testing/cumulus-py/input-1.txt')
         d = os.path.join('test', 'tmp')
         f = s3.download(uri, path=d)
         self.assertTrue(os.path.exists(f))
