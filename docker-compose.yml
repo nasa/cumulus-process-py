@@ -1,0 +1,18 @@
+version: '2'
+
+services:
+  
+  build:
+    build: .
+    image: cumulus:base
+
+  bash:
+    image: cumulus:base
+    entrypoint: /bin/bash
+
+  test:
+    image: cumulus:base
+    entrypoint: bash -c 'pip install -r requirements-dev.txt; nosetests --with-coverage --cover-package cumulus --cover-inclusive --with-timer -v -s;'
+    working_dir: /work
+    volumes:
+      - '.:/work'
