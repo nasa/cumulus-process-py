@@ -1,6 +1,6 @@
 # cumulus-py
 
-[![CircleCI](https://circleci.com/gh/cumulus-nasa/cumulus-py.svg?style=svg)](https://circleci.com/gh/cumulus-nasa/cumulus-py)
+![CircleCI](https://circleci.com/gh/cumulus-nasa/cumulus-py.svg?style=svg)](https://circleci.com/gh/cumulus-nasa/cumulus-py)
 
 cumulus-py is a collection of python utilities and a base Docker image for the NASA Cumulus project.
 
