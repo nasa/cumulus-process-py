@@ -3,10 +3,12 @@
 # environment variables added through the CircleCI webpage:
 #   AWS_ACCESS_KEY_ID
 #   AWS_SECRET_ACCESS_KEY
+#   DOCKER_EMAIL
+#   DOCKER_USER
+#   DOCKER_PASS
 #   SPLUNK_HOST
 #   SPLUNK_USERNAME
 #   SPLUNK_PASSWORD
-
 
 machine:
   python:
@@ -41,5 +43,6 @@ deployment:
     branch: master
     owner: cumulus-nasa
     commands:
+      - docker login -e $DOCKER_EMAIL -u $DOCKER_USER -p $DOCKER_PASS
       - docker tag cumulus:base developmentseed/cumulus:base
       - docker push developmentseed/cumulus:base
