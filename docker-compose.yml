@@ -12,7 +12,7 @@ services:
 
   test:
     image: cumulus:base
-    entrypoint: bash -c 'nosetests --with-coverage --cover-package modispds --cover-inclusive --with-timer -v -s;'
+    entrypoint: bash -c 'pip install -r requirements-dev.txt; nosetests --with-coverage --cover-package cumulus --cover-inclusive --with-timer -v -s;'
     working_dir: /work
     volumes:
       - '.:/work'
