@@ -5,7 +5,7 @@ import datetime
 import json
 import xml.sax.saxutils
 import cumulus.s3 as s3
-import cumulus.logutils as log
+import cumulus.logger as logger
 
 
 class Granule(object):
@@ -13,7 +13,7 @@ class Granule(object):
 
     s3_uri = 's3://cumulus-1st-test-private/staging'
 
-    def __init__(self, payload, path='', logger=log.get_logger()):
+    def __init__(self, payload, path='', logger=logger.getLogger()):
         """ Initialize granule with a payload containing a recipe """
         if isinstance(payload, str):
             if payload[0:5] == 's3://':
@@ -27,6 +27,7 @@ class Granule(object):
         self.payload = payload
         self._check_payload()
         self.path = path
+        self.logger = logger
 
     @property
     def id(self):
@@ -37,7 +38,7 @@ class Granule(object):
         """ Process a granule locally """
         # this function should operate on input files and generate output files
         # log process beginning
-
+        pass
 
     def metadata(self, save=False):
         """ Retrieve metada for granule """
