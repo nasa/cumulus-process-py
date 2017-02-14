@@ -2,10 +2,10 @@
 import os
 import re
 import datetime
-import logging
 import json
 import xml.sax.saxutils
 import cumulus.s3 as s3
+import cumulus.logger as logger
 
 
 class Granule(object):
@@ -13,7 +13,7 @@ class Granule(object):
 
     s3_uri = 's3://cumulus-1st-test-private/staging'
 
-    def __init__(self, payload, path=''):
+    def __init__(self, payload, path='', logger=logger.getLogger()):
         """ Initialize granule with a payload containing a recipe """
         if isinstance(payload, str):
             if payload[0:5] == 's3://':
@@ -27,6 +27,7 @@ class Granule(object):
         self.payload = payload
         self._check_payload()
         self.path = path
+        self.logger = logger
 
     @property
     def id(self):
@@ -36,6 +37,7 @@ class Granule(object):
     def process(self):
         """ Process a granule locally """
         # this function should operate on input files and generate output files
+        # log process beginning
         pass
 
     def metadata(self, save=False):
@@ -121,7 +123,7 @@ class Granule(object):
                 self.payload['granuleRecord']['files'][f]['stagingFile'] = uri
                 successful_uploads.append(uri)
             except Exception as e:
-                logging.error("Error uploading file %s: %s" % (os.path.basename(fname), str(e)))
+                logger.error("Error uploading file %s: %s" % (os.path.basename(fname), str(e)))
         # not all files were created
         if len(to_upload) < len(self.output_files):
             raise RuntimeError("Not all output files were created")
