@@ -150,7 +150,7 @@ class Granule(object):
             if os.path.exists(f):
                 os.remove(f)
 
-    def run(self):
+    def run(self, noclean=False):
         """ Run all steps and log: download, process, upload """
         try:
             self.logger.info('Start run')
@@ -162,8 +162,9 @@ class Granule(object):
             self.metadata(save=True)
             self.logger.info('Uploading output files')
             self.upload()
-            self.logger.info('Cleaning local files')
-            self.clean()
+            if noclean is False:
+                self.logger.info('Cleaning local files')
+                self.clean()
             self.logger.info('Run completed. Sending to dispatcher')
             self.next()
         except Exception as e:

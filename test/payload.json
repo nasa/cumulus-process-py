@@ -15,13 +15,13 @@
 				"stagingFile": "s3://cumulus-internal/testing/cumulus-py/input-2.txt"
 			},
 			"output-1": {
-				"regex": "^payload.json$",
+				"regex": "^output-1.txt$",
 				"archivedFile": null,
 				"sipFile": null,
 				"stagingFile": null
 			},
 			"output-2": {
-				"regex": "^test_granule.py$",
+				"regex": "^output-2.txt$",
 				"archivedFile": null,
 				"sipFile": null,
 				"stagingFile": null
