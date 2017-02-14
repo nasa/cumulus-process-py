@@ -5,7 +5,7 @@ import datetime
 import json
 import xml.sax.saxutils
 import cumulus.s3 as s3
-import cumulus.logger as logger
+from cumulus.loggers import getLogger
 
 
 class Granule(object):
@@ -13,7 +13,7 @@ class Granule(object):
 
     s3_uri = 's3://cumulus-1st-test-private/staging'
 
-    def __init__(self, payload, path='', logger=logger.getLogger()):
+    def __init__(self, payload, path='', logger=getLogger()):
         """ Initialize granule with a payload containing a recipe """
         if isinstance(payload, str):
             if payload[0:5] == 's3://':
@@ -34,11 +34,22 @@ class Granule(object):
         """ Granule ID """
         return self.payload['granuleRecord']['granuleId']
 
-    def process(self):
-        """ Process a granule locally """
-        # this function should operate on input files and generate output files
-        # log process beginning
-        pass
+    @property
+    def recipe(self):
+        """ Get recipe dictionary """
+        return self.payload['granuleRecord']['recipe']
+
+    @property
+    def input_files(self):
+        """ Input files of granule """
+        _files = self.recipe['processStep']['config']['inputFiles']
+        return {f: self.payload['granuleRecord']['files'][f] for f in _files}
+
+    @property
+    def output_files(self):
+        """ Output files for granule """
+        _files = self.recipe['processStep']['config']['outputFiles']
+        return {f: self.payload['granuleRecord']['files'][f] for f in _files}
 
     def metadata(self, save=False):
         """ Retrieve metada for granule """
@@ -71,26 +82,9 @@ class Granule(object):
         except:
             raise ValueError("Invalid payload")
 
-    @property
-    def recipe(self):
-        """ Get recipe dictionary """
-        return self.payload['granuleRecord']['recipe']
-
-    @property
-    def input_files(self):
-        """ Input files of granule """
-        _files = self.recipe['processStep']['config']['inputFiles']
-        return {f: self.payload['granuleRecord']['files'][f] for f in _files}
-
-    @property
-    def output_files(self):
-        """ Output files for granule """
-        _files = self.recipe['processStep']['config']['outputFiles']
-        return {f: self.payload['granuleRecord']['files'][f] for f in _files}
-
     def download(self):
         """ Download input files from S3 """
-        self.local_input = []
+        self.local_input = {}
         for f in self.input_files:
             file = self.input_files[f]
             if file.get('stagingFile', None):
@@ -98,8 +92,9 @@ class Granule(object):
             elif file.get('archivedFile', None):
                 fname = s3.download(file['archivedFile'], path=self.path)
             else:
+                self.logger.error()
                 raise ValueError('Input files not provided')
-            self.local_input.append(fname)
+            self.local_input[f] = fname
         return self.local_input
 
     def upload(self, base_uri):
@@ -123,7 +118,7 @@ class Granule(object):
                 self.payload['granuleRecord']['files'][f]['stagingFile'] = uri
                 successful_uploads.append(uri)
             except Exception as e:
-                logger.error("Error uploading file %s: %s" % (os.path.basename(fname), str(e)))
+                self.logger.error("Error uploading file %s: %s" % (os.path.basename(fname), str(e)))
         # not all files were created
         if len(to_upload) < len(self.output_files):
             raise RuntimeError("Not all output files were created")
@@ -133,13 +128,33 @@ class Granule(object):
 
         return successful_uploads
 
-    def next(self, dispatcher):
+    def next(self):
         """ Send payload to dispatcher lambda """
         # update payload
         self.payload['previousStep'] = self.payload['nextStep']
         self.payload['nextStep'] = self.payload['nextStep'] + 1
         # invoke dispatcher lambda
         s3.invoke_lambda(self.payload)
+
+    def run(self):
+        """ Run all steps: download, process, upload """
+        self.logger.info('Start run')
+        self.logger.info('Downloading input files')
+        local_files = self.download()
+        self.logger.info('Processing')
+        self.process()
+        self.logger.info('Writing metadata')
+        self.metadata(save=True)
+        self.logger.info('Uploading output files')
+        self.upload()
+        self.logger.info('Run completed. Sending to dispatcher')
+        self.next()
+
+    def process(self):
+        """ Process a granule locally """
+        # this function should operate on input files and generate output files
+        # log process beginning
+        pass
 
 
 METADATA_TEMPLATE = '''

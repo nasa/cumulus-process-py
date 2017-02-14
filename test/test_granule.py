@@ -90,8 +90,8 @@ class TestGranule(unittest.TestCase):
         fnames = granule.download()
         self.assertEqual(len(fnames), 2)
         for f in fnames:
-            self.assertTrue(os.path.exists(f))
-            os.remove(f)
+            self.assertTrue(os.path.exists(fnames[f]))
+            os.remove(fnames[f])
 
     def test_upload(self):
         """ Upload output files given in payload """
@@ -101,3 +101,15 @@ class TestGranule(unittest.TestCase):
             self.assertTrue(s3.exists(uri))
             s3.delete(uri)
             self.assertFalse(s3.exists(uri))
+
+    def _test_run(self):
+        """ Make complete run with the run function """
+        granule = Granule(self.payload, path=self.testdir)
+        # make the output files as if self.process() did something
+        with open(os.path.join(self.testdir, 'output-1'), 'w') as f:
+            f.write('testfile1')
+        with open(os.path.join(self.testdir, 'output-2'), 'w') as f:
+            f.write('testfile2')
+        granule.run()
+        # check for metadata
+        # get log output to check for all success messages
