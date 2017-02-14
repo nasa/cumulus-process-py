@@ -97,8 +97,11 @@ class TestGranule(unittest.TestCase):
     def test_upload(self):
         """ Upload output files given in payload """
         granule = Granule(self.payload, path=self.testdir, s3path=self.uri('testing/cumulus-py'))
+        self.fake_process(granule)
         uris = granule.upload()
         self.check_and_remove_output(uris)
+        granule.clean()
+        self.assertFalse(os.path.exists(os.path.join(self.testdir, 'output-1.txt')))
 
     @patch('cumulus.s3.invoke_lambda')
     def test_run(self, mocked):
@@ -106,12 +109,15 @@ class TestGranule(unittest.TestCase):
         mocked.return_value = True
         """ Make complete run with the run function """
         granule = Granule(self.payload, path=self.testdir, s3path=self.uri('testing/cumulus-py'))
-        granule.run()
+        self.fake_process(granule)
+        granule.run(noclean=True)
         # check for metadata
         self.assertTrue(os.path.exists(granule.local_output['meta-xml']))
         # get log output to check for all success messages
         uris = [f['stagingFile'] for f in granule.output_files.values()]
         self.check_and_remove_output(uris)
+        granule.clean()
+        self.assertFalse(os.path.exists(os.path.join(self.testdir, 'output-1.txt')))
 
     def check_and_remove_output(self, uris):
         """ Check for existence of remote files, then remove them """
@@ -119,3 +125,16 @@ class TestGranule(unittest.TestCase):
             self.assertTrue(s3.exists(uri))
             s3.delete(uri)
             self.assertFalse(s3.exists(uri))
+
+    def fake_process(self, granule):
+        """ Create local output files as if process did something """
+        outs = ['output-1', 'output-2']
+        for out in outs:
+            fout = os.path.join(self.testdir, out + '.txt')
+            with open(fout, 'w') as f:
+                f.write(out)
+            granule.local_output[out] = fout
+        fout = os.path.join(self.testdir, 'TESTCOLLECTION.meta.xml')
+        with open(fout, 'w') as f:
+            f.write('<metadata>')
+        granule.local_output['meta-xml'] = fout

@@ -141,7 +141,16 @@ class Granule(object):
         except:
             raise RuntimeError('Error sending to dispacher lambda')
 
-    def run(self):
+    def clean(self):
+        """ Remove input and output files """
+        for f in self.local_input.values():
+            if os.path.exists(f):
+                os.remove(f)
+        for f in self.local_output.values():
+            if os.path.exists(f):
+                os.remove(f)
+
+    def run(self, noclean=False):
         """ Run all steps and log: download, process, upload """
         try:
             self.logger.info('Start run')
@@ -153,6 +162,9 @@ class Granule(object):
             self.metadata(save=True)
             self.logger.info('Uploading output files')
             self.upload()
+            if noclean is False:
+                self.logger.info('Cleaning local files')
+                self.clean()
             self.logger.info('Run completed. Sending to dispatcher')
             self.next()
         except Exception as e:

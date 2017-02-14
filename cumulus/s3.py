@@ -126,8 +126,11 @@ def exists(uri):
 
 def invoke_lambda(payload, lambda_name=DISPATCHER):
     """ Invoke Lambda function with payload """
-    client = get_client('lambda')
+    if lambda_name is None:
+        logger.info('No dispatcher lambda, not sending recipe')
+        return False
     logger.debug('Invoking %s with payload: %s' % (lambda_name, json.dumps(payload)))
+    client = get_client('lambda')
     result = client.invoke(
         FunctionName=lambda_name,
         InvocationType='Event',
