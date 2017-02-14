@@ -29,6 +29,8 @@ class Granule(object):
         self.path = path
         self.s3path = s3path
         self.logger = logger
+        self.local_input = {}
+        self.local_output = {}
 
     @property
     def id(self):
@@ -159,9 +161,9 @@ class Granule(object):
 
     def process(self):
         """ Process a granule locally """
-        # this function should operate on input files and generate output files
-        # log process beginning
-        pass
+        # call this baseclass function with super to check for existence of local output files
+        if set(self.local_input.keys()) != set(self.input_files.keys()):
+            raise IOError('Local output files do not exist')
 
 
 METADATA_TEMPLATE = '''
