@@ -80,7 +80,7 @@ class TestGranule(unittest.TestCase):
         """ Get output files parsed from payload """
         granule = Granule(self.payload)
         files = granule.output_files
-        self.assertEqual(len(files), 2)
+        self.assertEqual(len(files), 3)
         for o in ['output-1', 'output-2', 'meta-xml']:
             self.assertTrue(o in files)
 
@@ -107,4 +107,5 @@ class TestGranule(unittest.TestCase):
         granule = Granule(self.payload, path=self.testdir)
         granule.run()
         # check for metadata
+        self.assertTrue(os.path.exists(granule.output_files['meta-xml']))
         # get log output to check for all success messages
