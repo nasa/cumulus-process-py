@@ -32,19 +32,22 @@ class CumulusFormatter(jsonlogger.JsonFormatter):
         return res
 
 
-def getLogger(collectionName='collectionName', granuleId='', splunk=None, stdout=None):
+def add_formatter(logger, collectionName='', granuleId=''):
+    """ Add CumulusFormatter to logger """
+    for handler in logger.handlers:
+        handler.setFormatter(CumulusFormatter(collectionName=collectionName, granuleId=granuleId))
+    return logger
+
+
+def getLogger(name, splunk=None, stdout=None):
     """ Return logger suitable for Cumulus """
-    logger = logging.getLogger(collectionName)
+    logger = logging.getLogger(name)
     # clear existing handlers
     logger.handlers = []
     if (stdout is None) and (splunk is None):
         logger.addHandler(logging.NullHandler())
     if stdout is not None:
         handler = logging.StreamHandler()
-        #formatter = logging.Formatter('%(asctime)s %(name)-12s %(levelname)-8s %(message)s')
-        #formatter = logging.Formatter(jsonlogger.JsonFormatter(json_encoder=json.JSONEncoder()))
-        handler.setFormatter(CumulusFormatter(collectionName=collectionName, granuleId=granuleId))
-        #handler.setFormatter(formatter)
         handler.setLevel(stdout['level'])
         logger.addHandler(handler)
     if splunk is not None:
@@ -57,7 +60,6 @@ def getLogger(collectionName='collectionName', granuleId='', splunk=None, stdout
                 index=splunk.get('index', 'main'),
                 verify=False
             )
-            handler.setFormatter(CumulusFormatter(collectionName=collectionName, granuleId=granuleId))
             handler.setLevel(splunk['level'])
             logger.addHandler(handler)
         else:
