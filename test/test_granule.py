@@ -4,6 +4,7 @@ This testing module relies on some testing data available in s3://cumulus-intern
 
 import os
 import unittest
+from mock import patch
 import logging
 import json
 import cumulus.s3 as s3
@@ -80,8 +81,8 @@ class TestGranule(unittest.TestCase):
         """ Get output files parsed from payload """
         granule = Granule(self.payload)
         files = granule.output_files
-        self.assertEqual(len(files), 2)
-        for o in ['output-1', 'output-2']:
+        self.assertEqual(len(files), 3)
+        for o in ['output-1', 'output-2', 'meta-xml']:
             self.assertTrue(o in files)
 
     def test_download(self):
@@ -90,13 +91,30 @@ class TestGranule(unittest.TestCase):
         fnames = granule.download()
         self.assertEqual(len(fnames), 2)
         for f in fnames:
-            self.assertTrue(os.path.exists(f))
-            os.remove(f)
+            self.assertTrue(os.path.exists(fnames[f]))
+            os.remove(fnames[f])
 
     def test_upload(self):
         """ Upload output files given in payload """
-        granule = Granule(self.payload, path=self.testdir)
-        uris = granule.upload(self.uri('testing/cumulus-py'))
+        granule = Granule(self.payload, path=self.testdir, s3path=self.uri('testing/cumulus-py'))
+        uris = granule.upload()
+        self.check_and_remove_output(uris)
+
+    @patch('cumulus.s3.invoke_lambda')
+    def test_run(self, mocked):
+        """ Make complete run """
+        mocked.return_value = True
+        """ Make complete run with the run function """
+        granule = Granule(self.payload, path=self.testdir, s3path=self.uri('testing/cumulus-py'))
+        granule.run()
+        # check for metadata
+        self.assertTrue(os.path.exists(granule.local_output['meta-xml']))
+        # get log output to check for all success messages
+        uris = [f['stagingFile'] for f in granule.output_files.values()]
+        self.check_and_remove_output(uris)
+
+    def check_and_remove_output(self, uris):
+        """ Check for existence of remote files, then remove them """
         for uri in uris:
             self.assertTrue(s3.exists(uri))
             s3.delete(uri)

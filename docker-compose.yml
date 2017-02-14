@@ -9,6 +9,9 @@ services:
   bash:
     image: cumulus:base
     entrypoint: /bin/bash
+    working_dir: /work
+    volumes:
+      - '.:/work'
 
   test:
     image: cumulus:base

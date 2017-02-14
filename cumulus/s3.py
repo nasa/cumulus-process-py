@@ -128,8 +128,9 @@ def invoke_lambda(payload, lambda_name=DISPATCHER):
     """ Invoke Lambda function with payload """
     client = get_client('lambda')
     logger.debug('Invoking %s with payload: %s' % (lambda_name, json.dumps(payload)))
-    client.invoke(
+    result = client.invoke(
         FunctionName=lambda_name,
         InvocationType='Event',
         Payload=json.dumps(payload),
     )
+    return result
