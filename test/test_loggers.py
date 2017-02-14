@@ -82,10 +82,10 @@ class TestLoggers(unittest.TestCase):
             'index': 'integration_testing',
             'level': logging.INFO
         }
-        logger = getLogger('collectionName', splunk=splunk)
 
         testname = self.test_splunk_logger.__name__
         gid = str(uuid.uuid4())
+        logger = getLogger('collectionName', granuleId=gid, splunk=splunk)
 
         # Write a record to the `integration_testing` index
         logger.info({'message': 'testmessage', 'test': testname, 'granuleId': gid})
@@ -94,5 +94,6 @@ class TestLoggers(unittest.TestCase):
         time.sleep(3)
 
         logs = get_splunk_logs(config=splunk, granuleId=gid, test=testname, earliest='-1h')
+        #import nose.tools; nose.tools.set_trace()
         self.assertEqual(logs[0]['granuleId'], gid)
         self.assertEqual(logs[0]['test'], testname)
