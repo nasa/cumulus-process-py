@@ -154,7 +154,7 @@ class Granule(object):
             self.logger.info('Run completed. Sending to dispatcher')
             self.next()
         except Exception as e:
-            self.logger.error(str(e))
+            self.logger.error({'message': 'Run error with granule', 'error': str(e)})
             raise e
 
     def process(self):
