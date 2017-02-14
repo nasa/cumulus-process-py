@@ -4,6 +4,7 @@ This testing module relies on some testing data available in s3://cumulus-intern
 
 import os
 import unittest
+from mock import patch
 import logging
 import json
 import cumulus.s3 as s3
@@ -95,17 +96,26 @@ class TestGranule(unittest.TestCase):
 
     def test_upload(self):
         """ Upload output files given in payload """
-        granule = Granule(self.payload, path=self.testdir)
-        uris = granule.upload(self.uri('testing/cumulus-py'))
+        granule = Granule(self.payload, path=self.testdir, s3path=self.uri('testing/cumulus-py'))
+        uris = granule.upload()
+        self.check_and_remove_output(uris)
+
+    @patch('cumulus.s3.invoke_lambda')
+    def test_run(self, mocked):
+        """ Make complete run """
+        mocked.return_value = True
+        """ Make complete run with the run function """
+        granule = Granule(self.payload, path=self.testdir, s3path=self.uri('testing/cumulus-py'))
+        granule.run()
+        # check for metadata
+        self.assertTrue(os.path.exists(granule.local_output['meta-xml']))
+        # get log output to check for all success messages
+        uris = [f['stagingFile'] for f in granule.output_files.values()]
+        self.check_and_remove_output(uris)
+
+    def check_and_remove_output(self, uris):
+        """ Check for existence of remote files, then remove them """
         for uri in uris:
             self.assertTrue(s3.exists(uri))
             s3.delete(uri)
             self.assertFalse(s3.exists(uri))
-
-    def test_run(self):
-        """ Make complete run with the run function """
-        granule = Granule(self.payload, path=self.testdir)
-        granule.run()
-        # check for metadata
-        self.assertTrue(os.path.exists(granule.output_files['meta-xml']))
-        # get log output to check for all success messages

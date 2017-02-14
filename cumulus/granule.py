@@ -13,7 +13,7 @@ class Granule(object):
 
     s3_uri = 's3://cumulus-1st-test-private/staging'
 
-    def __init__(self, payload, path='', logger=getLogger()):
+    def __init__(self, payload, path='', s3path='', logger=getLogger(__name__)):
         """ Initialize granule with a payload containing a recipe """
         if isinstance(payload, str):
             if payload[0:5] == 's3://':
@@ -27,6 +27,7 @@ class Granule(object):
         self.payload = payload
         self._check_payload()
         self.path = path
+        self.s3path = s3path
         self.logger = logger
 
     @property
@@ -96,30 +97,30 @@ class Granule(object):
             self.local_input[f] = fname
         return self.local_input
 
-    def upload(self, base_uri):
+    def upload(self):
         """ Upload output files to S3 """
         # get list of output files to upload
         files = os.listdir(self.path)
-        to_upload = {}
+        self.local_output = {}
         for f in self.output_files:
             file = self.output_files[f]
             for fname in files:
                 if re.match(file['regex'], fname):
                     # if a match, add it and continue loop
-                    to_upload[f] = os.path.join(self.path, fname)
+                    self.local_output[f] = os.path.join(self.path, fname)
                     continue
         # attempt uploading of files
         successful_uploads = []
-        for f in to_upload:
-            fname = to_upload[f]
+        for f in self.local_output:
+            fname = self.local_output[f]
             try:
-                uri = s3.upload(fname, base_uri)
+                uri = s3.upload(fname, self.s3path)
                 self.payload['granuleRecord']['files'][f]['stagingFile'] = uri
                 successful_uploads.append(uri)
             except Exception as e:
                 self.logger.error("Error uploading file %s: %s" % (os.path.basename(fname), str(e)))
         # not all files were created
-        if len(to_upload) < len(self.output_files):
+        if len(self.local_output) < len(self.output_files):
             raise RuntimeError("Not all output files were created")
         # not all files were uploaded
         if len(successful_uploads) < len(self.output_files):
@@ -130,10 +131,13 @@ class Granule(object):
     def next(self):
         """ Send payload to dispatcher lambda """
         # update payload
-        self.payload['previousStep'] = self.payload['nextStep']
-        self.payload['nextStep'] = self.payload['nextStep'] + 1
-        # invoke dispatcher lambda
-        s3.invoke_lambda(self.payload)
+        try:
+            self.payload['previousStep'] = self.payload['nextStep']
+            self.payload['nextStep'] = self.payload['nextStep'] + 1
+            # invoke dispatcher lambda
+            s3.invoke_lambda(self.payload)
+        except:
+            raise RuntimeError('Error sending to dispacher lambda')
 
     def run(self):
         """ Run all steps and log: download, process, upload """
@@ -151,6 +155,7 @@ class Granule(object):
             self.next()
         except Exception as e:
             self.logger.error(str(e))
+            raise e
 
     def process(self):
         """ Process a granule locally """
