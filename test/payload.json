@@ -25,6 +25,9 @@
 				"archivedFile": null,
 				"sipFile": null,
 				"stagingFile": null
+			},
+			"meta-xml": {
+				"regex": "^TESTCOLLECTION\\.meta\\.xml"
 			}
 		},
 		"granuleId": "TESTGRANULE",
@@ -50,7 +53,8 @@
 					],
 					"outputFiles": [
 						"output-1",
-						"output-2"
+						"output-2",
+						"meta-xml"
 					]
 				}
 			},
