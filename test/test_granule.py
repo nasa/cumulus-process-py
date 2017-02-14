@@ -81,7 +81,7 @@ class TestGranule(unittest.TestCase):
         granule = Granule(self.payload)
         files = granule.output_files
         self.assertEqual(len(files), 2)
-        for o in ['output-1', 'output-2']:
+        for o in ['output-1', 'output-2', 'meta-xml']:
             self.assertTrue(o in files)
 
     def test_download(self):
@@ -102,14 +102,9 @@ class TestGranule(unittest.TestCase):
             s3.delete(uri)
             self.assertFalse(s3.exists(uri))
 
-    def _test_run(self):
+    def test_run(self):
         """ Make complete run with the run function """
         granule = Granule(self.payload, path=self.testdir)
-        # make the output files as if self.process() did something
-        with open(os.path.join(self.testdir, 'output-1'), 'w') as f:
-            f.write('testfile1')
-        with open(os.path.join(self.testdir, 'output-2'), 'w') as f:
-            f.write('testfile2')
         granule.run()
         # check for metadata
         # get log output to check for all success messages

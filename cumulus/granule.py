@@ -92,7 +92,6 @@ class Granule(object):
             elif file.get('archivedFile', None):
                 fname = s3.download(file['archivedFile'], path=self.path)
             else:
-                self.logger.error()
                 raise ValueError('Input files not provided')
             self.local_input[f] = fname
         return self.local_input
@@ -137,18 +136,21 @@ class Granule(object):
         s3.invoke_lambda(self.payload)
 
     def run(self):
-        """ Run all steps: download, process, upload """
-        self.logger.info('Start run')
-        self.logger.info('Downloading input files')
-        local_files = self.download()
-        self.logger.info('Processing')
-        self.process()
-        self.logger.info('Writing metadata')
-        self.metadata(save=True)
-        self.logger.info('Uploading output files')
-        self.upload()
-        self.logger.info('Run completed. Sending to dispatcher')
-        self.next()
+        """ Run all steps and log: download, process, upload """
+        try:
+            self.logger.info('Start run')
+            self.logger.info('Downloading input files')
+            self.download()
+            self.logger.info('Processing')
+            self.process()
+            self.logger.info('Writing metadata')
+            self.metadata(save=True)
+            self.logger.info('Uploading output files')
+            self.upload()
+            self.logger.info('Run completed. Sending to dispatcher')
+            self.next()
+        except Exception as e:
+            self.logger.error(str(e))
 
     def process(self):
         """ Process a granule locally """
