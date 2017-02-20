@@ -3,7 +3,7 @@ FROM debian:jessie
 
 # install system dependencies, dev tools, and NetCDF libs
 RUN apt-get update; \
-    apt-get install -y gcc g++ awscli vim python python-setuptools git make wget; \
+    apt-get install -y gcc g++ awscli vim python-dev python-setuptools git make wget; \
     apt-get install -y tree locate; \
     apt-get install -y libnetcdf-dev netcdf-bin; \
     apt-get install -y libhdf4-dev libhdfeos-dev libhdf5-dev libhe5-hdfeos-dev libgctp-dev bash-completion
@@ -17,6 +17,7 @@ RUN \
 	tar -xzvf gdal-$GDAL_VERSION.tar.gz; \
 	cd gdal-$GDAL_VERSION; \
 	./configure \
+        --with-python=yes \
     	#--with-hdf4=$HOME/local \
     	#--with-hdf5=$HOME/local \
     	#--with-geos=$HOME/local/bin/geos-config \
@@ -29,7 +30,8 @@ WORKDIR /build
 COPY ./ /build/
 RUN \
 	easy_install pip; \
-	pip install .
+	pip install .; \
+    rm -rf /build
 
 # default to bash entrypoint
 ENTRYPOINT ['/bin/bash']
