@@ -17,7 +17,7 @@ RUN \
 	tar -xzvf gdal-$GDAL_VERSION.tar.gz; \
 	cd gdal-$GDAL_VERSION; \
 	./configure \
-        --with-python=yes \
+        #--with-python=yes \
     	#--with-hdf4=$HOME/local \
     	#--with-hdf5=$HOME/local \
     	#--with-geos=$HOME/local/bin/geos-config \
