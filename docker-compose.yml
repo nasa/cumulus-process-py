@@ -4,17 +4,17 @@ services:
   
   build:
     build: .
-    image: cumulus:base
+    image: developmentseed/cumulus:base
 
   bash:
-    image: cumulus:base
+    image: developmentseed/cumulus:base
     entrypoint: /bin/bash
     working_dir: /work
     volumes:
       - '.:/work'
 
   test:
-    image: cumulus:base
+    image: developmentseed/cumulus:base
     entrypoint: bash -c 'pip install -r requirements-dev.txt; nosetests --with-coverage --cover-package cumulus --cover-inclusive --with-timer -v -s;'
     working_dir: /work
     volumes:
