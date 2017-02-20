@@ -1,5 +1,6 @@
 
 import os
+import logging
 import re
 import datetime
 import json
@@ -157,7 +158,7 @@ class Granule(object):
             self.logger.info('Downloading input files')
             self.download()
             self.logger.info('Processing')
-            self.process()
+            self.process_recipe()
             self.logger.info('Writing metadata')
             self.metadata(save=True)
             self.logger.info('Uploading output files')
@@ -171,11 +172,32 @@ class Granule(object):
             self.logger.error({'message': 'Run error with granule', 'error': str(e)})
             raise e
 
-    def process(self):
+    def process_recipe(self):
         """ Process a granule locally """
-        # call this baseclass function with super to check for existence of local output files
+        """
+            The Granule class automatically fetches input files and uploads output files, while
+            validating both, before and after this process() function. Therefore, the process function
+            can retrieve the files from self.input_files[key] where key is the name given to that input
+            file (e.g., "hdf-data", "hdf-thumbnail").
+            The Granule class takes care of logging, validating, writing out metadata, and reporting on timing
+        """
         if set(self.local_input.keys()) != set(self.input_files.keys()):
             raise IOError('Local output files do not exist')
+        self.logger.info("Beginning processing granule %s" % self.id)
+        self.local_output = self.process(self.local_input, outdir=self.path, logger=self.logger)
+        if set(self.local_output.keys()) != set(self.output_files.keys()):
+            raise IOError('Local output files do not exist')
+        self.logger.info("Complete processing granule %s" % self.id)
+
+    @classmethod
+    def parser_args(cls, parser):
+        """ Add class specific arguments to the parser """
+        return parser
+
+    @classmethod
+    def process(cls, input, outdir='./', logger=logging.getLogger(__name__)):
+        """ Class method for processing input files """
+        return {}
 
 
 METADATA_TEMPLATE = '''
