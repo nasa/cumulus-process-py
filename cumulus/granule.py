@@ -190,7 +190,6 @@ class Granule(object):
         if set(self.local_input.keys()) != set(self.input_files.keys()):
             raise IOError('Local input files do not exist')
         self.logger.info("Beginning processing granule %s" % self.id)
-        #from nose.tools import set_trace; set_trace()
         self.local_output = self.process(self.local_input, path=self.path, logger=self.logger)
         if set(self.local_output.keys()) != set(self.output_files.keys()):
             raise IOError('Local output files do not exist')
