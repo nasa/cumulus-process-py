@@ -196,7 +196,7 @@ class Granule(object):
         self.logger.info("Complete processing granule %s" % self.id)
 
     @classmethod
-    def parser_args(cls, parser):
+    def add_parser_args(cls, parser):
         """ Add class specific arguments to the parser """
         return parser
 
