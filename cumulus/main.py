@@ -16,7 +16,7 @@ def parse_args(cls, args):
     parser.add_argument('--recipe', help='Granule recipe (JSON, S3 address, or local file)', default=None)
     parser.add_argument('--path', help='Local working path', default='')
     parser.add_argument('--s3path', help='S3 prefix to save output', default=None)
-    parser.add_argument('--loglevel', help='0:all, 1:debug, 2:info, 3:warning, 4:error, 5:critical', default=1)
+    parser.add_argument('--loglevel', help='0:all, 1:debug, 2:info, 3:warning, 4:error, 5:critical', default=1, type=int)
     parser.add_argument('--splunk', help='Splunk index name to log to splunk', default=None)
     for f in cls.inputs:
         parser.add_argument(f, nargs='?', default=None)

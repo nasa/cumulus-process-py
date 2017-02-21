@@ -65,7 +65,7 @@ def getLogger(name, splunk=None, stdout=None):
         else:
             raise RuntimeError('Splunk logging requires host, user, and pass fields')
     # logging level
-    logger.setLevel(logging.NOSET)
+    logger.setLevel(0)
     return logger
 
 

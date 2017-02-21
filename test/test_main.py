@@ -64,7 +64,7 @@ class TestMain(unittest.TestCase):
 
     def test_cli_recipe(self):
         """ Test CLI function with a recipe """
-        sys.argv = ('program --recipe test/payload.json --path %s' % (self.testdir)).split(' ')
+        sys.argv = ('program --recipe test/payload.json --path %s --loglevel 5' % (self.testdir)).split(' ')
         try:
             cli(Granule)
             assert False
