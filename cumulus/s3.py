@@ -10,7 +10,7 @@ from dotenv import load_dotenv, find_dotenv
 load_dotenv(find_dotenv())
 AWS_ACCESS_KEY_ID = os.getenv('AWS_ACCESS_KEY_ID')
 AWS_SECRET_ACCESS_KEY = os.getenv('AWS_SECRET_ACCESS_KEY')
-DISPATCHER = os.getenv('dispatcherLambda')
+DISPATCHER = os.getenv('dispatcher')
 
 logger = logging.getLogger(__name__)
 

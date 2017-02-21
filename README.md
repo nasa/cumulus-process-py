@@ -70,5 +70,27 @@ When running the resulting docker image, the default arguments given by CMD will
 
 	$ docker run -it cumulus:<tagname> <arg1> <arg2>
 
+The default entrypoint for the base docker image (and thus any child image) is the Cumulus Granule API. Call with the -h to see a list of options.
+
+  $ docker run -it cumulus:<tagname> -h
+
+To mount a directory, such as one with datafiles in it to process, use the -v option.
+
+  $ docker run -it cumulus:<tagname> -v .:/work <datafile1> <datafile2>
+
+Which will mount the current directory at /work and process datafiles. The help command will indicate which specific datafiles are needed in which order.
+
+
+## Environment Variables
+
+Some environment variables are used in the library and should be defined on the system.
+
+  - AWS_ACCESS_KEY_ID
+  - AWS_SECRET_ACCESS_KEY
+  - dispatcher
+  - SPLUNK_HOST
+  - SPLUNK_USERNAME
+  - SPLUNK_PASSWORD
+
 
 

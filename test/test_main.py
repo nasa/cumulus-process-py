@@ -58,20 +58,19 @@ class TestMain(unittest.TestCase):
         """ Test argument parsing """
         mocked_inputs.return_value = ['test-1', 'test-2']
         cmd = 'test-1.txt test-2.txt'
-        args = parse_args(Granule, cmd.split(' '))
-        self.assertEqual(args.test1, 'test-1.txt')
-        self.assertEqual(args.test2, 'test-2.txt')
+        args = vars(parse_args(Granule, cmd.split(' ')))
+        self.assertEqual(args['test-1'], 'test-1.txt')
+        self.assertEqual(args['test-2'], 'test-2.txt')
 
     def test_cli_recipe(self):
         """ Test CLI function with a recipe """
-        fouts = self.create_output_files()
-        sys.argv = ('program --recipe test/payload.json --path %s' % (self.testdir)).split(' ')
+        sys.argv = ('program --recipe test/payload.json --path %s --loglevel 5' % (self.testdir)).split(' ')
         try:
             cli(Granule)
             assert False
         except IOError as e:
             self.assertEqual(e.message, 'Local output files do not exist')
-        for f in ['output-1', 'output-2', 'input-1', 'input-2']:
+        for f in ['input-1', 'input-2']:
             os.remove(os.path.join(self.testdir, f + '.txt'))
 
     @patch('cumulus.granule.Granule.inputs', new_callable=PropertyMock)
