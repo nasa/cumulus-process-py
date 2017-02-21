@@ -74,9 +74,14 @@ The default entrypoint for the base docker image (and thus any child image) is t
 
   $ docker run -it cumulus:<tagname> -h
 
+There are two commands, each one with it's own options.
+
+  $ docker run -it cumulus:<tagname> recipe -h
+  $ docker run -it cumulus:<tagname> process -h
+
 To mount a directory, such as one with datafiles in it to process, use the -v option.
 
-  $ docker run -it cumulus:<tagname> -v .:/work <datafile1> <datafile2>
+  $ docker run -it cumulus:<tagname> -v .:/work process <datafile1> <datafile2>
 
 Which will mount the current directory at /work and process datafiles. The help command will indicate which specific datafiles are needed in which order.
 
