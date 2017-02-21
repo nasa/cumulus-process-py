@@ -3,7 +3,7 @@ FROM debian:jessie
 
 # install system dependencies, dev tools, and NetCDF libs
 RUN apt-get update; \
-    apt-get install -y gcc g++ awscli vim python python-setuptools git make wget; \
+    apt-get install -y gcc g++ awscli vim python-dev python-setuptools git make wget; \
     apt-get install -y tree locate; \
     #apt-get install -y libnetcdf-dev netcdf-bin; \
     apt-get install -y libhdf4-dev libhdfeos-dev libhdf5-dev libhe5-hdfeos-dev libgctp-dev bash-completion
