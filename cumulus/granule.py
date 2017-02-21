@@ -12,7 +12,7 @@ from cumulus.loggers import getLogger
 class Granule(object):
     """ Class representing a data granule and processing """
 
-    s3_uri = 's3://cumulus-1st-test-private/staging'
+    inputs = []
 
     def __init__(self, payload, path='', s3path='', logger=getLogger(__name__)):
         """ Initialize granule with a payload containing a recipe """
