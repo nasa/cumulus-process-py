@@ -45,4 +45,4 @@ def cli(cls):
         granule = cls(args.recipe, path=args.path, s3path=args.s3path, logger=logger)
         granule.run()
     else:
-        cls.process(vars(args), logger=logger)
+        cls.process(vars(args), path=args.path, logger=logger)

@@ -191,7 +191,7 @@ class Granule(object):
             raise IOError('Local input files do not exist')
         self.logger.info("Beginning processing granule %s" % self.id)
         #from nose.tools import set_trace; set_trace()
-        self.local_output = self.process(self.local_input, outdir=self.path, logger=self.logger)
+        self.local_output = self.process(self.local_input, path=self.path, logger=self.logger)
         if set(self.local_output.keys()) != set(self.output_files.keys()):
             raise IOError('Local output files do not exist')
         self.logger.info("Complete processing granule %s" % self.id)
@@ -202,7 +202,7 @@ class Granule(object):
         return parser
 
     @classmethod
-    def process(cls, input, outdir='./', logger=logging.getLogger(__name__)):
+    def process(cls, input, path='./', logger=logging.getLogger(__name__)):
         """ Class method for processing input files """
         return {}
 
