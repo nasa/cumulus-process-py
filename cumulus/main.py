@@ -1,12 +1,10 @@
 #!/usr/bin/env python
 
-import argparse
+import os
 import sys
-import logging
+import argparse
+from cumulus.loggers import getLogger
 from cumulus.version import __version__
-
-logger = logging.getLogger()
-logger.setLevel(logging.INFO)
 
 
 def parse_args(cls, args):
@@ -18,8 +16,10 @@ def parse_args(cls, args):
     parser.add_argument('--recipe', help='Granule recipe (JSON, S3 address, or local file)', default=None)
     parser.add_argument('--path', help='Local working path', default='')
     parser.add_argument('--s3path', help='S3 prefix to save output', default=None)
+    parser.add_argument('--loglevel', help='0:all, 1:debug, 2:info, 3:warning, 4:error, 5:critical', default=1)
+    parser.add_argument('--splunk', help='Splunk index name to log to splunk', default=None)
     for f in cls.inputs:
-        parser.add_argument(f.replace('-', ''), nargs='?', default=None)
+        parser.add_argument(f, nargs='?', default=None)
     parser = cls.parser_args(parser)
     return parser.parse_args(args)
 
@@ -27,8 +27,22 @@ def parse_args(cls, args):
 def cli(cls):
     """ Command Line Interface for a specific Granule class """
     args = parse_args(cls, sys.argv[1:])
+
+    splunk = args.splunk
+    if splunk is not None:
+        splunk = {
+            'host': os.getenv('SPLUNK_HOST'),
+            'user': os.getenv('SPLUNK_USERNAME'),
+            'pass': os.getenv('SPLUNK_PASSWORD'),
+            'port': os.getenv('SPLUNK_PORT', '8089'),
+            'index': args.splunk,
+            'level': args.loglevel * 10
+        }
+
+    logger = getLogger(__name__, splunk=splunk, stdout={'level': args.loglevel * 10})
+
     if args.recipe is not None:
-        granule = cls(args.recipe, path=args.path, s3path=args.s3path)
+        granule = cls(args.recipe, path=args.path, s3path=args.s3path, logger=logger)
         granule.run()
     else:
-        cls.process(vars(args))
+        cls.process(vars(args), logger=logger)
