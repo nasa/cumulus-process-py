@@ -44,7 +44,6 @@ deployment:
       - docker-compose build
       - docker-compose run test
       - docker login -e $DOCKER_EMAIL -u $DOCKER_USER -p $DOCKER_PASS
-      - docker tag cumulus:base developmentseed/cumulus:base
       - docker push developmentseed/cumulus:base
   develop:
     branch: develop

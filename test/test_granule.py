@@ -104,10 +104,16 @@ class TestGranule(unittest.TestCase):
         self.assertFalse(os.path.exists(os.path.join(self.testdir, 'output-1.txt')))
 
     @patch('cumulus.s3.invoke_lambda')
-    def test_run(self, mocked):
+    @patch('cumulus.granule.Granule.process')
+    def test_run(self, mock_process, mock_lambda):
         """ Make complete run """
-        mocked.return_value = True
-        """ Make complete run with the run function """
+        mock_lambda.return_value = True
+        mock_process.return_value = {
+            'output-1': os.path.join(self.testdir, 'output-1.txt'),
+            'output-2': os.path.join(self.testdir, 'output-2.txt'),
+            'meta-xml': os.path.join(self.testdir, 'TESTCOLLECTION.meta.xml')
+        }
+        # run
         granule = Granule(self.payload, path=self.testdir, s3path=self.uri('testing/cumulus-py'))
         self.fake_process(granule)
         granule.run(noclean=True)
