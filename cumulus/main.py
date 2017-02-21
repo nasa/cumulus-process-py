@@ -12,7 +12,7 @@ def parse_args(cls, args):
     """ Parse arguments for data processing """
     desc = '%s Processing' % cls.__name__
     dhf = argparse.ArgumentDefaultsHelpFormatter
-    parser0 = argparse.ArgumentParser(description=desc, add_help=False)
+    parser0 = argparse.ArgumentParser(description=desc)
 
     pparser = argparse.ArgumentParser(add_help=False)
     pparser.add_argument('--version', help='Print version and exit', action='version', version=__version__)
