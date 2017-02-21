@@ -17,7 +17,7 @@ def parse_args(cls, args):
     pparser = argparse.ArgumentParser(add_help=False)
     pparser.add_argument('--version', help='Print version and exit', action='version', version=__version__)
     pparser.add_argument('--path', help='Local working path', default='')
-    pparser.add_argument('--loglevel', default=1, type=int,
+    pparser.add_argument('--loglevel', default=2, type=int,
                          help='0:all, 1:debug, 2:info, 3:warning, 4:error, 5:critical')
 
     subparsers = parser0.add_subparsers(dest='command')
