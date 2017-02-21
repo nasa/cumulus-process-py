@@ -48,7 +48,8 @@ def download(uri, path=''):
     s3_uri = uri_parser(uri)
     fout = os.path.join(path, s3_uri['filename'])
     logger.debug("Downloading %s as %s" % (uri, fout))
-    mkdirp(path)
+    if path != '':
+        mkdirp(path)
 
     s3 = get_client()
 
