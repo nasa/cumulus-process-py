@@ -80,4 +80,3 @@ class TestMain(unittest.TestCase):
         mocked_inputs.return_value = ['test-1', 'test-2']
         sys.argv = ('test1.txt test-2.txt --path %s' % self.testdir).split(' ')
         cli(Granule)
-        from nose.tools import set_trace; set_trace()
