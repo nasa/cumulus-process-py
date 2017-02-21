@@ -20,7 +20,7 @@ class CumulusFormatter(jsonlogger.JsonFormatter):
         self.granuleId = granuleId
 
     def format(self, record):
-        if isinstance(record.msg, str):
+        if isinstance(record.msg, str) or isinstance(record.msg, unicode):
             record.msg = {'message': record.msg}
         if 'message' not in record.msg.keys():
             record.msg['message'] = ''
@@ -65,7 +65,7 @@ def getLogger(name, splunk=None, stdout=None):
         else:
             raise RuntimeError('Splunk logging requires host, user, and pass fields')
     # logging level
-    logger.setLevel(logging.INFO)
+    logger.setLevel(logging.NOSET)
     return logger
 
 
