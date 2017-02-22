@@ -20,7 +20,6 @@ def parse_args(cls, args):
     pparser.add_argument('--loglevel', default=2, type=int,
                          help='0:all, 1:debug, 2:info, 3:warning, 4:error, 5:critical')
 
-
     subparsers = parser0.add_subparsers(dest='command')
 
     parser = subparsers.add_parser('process', parents=[pparser], help='Process local files', formatter_class=dhf)
@@ -30,8 +29,6 @@ def parse_args(cls, args):
     recipe_parser = subparsers.add_parser('recipe', parents=[pparser], help='Process recipe file', formatter_class=dhf)
     recipe_parser.add_argument('recipe', help='Granule recipe (JSON, S3 address, or local file)')
     recipe_parser.add_argument('--s3path', help='S3 prefix to save output', default=None)
-    recipe_parser.add_argument('--splunk', default=False, action='store_true',
-                               help='Enable Splunk logging (set environment vars)')
     recipe_parser.add_argument('--noclean', action='store_true', default=False,
                                help='Do not remove local files when done')
     parser0 = cls.add_parser_args(parser0)
@@ -43,17 +40,15 @@ def cli(cls):
     args = parse_args(cls, sys.argv[1:])
 
     if args.command == 'recipe':
-        splunk = args.splunk
-        if args.splunk:
-            splunk = {
-                'host': os.getenv('SPLUNK_HOST'),
-                'user': os.getenv('SPLUNK_USERNAME'),
-                'pass': os.getenv('SPLUNK_PASSWORD'),
-                'port': os.getenv('SPLUNK_PORT', '8089'),
-                'index': os.getenv('SPLUNK_INDEX', 'main'),
-                'level': args.loglevel * 10
-            }
-        else:
+        splunk = {
+            'host': os.getenv('SPLUNK_HOST', ''),
+            'user': os.getenv('SPLUNK_USERNAME', ''),
+            'pass': os.getenv('SPLUNK_PASSWORD', ''),
+            'port': os.getenv('SPLUNK_PORT', '8089'),
+            'index': os.getenv('SPLUNK_INDEX', 'main'),
+            'level': args.loglevel * 10
+        }
+        if splunk['host'] == '' or splunk['user'] == '' or splunk['pass'] == '':
             splunk = None
         if args.s3path is None:
             args.s3path = os.getenv('internal')
