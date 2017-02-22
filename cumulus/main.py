@@ -30,7 +30,7 @@ def parse_args(cls, args):
     recipe_parser = subparsers.add_parser('recipe', parents=[pparser], help='Process recipe file', formatter_class=dhf)
     recipe_parser.add_argument('recipe', help='Granule recipe (JSON, S3 address, or local file)')
     recipe_parser.add_argument('--s3path', help='S3 prefix to save output', default=None)
-    recipe_parser.add_argument('--splunk', default=False, action='store_true',
+    recipe_parser.add_argument('--nosplunk', default=False, action='store_true',
                                help='Enable Splunk logging (set environment vars)')
     recipe_parser.add_argument('--noclean', action='store_true', default=False,
                                help='Do not remove local files when done')
@@ -43,8 +43,9 @@ def cli(cls):
     args = parse_args(cls, sys.argv[1:])
 
     if args.command == 'recipe':
-        splunk = args.splunk
-        if args.splunk:
+        if args.nosplunk:
+            splunk = None
+        else:
             splunk = {
                 'host': os.getenv('SPLUNK_HOST'),
                 'user': os.getenv('SPLUNK_USERNAME'),
@@ -53,8 +54,6 @@ def cli(cls):
                 'index': os.getenv('SPLUNK_INDEX', 'main'),
                 'level': args.loglevel * 10
             }
-        else:
-            splunk = None
         if args.s3path is None:
             args.s3path = os.getenv('internal')
         logger = getLogger(__name__, splunk=splunk, stdout={'level': args.loglevel * 10})
