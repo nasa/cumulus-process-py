@@ -20,6 +20,7 @@ def parse_args(cls, args):
     pparser.add_argument('--loglevel', default=2, type=int,
                          help='0:all, 1:debug, 2:info, 3:warning, 4:error, 5:critical')
 
+
     subparsers = parser0.add_subparsers(dest='command')
 
     parser = subparsers.add_parser('process', parents=[pparser], help='Process local files', formatter_class=dhf)
@@ -31,6 +32,8 @@ def parse_args(cls, args):
     recipe_parser.add_argument('--s3path', help='S3 prefix to save output', default=None)
     recipe_parser.add_argument('--splunk', default=False, action='store_true',
                                help='Enable Splunk logging (set environment vars)')
+    recipe_parser.add_argument('--noclean', action='store_true', default=False,
+                               help='Do not remove local files when done')
     parser0 = cls.add_parser_args(parser0)
     return parser0.parse_args(args)
 
@@ -56,7 +59,7 @@ def cli(cls):
             args.s3path = os.getenv('internal')
         logger = getLogger(__name__, splunk=splunk, stdout={'level': args.loglevel * 10})
         granule = cls(args.recipe, path=args.path, s3path=args.s3path, logger=logger)
-        granule.run()
+        granule.run(noclean=args.noclean)
     elif args.command == 'process':
         logger = getLogger(__name__, stdout={'level': args.loglevel * 10})
         cls.process(vars(args), path=args.path, logger=logger)
