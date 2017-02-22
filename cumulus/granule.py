@@ -72,7 +72,6 @@ class Granule(object):
         # Ensure that no XML-invalid characters are included
         info = {k: xml.sax.saxutils.escape(v) for k, v in info.items()}
         md = METADATA_TEMPLATE.format(**info)
-        fout = os.path.join(path, info['data_name'] + '.meta.xml')
         with open(fout, 'w') as f:
             f.write(md)
         return fout
@@ -105,6 +104,8 @@ class Granule(object):
     def upload(self):
         """ Upload output files to S3 """
         # attempt uploading of local files
+        if len(self.local_output) < len(self.output_files):
+            self.logger.warning("Not all output files were available for upload")
         successful_uploads = []
         for f in self.local_output:
             fname = self.local_output[f]
@@ -114,13 +115,6 @@ class Granule(object):
                 successful_uploads.append(uri)
             except Exception as e:
                 self.logger.error("Error uploading file %s: %s" % (os.path.basename(fname), str(e)))
-        # not all files were created
-        if len(self.local_output) < len(self.output_files):
-            raise RuntimeError("Not all output files were created")
-        # not all files were uploaded
-        if len(successful_uploads) < len(self.output_files):
-            raise IOError("Error uploading output files")
-
         return successful_uploads
 
     def next(self):
@@ -131,8 +125,8 @@ class Granule(object):
             self.payload['nextStep'] = self.payload['nextStep'] + 1
             # invoke dispatcher lambda
             s3.invoke_lambda(self.payload)
-        except:
-            raise RuntimeError('Error sending to dispacher lambda')
+        except Exception as e:
+            self.logger.error('Error sending to dispatcher lambda: %s' % str(e))
 
     def clean(self):
         """ Remove input and output files """

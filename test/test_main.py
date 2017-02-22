@@ -63,13 +63,10 @@ class TestMain(unittest.TestCase):
     def test_cli_recipe(self):
         """ Test CLI function with a recipe """
         sys.argv = ('program recipe test/payload.json --path %s --loglevel 5' % (self.testdir)).split(' ')
-        try:
-            cli(Granule)
-            assert False
-        except IOError as e:
-            self.assertEqual(e.message, 'Local output files do not exist')
+        cli(Granule)
         for f in ['input-1', 'input-2']:
-            os.remove(os.path.join(self.testdir, f + '.txt'))
+            fname = os.path.join(self.testdir, f + '.txt')
+            self.assertFalse(os.path.exists(fname))
 
     @patch('cumulus.granule.Granule.inputs', new_callable=PropertyMock)
     def test_cli(self, mocked_inputs):
