@@ -1,12 +1,30 @@
 
 import os
 import logging
-import re
 import datetime
 import json
 import xml.sax.saxutils
 import cumulus.s3 as s3
 from cumulus.loggers import getLogger, add_formatter
+
+
+METADATA_TEMPLATE = '''
+    <Granule>
+       <GranuleUR>{granule_ur}</GranuleUR>
+       <InsertTime>{insert_time}</InsertTime>
+       <LastUpdate>{last_update}</LastUpdate>
+       <Collection>
+         <ShortName>{short_name}</ShortName>
+         <VersionId>1</VersionId>
+       </Collection>
+       <OnlineAccessURLs>
+            <OnlineAccessURL>
+                <URL>https://72a8qx4iva.execute-api.us-east-1.amazonaws.com/dev/getGranule?granuleKey={data_name}/{granule_ur}</URL>
+            </OnlineAccessURL>
+        </OnlineAccessURLs>
+       <Orderable>true</Orderable>
+    </Granule>
+'''
 
 
 class Granule(object):
@@ -62,7 +80,7 @@ class Granule(object):
         return {f: self.payload['granuleRecord']['files'][f] for f in _files}
 
     @classmethod
-    def write_metadata(cls, info, fout):
+    def write_metadata(cls, info, fout, template=METADATA_TEMPLATE):
         """ Retrieve metada for granule """
         # info should contain data_name, granule_ur, and short_name
         info.update({
@@ -180,22 +198,3 @@ class Granule(object):
     def process(cls, input, path='./', logger=logging.getLogger(__name__)):
         """ Class method for processing input files """
         return {}
-
-
-METADATA_TEMPLATE = '''
-    <Granule>
-       <GranuleUR>{granule_ur}</GranuleUR>
-       <InsertTime>{insert_time}</InsertTime>
-       <LastUpdate>{last_update}</LastUpdate>
-       <Collection>
-         <ShortName>{short_name}</ShortName>
-         <VersionId>1</VersionId>
-       </Collection>
-       <OnlineAccessURLs>
-            <OnlineAccessURL>
-                <URL>https://72a8qx4iva.execute-api.us-east-1.amazonaws.com/dev/getGranule?granuleKey={data_name}/{granule_ur}</URL>
-            </OnlineAccessURL>
-        </OnlineAccessURLs>
-       <Orderable>true</Orderable>
-    </Granule>
-'''
