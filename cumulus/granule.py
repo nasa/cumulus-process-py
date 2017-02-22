@@ -61,25 +61,20 @@ class Granule(object):
         _files = self.recipe['processStep']['config']['outputFiles']
         return {f: self.payload['granuleRecord']['files'][f] for f in _files}
 
-    def metadata(self, save=False):
+    @classmethod
+    def write_metadata(cls, info, fout):
         """ Retrieve metada for granule """
-        info = {
-            'data_name': self.payload['granuleRecord']['collectionName'],
-            'granule_ur': self.payload['granuleRecord']['granuleId'],
+        # info should contain data_name, granule_ur, and short_name
+        info.update({
             'insert_time': datetime.datetime.utcnow().isoformat(),
-            'last_update': datetime.datetime.utcnow().isoformat(),
-            'short_name': self.payload['granuleRecord']['collectionName']
-        }
+            'last_update': datetime.datetime.utcnow().isoformat()
+        })
         # Ensure that no XML-invalid characters are included
         info = {k: xml.sax.saxutils.escape(v) for k, v in info.items()}
         md = METADATA_TEMPLATE.format(**info)
-        if save:
-            fout = os.path.join(self.path, info['data_name'] + '.meta.xml')
-            with open(fout, 'w') as f:
-                f.write(md)
-            return fout
-        else:
-            return md
+        with open(fout, 'w') as f:
+            f.write(md)
+        return fout
 
     def _check_payload(self):
         """ Test validity of payload """
@@ -108,17 +103,9 @@ class Granule(object):
 
     def upload(self):
         """ Upload output files to S3 """
-        # get list of output files to upload
-        files = os.listdir(self.path)
-        self.local_output = {}
-        for f in self.output_files:
-            file = self.output_files[f]
-            for fname in files:
-                if re.match(file['regex'], fname):
-                    # if a match, add it and continue loop
-                    self.local_output[f] = os.path.join(self.path, fname)
-                    continue
-        # attempt uploading of files
+        # attempt uploading of local files
+        if len(self.local_output) < len(self.output_files):
+            self.logger.warning("Not all output files were available for upload")
         successful_uploads = []
         for f in self.local_output:
             fname = self.local_output[f]
@@ -128,13 +115,6 @@ class Granule(object):
                 successful_uploads.append(uri)
             except Exception as e:
                 self.logger.error("Error uploading file %s: %s" % (os.path.basename(fname), str(e)))
-        # not all files were created
-        if len(self.local_output) < len(self.output_files):
-            raise RuntimeError("Not all output files were created")
-        # not all files were uploaded
-        if len(successful_uploads) < len(self.output_files):
-            raise IOError("Error uploading output files")
-
         return successful_uploads
 
     def next(self):
@@ -145,8 +125,8 @@ class Granule(object):
             self.payload['nextStep'] = self.payload['nextStep'] + 1
             # invoke dispatcher lambda
             s3.invoke_lambda(self.payload)
-        except:
-            raise RuntimeError('Error sending to dispacher lambda')
+        except Exception as e:
+            self.logger.error('Error sending to dispatcher lambda: %s' % str(e))
 
     def clean(self):
         """ Remove input and output files """
@@ -165,8 +145,6 @@ class Granule(object):
             self.download()
             self.logger.info('Processing')
             self.process_recipe()
-            self.logger.info('Writing metadata')
-            self.metadata(save=True)
             self.logger.info('Uploading output files')
             self.upload()
             if noclean is False:
@@ -191,8 +169,6 @@ class Granule(object):
             raise IOError('Local input files do not exist')
         self.logger.info("Beginning processing granule %s" % self.id)
         self.local_output = self.process(self.local_input, path=self.path, logger=self.logger)
-        if set(self.local_output.keys()) != set(self.output_files.keys()):
-            raise IOError('Local output files do not exist')
         self.logger.info("Complete processing granule %s" % self.id)
 
     @classmethod
