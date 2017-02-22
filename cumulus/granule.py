@@ -61,25 +61,21 @@ class Granule(object):
         _files = self.recipe['processStep']['config']['outputFiles']
         return {f: self.payload['granuleRecord']['files'][f] for f in _files}
 
-    def metadata(self, save=False):
+    @classmethod
+    def write_metadata(cls, info, fout):
         """ Retrieve metada for granule """
-        info = {
-            'data_name': self.payload['granuleRecord']['collectionName'],
-            'granule_ur': self.payload['granuleRecord']['granuleId'],
+        # info should contain data_name, granule_ur, and short_name
+        info.update({
             'insert_time': datetime.datetime.utcnow().isoformat(),
-            'last_update': datetime.datetime.utcnow().isoformat(),
-            'short_name': self.payload['granuleRecord']['collectionName']
-        }
+            'last_update': datetime.datetime.utcnow().isoformat()
+        })
         # Ensure that no XML-invalid characters are included
         info = {k: xml.sax.saxutils.escape(v) for k, v in info.items()}
         md = METADATA_TEMPLATE.format(**info)
-        if save:
-            fout = os.path.join(self.path, info['data_name'] + '.meta.xml')
-            with open(fout, 'w') as f:
-                f.write(md)
-            return fout
-        else:
-            return md
+        fout = os.path.join(path, info['data_name'] + '.meta.xml')
+        with open(fout, 'w') as f:
+            f.write(md)
+        return fout
 
     def _check_payload(self):
         """ Test validity of payload """
@@ -155,13 +151,6 @@ class Granule(object):
             self.download()
             self.logger.info('Processing')
             self.process_recipe()
-            self.logger.info('Writing metadata')
-            fout = self.metadata(save=True)
-            # rename metadata file
-            mainkey = self.recipe['processStep']['config']['outputFiles'][0]
-            bname = os.path.splitext(os.path.basename(self.local_output[mainkey]))[0]
-            self.local_output['meta-xml'] = os.path.join(self.path, bname + '.meta.xml')
-            os.rename(fout, self.local_output['meta-xml'])
             self.logger.info('Uploading output files')
             self.upload()
             if noclean is False:
