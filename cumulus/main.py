@@ -52,6 +52,8 @@ def cli(cls):
             }
         else:
             splunk = None
+        if args.s3path is None:
+            args.s3path = os.getenv('internal')
         logger = getLogger(__name__, splunk=splunk, stdout={'level': args.loglevel * 10})
         granule = cls(args.recipe, path=args.path, s3path=args.s3path, logger=logger)
         granule.run()
