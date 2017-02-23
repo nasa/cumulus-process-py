@@ -27,7 +27,6 @@ class TestLoggers(unittest.TestCase):
             ], logger.handlers)
         # stdout handler
         logger = getLogger(__name__, stdout={'level': logging.INFO})
-        #formatter = C('logging.Formatter', _fmt='%(asctime)s %(name)-12s %(levelname)-8s %(message)s', strict=False)
         compare([
             C('logging.StreamHandler', level=logging.INFO, strict=False)
             ], logger.handlers)
@@ -97,6 +96,5 @@ class TestLoggers(unittest.TestCase):
         time.sleep(3)
 
         logs = get_splunk_logs(config=splunk, granuleId=gid, test=testname, earliest='-1h')
-        #import nose.tools; nose.tools.set_trace()
         self.assertEqual(logs[0]['granuleId'], gid)
         self.assertEqual(logs[0]['test'], testname)
