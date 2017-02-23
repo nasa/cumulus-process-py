@@ -1,6 +1,5 @@
 
 import os
-import json
 import logging
 import time
 import unittest
@@ -8,10 +7,12 @@ import uuid
 from ast import literal_eval
 from testfixtures import log_capture, compare, Comparison as C, should_raise
 from cumulus.loggers import getLogger, get_splunk_logs, add_formatter
-from dotenv import load_dotenv, find_dotenv
+from dotenv import load_dotenv
 
 # load envvars
-load_dotenv(find_dotenv())
+env_file = os.path.join(os.path.dirname(__file__), '.env')
+if os.path.exists(env_file):
+    load_dotenv(env_file)
 
 
 class TestLoggers(unittest.TestCase):

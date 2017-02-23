@@ -1,9 +1,7 @@
 
 import os
 import logging
-import datetime
 import json
-import xml.sax.saxutils
 import cumulus.s3 as s3
 from cumulus.loggers import getLogger, add_formatter
 
