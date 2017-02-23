@@ -55,15 +55,6 @@ class TestGranule(unittest.TestCase):
         self.assertTrue('order' in granule.recipe)
         self.assertTrue('processStep' in granule.recipe)
 
-    def test_write_metadata(self):
-        """ Save metadata as file """
-        granule = Granule(self.payload, path=self.testdir)
-        fout = os.path.join(self.testdir, 'test_write_metadata.meta.xml')
-        md = {'granule_ur': 'testgranule', 'data_name': 'testdata', 'short_name': 'testshort'}
-        granule.write_metadata(md, fout=fout)
-        self.assertTrue(os.path.exists(fout))
-        os.remove(fout)
-
     def test_input_files(self):
         """ Get input files parsed from payload """
         granule = Granule(self.payload)

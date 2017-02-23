@@ -1,30 +1,9 @@
 
 import os
 import logging
-import datetime
 import json
-import xml.sax.saxutils
 import cumulus.s3 as s3
-from cumulus.loggers import getLogger, add_formatter
-
-
-METADATA_TEMPLATE = '''
-    <Granule>
-       <GranuleUR>{granule_ur}</GranuleUR>
-       <InsertTime>{insert_time}</InsertTime>
-       <LastUpdate>{last_update}</LastUpdate>
-       <Collection>
-         <ShortName>{short_name}</ShortName>
-         <VersionId>1</VersionId>
-       </Collection>
-       <OnlineAccessURLs>
-            <OnlineAccessURL>
-                <URL>https://72a8qx4iva.execute-api.us-east-1.amazonaws.com/dev/getGranule?granuleKey={data_name}/{granule_ur}</URL>
-            </OnlineAccessURL>
-        </OnlineAccessURLs>
-       <Orderable>true</Orderable>
-    </Granule>
-'''
+from cumulus.loggers import getLogger
 
 
 class Granule(object):
@@ -47,8 +26,11 @@ class Granule(object):
         self._check_payload()
         self.path = path
         self.s3path = s3path
-        self.logger = logger
-        add_formatter(self.logger, collectionName=self.collection, granuleId=self.id)
+        extra = {
+            'collectionName': self.collection,
+            'granuleId': self.id
+        }
+        self.logger = logging.LoggerAdapter(logger, extra)
         self.local_input = {}
         self.local_output = {}
 
@@ -78,21 +60,6 @@ class Granule(object):
         """ Output files for granule """
         _files = self.recipe['processStep']['config']['outputFiles']
         return {f: self.payload['granuleRecord']['files'][f] for f in _files}
-
-    @classmethod
-    def write_metadata(cls, info, fout, template=METADATA_TEMPLATE):
-        """ Retrieve metada for granule """
-        # info should contain data_name, granule_ur, and short_name
-        info.update({
-            'insert_time': datetime.datetime.utcnow().isoformat(),
-            'last_update': datetime.datetime.utcnow().isoformat()
-        })
-        # Ensure that no XML-invalid characters are included
-        info = {k: xml.sax.saxutils.escape(v) for k, v in info.items()}
-        md = METADATA_TEMPLATE.format(**info)
-        with open(fout, 'w') as f:
-            f.write(md)
-        return fout
 
     def _check_payload(self):
         """ Test validity of payload """

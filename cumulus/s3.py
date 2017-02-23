@@ -4,10 +4,14 @@ import os
 import json
 import logging
 import boto3
-from dotenv import load_dotenv, find_dotenv
+from dotenv import load_dotenv
+
+# load envvars
+env_file = os.path.join(os.path.dirname(__file__), '.env')
+if os.path.exists(env_file):
+    load_dotenv(env_file)
 
 # environment variables
-load_dotenv(find_dotenv())
 AWS_ACCESS_KEY_ID = os.getenv('AWS_ACCESS_KEY_ID')
 AWS_SECRET_ACCESS_KEY = os.getenv('AWS_SECRET_ACCESS_KEY')
 DISPATCHER = os.getenv('dispatcher')

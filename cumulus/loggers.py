@@ -1,42 +1,37 @@
 
+import os
 import json
 import requests
 import logging
 import datetime
 from splunk_handler import SplunkHandler
-from dotenv import load_dotenv, find_dotenv
+from dotenv import load_dotenv
 from pythonjsonlogger import jsonlogger
 
-# environment variables
-load_dotenv(find_dotenv())
+# load envvars
+env_file = os.path.join(os.path.dirname(__file__), '.env')
+if os.path.exists(env_file):
+    load_dotenv(env_file)
 
 
 class CumulusFormatter(jsonlogger.JsonFormatter):
     """ Formatting for Cumulus logs """
 
-    def __init__(self, collectionName='', granuleId='', *args, **kwargs):
-        super(CumulusFormatter, self).__init__(*args, **kwargs)
-        self.collectionName = collectionName
-        self.granuleId = granuleId
-
     def format(self, record):
+        # if just a string, convert to JSON
         if isinstance(record.msg, str) or isinstance(record.msg, unicode):
             record.msg = {'message': record.msg}
+        # create blank msg if not present
         if 'message' not in record.msg.keys():
             record.msg['message'] = ''
         record.msg['timestamp'] = datetime.datetime.now().isoformat()
-        record.msg['collectionName'] = self.collectionName
-        record.msg['granuleId'] = self.granuleId
+        if hasattr(record, 'collectionName'):
+            record.msg['collectionName'] = record.collectionName
+        if hasattr(record, 'granuleId'):
+            record.msg['granuleId'] = record.granuleId
         record.msg['level'] = record.levelname
         res = super(CumulusFormatter, self).format(record)
         return res
-
-
-def add_formatter(logger, collectionName='', granuleId=''):
-    """ Add CumulusFormatter to logger """
-    for handler in logger.handlers:
-        handler.setFormatter(CumulusFormatter(collectionName=collectionName, granuleId=granuleId))
-    return logger
 
 
 def getLogger(name, splunk=None, stdout=None):
@@ -49,6 +44,7 @@ def getLogger(name, splunk=None, stdout=None):
     if stdout is not None:
         handler = logging.StreamHandler()
         handler.setLevel(stdout['level'])
+        handler.setFormatter(CumulusFormatter())
         logger.addHandler(handler)
     if splunk is not None:
         if set(['host', 'user', 'pass']).issubset(set(splunk.keys())):
@@ -61,6 +57,7 @@ def getLogger(name, splunk=None, stdout=None):
                 verify=False
             )
             handler.setLevel(splunk['level'])
+            handler.setFormatter(CumulusFormatter())
             logger.addHandler(handler)
         else:
             raise RuntimeError('Splunk logging requires host, user, and pass fields')
