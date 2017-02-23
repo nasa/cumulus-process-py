@@ -3,7 +3,7 @@ import os
 import logging
 import json
 import cumulus.s3 as s3
-from cumulus.loggers import getLogger, add_formatter
+from cumulus.loggers import getLogger
 
 
 class Granule(object):
@@ -26,8 +26,11 @@ class Granule(object):
         self._check_payload()
         self.path = path
         self.s3path = s3path
-        self.logger = logger
-        add_formatter(self.logger, collectionName=self.collection, granuleId=self.id)
+        extra = {
+            'collectionName': self.collection,
+            'granuleId': self.id
+        }
+        self.logger = logging.LoggerAdapter(logger, extra)
         self.local_input = {}
         self.local_output = {}
 
