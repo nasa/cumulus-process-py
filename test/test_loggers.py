@@ -93,7 +93,7 @@ class TestLoggers(unittest.TestCase):
         logger.info({'message': 'testmessage', 'test': testname, 'granuleId': gid})
 
         # Wait a tiny bit for Splunk to ingest the record
-        time.sleep(3)
+        time.sleep(4)
 
         logs = get_splunk_logs(config=splunk, granuleId=gid, test=testname, earliest='-1h')
         self.assertEqual(logs[0]['granuleId'], gid)

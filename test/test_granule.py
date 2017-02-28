@@ -51,7 +51,7 @@ class TestGranule(unittest.TestCase):
     def test_write_metadata(self):
         """ Write an XML metadata file from a dictionary """
         fout = os.path.join(self.testdir, 'test_write_metadata.meta.xml')
-        Granule.write_metadata({'key1': 'val1'})
+        Granule.write_metadata({'key1': 'val1'}, fout)
         self.assertTrue(os.path.exists(fout))
         os.remove(fout)
 
