@@ -2,6 +2,8 @@
 import os
 import logging
 import json
+from dicttoxml import dicttoxml
+from xml.dom.minidom import parseString
 import cumulus.s3 as s3
 from cumulus.loggers import getLogger
 
@@ -101,6 +103,24 @@ class Granule(object):
             except Exception as e:
                 self.logger.error("Error uploading file %s: %s" % (os.path.basename(fname), str(e)))
         return successful_uploads
+
+    @classmethod
+    def write_metadata(cls, meta, fout, pretty=False):
+        """ Write metadata dictionary as XML file """
+        # for lists, use the singular version of the parent XML name
+        singular_key_func = lambda x: x[:-1]
+        # convert to XML
+        xml = dicttoxml(meta, custom_root='Granule', attr_type=False, item_func=singular_key_func)
+        # The <Point> XML tag does not follow the same rule as singular
+        # of parent since the parent in CMR is <Boundary>. Create metadata
+        # with the <Points> parent, and this removes that tag
+        xml = xml.replace('<Points>', '').replace('</Points>', '')
+        # pretty print
+        if pretty:
+            dom = parseString(xml)
+            xml = dom.toprettyxml()
+        with open(fout, 'w') as f:
+            f.write(xml)
 
     def next(self):
         """ Send payload to dispatcher lambda """
