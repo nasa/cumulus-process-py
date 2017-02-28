@@ -78,6 +78,12 @@ class TestGranule(unittest.TestCase):
         for o in ['output-1', 'output-2', 'meta-xml']:
             self.assertTrue(o in files)
 
+    def test_publish_files(self):
+        """ Get files to publish + endpoint prefixes """
+        granule = Granule(self.payload)
+        to_publish = granule.publish_files
+        import nose.tools; nose.tools.set_trace()
+
     def test_download(self):
         """ Download input files given in payload """
         granule = Granule(self.payload, path=self.testdir)
