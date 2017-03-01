@@ -137,14 +137,14 @@ class Granule(object):
         with open(fout, 'w') as f:
             f.write(xml)
 
-    def next(self):
+    def next(self, lambda_name):
         """ Send payload to dispatcher lambda """
         # update payload
         try:
             self.payload['previousStep'] = self.payload['nextStep']
             self.payload['nextStep'] = self.payload['nextStep'] + 1
             # invoke dispatcher lambda
-            s3.invoke_lambda(self.payload)
+            s3.invoke_lambda(self.payload, lambda_name)
         except Exception as e:
             self.logger.error('Error sending to dispatcher lambda: %s' % str(e))
 
