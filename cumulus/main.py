@@ -31,7 +31,7 @@ def parse_args(cls, args):
     recipe_parser.add_argument('--s3path', help='S3 prefix to save output', default=None)
     recipe_parser.add_argument('--noclean', action='store_true', default=False,
                                help='Do not remove local files when done')
-    recipe_parser.add_argument('--dispatcher', action='Name of Dispatcher Lambda', default=None)
+    recipe_parser.add_argument('--dispatcher', help='Name of Dispatcher Lambda', default=None)
     parser0 = cls.add_parser_args(parser0)
     return parser0.parse_args(args)
 
