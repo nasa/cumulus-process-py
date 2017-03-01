@@ -82,7 +82,6 @@ class TestGranule(unittest.TestCase):
         """ Get files to publish + endpoint prefixes """
         granule = Granule(self.payload)
         to_publish = granule.publish_files
-        import nose.tools; nose.tools.set_trace()
 
     def test_download(self):
         """ Download input files given in payload """
