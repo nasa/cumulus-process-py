@@ -57,7 +57,7 @@ def cli(cls):
         granule = cls(args.recipe, path=args.path, s3path=args.s3path, logger=logger)
         granule.run(noclean=args.noclean)
         if args.dispatcher is not None:
-            granule.next()
+            granule.next(args.dispatcher)
     elif args.command == 'process':
         logger = getLogger(__name__, stdout={'level': args.loglevel * 10})
         cls.process(vars(args), path=args.path, logger=logger)

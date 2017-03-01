@@ -170,8 +170,7 @@ class Granule(object):
             if noclean is False:
                 self.logger.info('Cleaning local files')
                 self.clean()
-            self.logger.info('Run completed. Sending to dispatcher')
-            self.next()
+            self.logger.info('Run completed')
         except Exception as e:
             self.logger.error({'message': 'Run error with granule', 'error': str(e)})
             raise e
