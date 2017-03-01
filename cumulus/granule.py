@@ -197,6 +197,6 @@ class Granule(object):
         return parser
 
     @classmethod
-    def process(cls, input, path='./', logger=logging.getLogger(__name__)):
+    def process(cls, input, **kwargs):
         """ Class method for processing input files """
         return {}
