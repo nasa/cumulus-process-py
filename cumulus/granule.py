@@ -187,7 +187,8 @@ class Granule(object):
         if set(self.local_input.keys()) != set(self.input_files.keys()):
             raise IOError('Local input files do not exist')
         self.logger.info("Beginning processing granule %s" % self.id)
-        self.local_output = self.process(self.local_input, path=self.path, logger=self.logger)
+        self.local_output = self.process(self.local_input, path=self.path,
+                                         logger=self.logger, publish=self.publish_files)
         self.logger.info("Complete processing granule %s" % self.id)
 
     @classmethod
@@ -196,6 +197,6 @@ class Granule(object):
         return parser
 
     @classmethod
-    def process(cls, input, path='./', logger=logging.getLogger(__name__)):
+    def process(cls, input, **kwargs):
         """ Class method for processing input files """
         return {}
