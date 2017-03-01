@@ -31,6 +31,7 @@ def parse_args(cls, args):
     recipe_parser.add_argument('--s3path', help='S3 prefix to save output', default=None)
     recipe_parser.add_argument('--noclean', action='store_true', default=False,
                                help='Do not remove local files when done')
+    recipe_parser.add_argument('--dispatcher', help='Name of Dispatcher Lambda', default=None)
     parser0 = cls.add_parser_args(parser0)
     return parser0.parse_args(args)
 
@@ -55,6 +56,8 @@ def cli(cls):
         logger = getLogger(__name__, splunk=splunk, stdout={'level': args.loglevel * 10})
         granule = cls(args.recipe, path=args.path, s3path=args.s3path, logger=logger)
         granule.run(noclean=args.noclean)
+        if args.dispatcher is not None:
+            granule.next(args.dispatcher)
     elif args.command == 'process':
         logger = getLogger(__name__, stdout={'level': args.loglevel * 10})
         cls.process(vars(args), path=args.path, logger=logger)

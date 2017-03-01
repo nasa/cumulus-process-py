@@ -14,7 +14,6 @@ if os.path.exists(env_file):
 # environment variables
 AWS_ACCESS_KEY_ID = os.getenv('AWS_ACCESS_KEY_ID')
 AWS_SECRET_ACCESS_KEY = os.getenv('AWS_SECRET_ACCESS_KEY')
-DISPATCHER = os.getenv('dispatcher')
 
 logger = logging.getLogger(__name__)
 
@@ -130,11 +129,8 @@ def exists(uri):
             raise
 
 
-def invoke_lambda(payload, lambda_name=DISPATCHER):
+def invoke_lambda(payload, lambda_name):
     """ Invoke Lambda function with payload """
-    if lambda_name is None:
-        logger.info('No dispatcher lambda, not sending recipe')
-        return False
     logger.debug('Invoking %s with payload: %s' % (lambda_name, json.dumps(payload)))
     client = get_client('lambda')
     result = client.invoke(

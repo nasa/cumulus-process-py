@@ -2,8 +2,16 @@
 import os
 import logging
 import json
+from dicttoxml import dicttoxml
+from xml.dom.minidom import parseString
 import cumulus.s3 as s3
 from cumulus.loggers import getLogger
+
+
+endpoints = {
+    'public': os.getenv('protected', 'http://cumulus-internal.s3.amazonaws.com/testing'),
+    'protected': os.getenv('distributionEndpoint', 'http://cumulus.com')
+}
 
 
 class Granule(object):
@@ -61,6 +69,15 @@ class Granule(object):
         _files = self.recipe['processStep']['config']['outputFiles']
         return {f: self.payload['granuleRecord']['files'][f] for f in _files}
 
+    @property
+    def publish_files(self):
+        """ File tag and URI prefix for publication """
+        publish = {}
+        for k, f in self.payload['granuleRecord']['files'].items():
+            if 'access' in f and f['access'] in endpoints:
+                publish[k] = endpoints[f['access']]
+        return publish
+
     def _check_payload(self):
         """ Test validity of payload """
         try:
@@ -102,14 +119,32 @@ class Granule(object):
                 self.logger.error("Error uploading file %s: %s" % (os.path.basename(fname), str(e)))
         return successful_uploads
 
-    def next(self):
+    @classmethod
+    def write_metadata(cls, meta, fout, pretty=False):
+        """ Write metadata dictionary as XML file """
+        # for lists, use the singular version of the parent XML name
+        singular_key_func = lambda x: x[:-1]
+        # convert to XML
+        xml = dicttoxml(meta, custom_root='Granule', attr_type=False, item_func=singular_key_func)
+        # The <Point> XML tag does not follow the same rule as singular
+        # of parent since the parent in CMR is <Boundary>. Create metadata
+        # with the <Points> parent, and this removes that tag
+        xml = xml.replace('<Points>', '').replace('</Points>', '')
+        # pretty print
+        if pretty:
+            dom = parseString(xml)
+            xml = dom.toprettyxml()
+        with open(fout, 'w') as f:
+            f.write(xml)
+
+    def next(self, lambda_name):
         """ Send payload to dispatcher lambda """
         # update payload
         try:
             self.payload['previousStep'] = self.payload['nextStep']
             self.payload['nextStep'] = self.payload['nextStep'] + 1
             # invoke dispatcher lambda
-            s3.invoke_lambda(self.payload)
+            s3.invoke_lambda(self.payload, lambda_name)
         except Exception as e:
             self.logger.error('Error sending to dispatcher lambda: %s' % str(e))
 
@@ -135,8 +170,7 @@ class Granule(object):
             if noclean is False:
                 self.logger.info('Cleaning local files')
                 self.clean()
-            self.logger.info('Run completed. Sending to dispatcher')
-            self.next()
+            self.logger.info('Run completed')
         except Exception as e:
             self.logger.error({'message': 'Run error with granule', 'error': str(e)})
             raise e

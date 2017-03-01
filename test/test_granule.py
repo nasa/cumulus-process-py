@@ -48,6 +48,13 @@ class TestGranule(unittest.TestCase):
         granule = Granule(self.payload)
         self.assertTrue('granuleRecord' in granule.payload.keys())
 
+    def test_write_metadata(self):
+        """ Write an XML metadata file from a dictionary """
+        fout = os.path.join(self.testdir, 'test_write_metadata.meta.xml')
+        Granule.write_metadata({'key1': 'val1'}, fout)
+        self.assertTrue(os.path.exists(fout))
+        os.remove(fout)
+
     def test_recipe(self):
         """ Get recipe from payload """
         granule = Granule(self.payload)
@@ -70,6 +77,11 @@ class TestGranule(unittest.TestCase):
         self.assertEqual(len(files), 3)
         for o in ['output-1', 'output-2', 'meta-xml']:
             self.assertTrue(o in files)
+
+    def test_publish_files(self):
+        """ Get files to publish + endpoint prefixes """
+        granule = Granule(self.payload)
+        to_publish = granule.publish_files
 
     def test_download(self):
         """ Download input files given in payload """

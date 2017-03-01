@@ -12,22 +12,26 @@
 			"input-2": {
 				"archivedFile": null,
 				"sipFile": "https://developmentseed.org/nosuchfile",
-				"stagingFile": "s3://cumulus-internal/testing/cumulus-py/input-2.txt"
+				"stagingFile": "s3://cumulus-internal/testing/cumulus-py/input-2.txt",
+				"access": "private"
 			},
 			"output-1": {
 				"regex": "^output-1.txt$",
 				"archivedFile": null,
 				"sipFile": null,
-				"stagingFile": null
+				"stagingFile": null,
+				"access": "protected"
 			},
 			"output-2": {
 				"regex": "^output-2.txt$",
 				"archivedFile": null,
 				"sipFile": null,
-				"stagingFile": null
+				"stagingFile": null,
+				"access": "protected"
 			},
 			"meta-xml": {
-				"regex": "^TESTCOLLECTION\\.meta\\.xml"
+				"regex": "^TESTCOLLECTION\\.meta\\.xml",
+				"access": "public"
 			}
 		},
 		"granuleId": "TESTGRANULE",
