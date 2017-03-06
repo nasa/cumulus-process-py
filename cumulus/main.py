@@ -52,7 +52,7 @@ def cli(cls):
         if splunk['host'] == '' or splunk['user'] == '' or splunk['pass'] == '':
             splunk = None
         if args.s3path is None:
-            args.s3path = os.getenv('internal')
+            args.s3path = 's3://' + os.getenv('internal', 'cumulus-internal-testing')
         logger = getLogger(__name__, splunk=splunk, stdout={'level': args.loglevel * 10})
         granule = cls(args.recipe, path=args.path, s3path=args.s3path, logger=logger)
         granule.run(noclean=args.noclean)
