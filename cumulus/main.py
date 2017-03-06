@@ -6,6 +6,7 @@ import argparse
 from cumulus.granule import Granule
 from cumulus.loggers import getLogger
 from cumulus.version import __version__
+from cumulus.s3 import delete_message
 
 
 def parse_args(cls, args):
@@ -32,6 +33,7 @@ def parse_args(cls, args):
     recipe_parser.add_argument('--noclean', action='store_true', default=False,
                                help='Do not remove local files when done')
     recipe_parser.add_argument('--dispatcher', help='Name of Dispatcher Lambda', default=None)
+    recipe_parser.add_argument('--sqs', help='Receipt of SQS message to delete when done', default=None)
     parser0 = cls.add_parser_args(parser0)
     return parser0.parse_args(args)
 
@@ -56,6 +58,8 @@ def cli(cls):
         logger = getLogger(__name__, splunk=splunk, stdout={'level': args.loglevel * 10})
         granule = cls(args.recipe, path=args.path, s3path=args.s3path, logger=logger)
         granule.run(noclean=args.noclean)
+        if args.sqs is not None and os.getenv('ProcessingQueue') is not None:
+            delete_message(args.sqs, os.getenv('ProcessingQueue'))
         if args.dispatcher is not None:
             granule.next(args.dispatcher)
     elif args.command == 'process':
