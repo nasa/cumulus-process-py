@@ -139,3 +139,12 @@ def invoke_lambda(payload, lambda_name):
         Payload=json.dumps(payload),
     )
     return result
+
+
+def delete_message(receipt, queue_name):
+    """ Delete message given receipt from a queue """
+    logger.debug('Deleting message (%s) from %s' % (receipt, queue_name))
+    client = get_client('sqs')
+    queue_url = client.get_queue_url(QueueName=queue_name)['QueueUrl']
+    result = client.delete_message(QueueUrl=queue_url, ReceiptHandler=receipt)
+    return result
