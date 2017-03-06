@@ -1,10 +1,7 @@
 
 import os
-import json
-import requests
 import logging
 import datetime
-from splunk_handler import SplunkHandler
 from dotenv import load_dotenv
 from pythonjsonlogger import jsonlogger
 
@@ -34,51 +31,18 @@ class CumulusFormatter(jsonlogger.JsonFormatter):
         return res
 
 
-def getLogger(name, splunk=None, stdout=None):
+def getLogger(name, stdout=None):
     """ Return logger suitable for Cumulus """
     logger = logging.getLogger(name)
     # clear existing handlers
     logger.handlers = []
-    if (stdout is None) and (splunk is None):
+    if (stdout is None):
         logger.addHandler(logging.NullHandler())
     if stdout is not None:
         handler = logging.StreamHandler()
         handler.setLevel(stdout['level'])
         handler.setFormatter(CumulusFormatter())
         logger.addHandler(handler)
-    if splunk is not None:
-        if set(['host', 'user', 'pass']).issubset(set(splunk.keys())):
-            handler = SplunkHandler(
-                host=splunk['host'],
-                port=splunk.get('port', '8089'),
-                username=splunk['user'],
-                password=splunk['pass'],
-                index=splunk.get('index', 'main'),
-                verify=False
-            )
-            handler.setLevel(splunk['level'])
-            handler.setFormatter(CumulusFormatter())
-            logger.addHandler(handler)
-        else:
-            raise RuntimeError('Splunk logging requires host, user, and pass fields')
     # logging level
     logger.setLevel(1)
     return logger
-
-
-def get_splunk_logs(config, **kwargs):
-    """ Get splunk results matching a query """
-    url = 'https://{host}:{port}/servicesNS/admin/search/search/jobs/export'.format(
-        host=config['host'], port=config['port'])
-    search = 'search index="{}"'.format(config['index'])
-    for k in kwargs:
-        search += ' {}="{}"'.format(k, kwargs[k])
-    response = requests.post(url, auth=(config['user'], config['pass']),
-                             params={'output_mode': 'json'}, data={'search': search}, verify=False)
-    results = []
-    for r in response.content.split('\n'):
-        if r != '':
-            js = json.loads(r)
-            if 'result' in js:
-                results.append(js['result'])
-    return results
