@@ -8,12 +8,6 @@ import cumulus.s3 as s3
 from cumulus.loggers import getLogger
 
 
-endpoints = {
-    'public': os.getenv('protected', 'http://cumulus-internal.s3.amazonaws.com/testing'),
-    'protected': os.getenv('distributionEndpoint', 'http://cumulus.com')
-}
-
-
 class Granule(object):
     """ Class representing a data granule and processing """
 
@@ -41,6 +35,17 @@ class Granule(object):
         self.logger = logging.LoggerAdapter(logger, extra)
         self.local_input = {}
         self.local_output = {}
+
+        # get endpoints for publishing
+        _public = os.getenv('public', 'cumulus-internal/testing').split('/')
+        address = 'http://%s.s3.amazonaws.com' % _public[0]
+        if len(_public) > 1:
+            for d in _public[1:]:
+                address = os.path.join(address, d)
+        self.endpoints = {
+            'public': address,
+            'protected': os.getenv('distributionEndpoint', 'http://cumulus.com')
+        }
 
     @property
     def collection(self):
@@ -74,8 +79,8 @@ class Granule(object):
         """ File tag and URI prefix for publication """
         publish = {}
         for k, f in self.payload['granuleRecord']['files'].items():
-            if 'access' in f and f['access'] in endpoints:
-                publish[k] = endpoints[f['access']]
+            if 'access' in f and f['access'] in self.endpoints:
+                publish[k] = self.endpoints[f['access']]
         return publish
 
     def _check_payload(self):
