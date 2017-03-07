@@ -1,12 +1,10 @@
 
 import os
 import logging
-import time
 import unittest
-import uuid
 from ast import literal_eval
-from testfixtures import log_capture, compare, Comparison as C, should_raise
-from cumulus.loggers import getLogger, get_splunk_logs
+from testfixtures import log_capture, compare, Comparison as C
+from cumulus.loggers import getLogger
 from dotenv import load_dotenv
 
 # load envvars
@@ -30,21 +28,6 @@ class TestLoggers(unittest.TestCase):
         compare([
             C('logging.StreamHandler', level=logging.INFO, strict=False)
             ], logger.handlers)
-
-    def test_splunk_config(self):
-        """ Configure splunk handler """
-        # just use blank creds, they are not validated when creating logger
-        splunk = {'host': '', 'user': '', 'pass': '', 'level': logging.INFO}
-        # splunk handler
-        logger = getLogger(__name__, splunk=splunk)
-        compare([
-            C('splunk_handler.SplunkHandler', level=logging.INFO, strict=False)
-            ], logger.handlers)
-
-    @should_raise(RuntimeError('Splunk logging requires host, user, and pass fields'))
-    def test_splunk_config_no_creds(self):
-        """ Attempt config of splunk handler without creds """
-        getLogger(__name__, splunk={})
 
     @log_capture()
     def test_logger(self, lc):
@@ -71,30 +54,3 @@ class TestLoggers(unittest.TestCase):
         self.assertTrue('timestamp' in d.keys())
         self.assertEqual(d['message'], '')
         self.assertEqual(d['key1'], 'val1')
-
-    def test_splunk_logger(self):
-        ''' Write log to splunk and read back '''
-
-        splunk = {
-            'host': os.getenv('SPLUNK_HOST'),
-            'user': os.getenv('SPLUNK_USERNAME'),
-            'pass': os.getenv('SPLUNK_PASSWORD'),
-            'port': os.getenv('SPLUNK_PORT', '8089'),
-            'index': 'integration_testing',
-            'level': logging.INFO
-        }
-
-        testname = self.test_splunk_logger.__name__
-        gid = str(uuid.uuid4())
-        logger = getLogger(__name__, splunk=splunk)
-        logger = logging.LoggerAdapter(logger, {'collectionName': gid})
-
-        # Write a record to the `integration_testing` index
-        logger.info({'message': 'testmessage', 'test': testname, 'granuleId': gid})
-
-        # Wait a tiny bit for Splunk to ingest the record
-        time.sleep(4)
-
-        logs = get_splunk_logs(config=splunk, granuleId=gid, test=testname, earliest='-1h')
-        self.assertEqual(logs[0]['granuleId'], gid)
-        self.assertEqual(logs[0]['test'], testname)

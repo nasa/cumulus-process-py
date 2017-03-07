@@ -43,19 +43,9 @@ def cli(cls):
     args = parse_args(cls, sys.argv[1:])
 
     if args.command == 'recipe':
-        splunk = {
-            'host': os.getenv('SPLUNK_HOST', ''),
-            'user': os.getenv('SPLUNK_USERNAME', ''),
-            'pass': os.getenv('SPLUNK_PASSWORD', ''),
-            'port': os.getenv('SPLUNK_PORT', '8089'),
-            'index': os.getenv('SPLUNK_INDEX', 'main'),
-            'level': args.loglevel * 10
-        }
-        if splunk['host'] == '' or splunk['user'] == '' or splunk['pass'] == '':
-            splunk = None
         if args.s3path is None:
             args.s3path = 's3://' + os.getenv('internal', 'cumulus-internal-testing')
-        logger = getLogger(__name__, splunk=splunk, stdout={'level': args.loglevel * 10})
+        logger = getLogger(__name__, stdout={'level': args.loglevel * 10})
         granule = cls(args.recipe, path=args.path, s3path=args.s3path, logger=logger)
         granule.run(noclean=args.noclean)
         if args.sqs is not None and os.getenv('ProcessingQueue') is not None:
