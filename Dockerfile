@@ -10,9 +10,17 @@ RUN apt-get update; \
 
 WORKDIR /build
 
-ENV \
-	GDAL_VERSION="2.1.3"
+# szip
+ENV SZIP_VERSION 2.1
+RUN \
+   wget https://support.hdfgroup.org/ftp/lib-external/szip/$SZIP_VERSION/src/szip-$SZIP_VERSION.tar.gz && \
+   tar -xvf szip-$SZIP_VERSION.tar.gz && \
+   cd szip-$SZIP_VERSION && \
+   ./configure --prefix=/usr && \
+   make && make install && cd .. && \
+   rm -rf szip-$SZIP_VERSION*
 
+ENV GDAL_VERSION 2.1.3
 RUN \
 	wget http://download.osgeo.org/gdal/$GDAL_VERSION/gdal-$GDAL_VERSION.tar.gz; \
 	tar -xzvf gdal-$GDAL_VERSION.tar.gz; \
