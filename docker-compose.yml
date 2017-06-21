@@ -2,11 +2,8 @@ version: '2'
 
 services:
   
-  build:
+  base:
     build: .
-    image: developmentseed/cumulus:base
-
-  bash:
     image: developmentseed/cumulus:base
     entrypoint: /bin/bash
     env_file: .env
