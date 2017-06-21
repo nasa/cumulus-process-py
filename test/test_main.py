@@ -60,7 +60,7 @@ class TestMain(unittest.TestCase):
         self.assertEqual(args['test-1'], 'test-1.txt')
         self.assertEqual(args['test-2'], 'test-2.txt')
 
-    def test_cli_recipe(self):
+    def _test_cli_recipe(self):
         """ Test CLI function with a recipe """
         sys.argv = ('program recipe test/payload.json --path %s --loglevel 5' % (self.testdir)).split(' ')
         cli(Granule)
