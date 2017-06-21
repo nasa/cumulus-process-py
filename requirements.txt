@@ -3,4 +3,4 @@ boto3==1.4.4
 python-dotenv==0.6.3
 python-json-logger==0.1.5
 dicttoxml==1.7.4
-git+https://github.com/gipit/gippy.git@develop
+gippy>=1.0.0
