@@ -7,6 +7,8 @@ from dicttoxml import dicttoxml
 from xml.dom.minidom import parseString
 import cumulus.s3 as s3
 from cumulus.loggers import getLogger
+from cumulus.main import cli
+from cumulus.aws import run, activity
 
 logger = getLogger(__name__)
 
@@ -167,6 +169,18 @@ class Granule(object):
         """ Add class specific arguments to the parser """
         return parser
 
+    @classmethod
+    def cli(cls):
+        cli(cls)
+
+    @classmethod
+    def activity(cls):
+        activity(cls)
+
+    @classmethod
+    def run_with_payload(cls, payload, noclean=False):
+        run(payload)
+
     def process(self, input, **kwargs):
         """ Process a granule locally to produce one or more output granules """
         """
@@ -177,3 +191,7 @@ class Granule(object):
             The Granule class takes care of logging, validating, writing out metadata, and reporting on timing
         """
         return {}
+
+
+if __name__ == "__main__":
+    Granule.cli()
