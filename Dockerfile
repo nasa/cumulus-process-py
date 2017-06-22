@@ -5,10 +5,12 @@ WORKDIR /build
 
 # install requirements
 COPY requirements.txt /build/
+COPY requirements-dev.txt /build/
 RUN \
   easy_install pip; \
   pip install numpy wheel; \
   pip install -r requirements.txt; \
+  pip install -r requirements-dev.txt; \
   rm -rf /build
 
 # install package
