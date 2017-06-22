@@ -3,10 +3,13 @@
 import os
 import sys
 import argparse
+import logging
 from cumulus.granule import Granule
 from cumulus.loggers import getLogger
 from cumulus.version import __version__
 from cumulus.s3 import delete_message
+
+logger = logging.getLogger(__name__)
 
 
 def parse_args(cls, args):
@@ -42,19 +45,20 @@ def cli(cls):
     """ Command Line Interface for a specific Granule class """
     args = parse_args(cls, sys.argv[1:])
 
+    logger.setLevel(args.loglevel * 10)
+
     if args.command == 'recipe':
         if args.s3path is None:
             args.s3path = 's3://' + os.getenv('internal', 'cumulus-internal-testing')
-        logger = getLogger(__name__, stdout={'level': args.loglevel * 10})
-        granule = cls(args.recipe, path=args.path, s3path=args.s3path, logger=logger)
+        granule = cls(args.recipe, path=args.path, s3path=args.s3path)
         granule.run(noclean=args.noclean)
         if args.sqs is not None and os.getenv('ProcessingQueue') is not None:
             delete_message(args.sqs, os.getenv('ProcessingQueue'))
         if args.dispatcher is not None:
             granule.next(args.dispatcher)
     elif args.command == 'process':
-        logger = getLogger(__name__, stdout={'level': args.loglevel * 10})
-        cls.process(vars(args), path=args.path, logger=logger)
+        granule = Granule(vars(args), path=args.path)
+        granule.run()
 
 
 if __name__ == "__main__":
