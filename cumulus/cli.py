@@ -59,7 +59,3 @@ def cli(cls):
     elif args.command == 'process':
         granule = Granule(vars(args), path=args.path)
         granule.run()
-
-
-if __name__ == "__main__":
-    cli(Granule)

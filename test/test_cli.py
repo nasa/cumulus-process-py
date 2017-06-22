@@ -9,7 +9,7 @@ from mock import patch, PropertyMock
 import unittest
 import logging
 from cumulus.granule import Granule
-from cumulus.main import parse_args, cli
+from cumulus.cli import parse_args, cli
 
 
 class TestMain(unittest.TestCase):
