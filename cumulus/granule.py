@@ -16,31 +16,51 @@ class Granule(object):
 
     # internally used keys
     inputs = {
-        'hdf': '*.hdf$',
-        'meta': '*.met'
+        'hdf': r'^.*.hdf$',
+        'meta': r'^.*.txt'
     }
     outputs = {
-        'hdf': '*_out.hdf',
-        'meta-xml': '*.xml'
+        'out1': r'^.*-1.txt$',
+        'out2': r'^.*-2.txt$',
+        'meta-xml': r'^.*.xml$'
     }
 
-    def __init__(self, gid, filenames, collection='granule', path='', s3path='', **kwargs):
+    def add_input_file(self, filename):
+        """ Adds an input file """
+        for f in self.inputs:
+            m = re.match(self.inputs[f], filename)
+            if m is not None:
+                # does the file exist locally
+                if os.path.exists(f):
+                    self.local_in[f] = filename
+                else:
+                    self.remote_in[f] = filename
+
+    def __init__(self, filenames, gid=None, collection='granule', path='', s3path='', **kwargs):
         """ Initialize a new granule with filenames """
-        self.gid = gid
         self.collection = collection
+
+        # if gid not provided get common prefix
+        if gid is None:
+            gid = os.path.commonprefix([os.path.basename(f) for f in filenames])
+            if gid == '':
+                raise ValueError('Unable to determine granule ID from files, provide manually')
+        self.gid = gid
+        self.path = path
+        self.s3path = s3path
+
+        self.local_in = {}
+        self.local_out = []
+        self.remote_out = []
 
         # determine which file is which type of input through use of regular expression
         self.remote_in = {}
         for f in filenames:
-            for i in self.inputs:
-                m = re.match(self.inputs[i], f)
-                if m is not None:
-                    if i not in self.remote_in:
-                        self.remote_in[i] = f
-                    else:
-                        raise IOError('Multiple input files for %s given' % i)
-        if len(self.inputs) != len(self.remote_in):
-            raise IOError('Files do not make up complete granule')
+            self.add_input_file(f)
+        totalfiles = len(self.remote_in) + len(self.local_in)
+
+        if (len(self.inputs) != totalfiles) or (len(self.inputs) != len(filenames)):
+            raise IOError('Files do not make up complete granule or extra files provided')
 
         extra = {
             'collectionName': self.collection,
@@ -48,36 +68,36 @@ class Granule(object):
         }
         self.logger = logging.LoggerAdapter(logger, extra)
 
-        self.local_in = {}
-        self.local_out = []
-        self.remote_out = []
-
     def publish(self, visibility={}, protected_url='http://cumulus.com'):
         """ Return URLs for output granule(s), defaults to all public """
-        s3obj = self.s3path.split('/')
-        public = 'http://%s.s3.amazonaws.com' % s3obj[0]
-        if len(s3obj) > 1:
-            for d in s3obj[1:]:
-                public = os.path.join(public, d)
-
-        urls = {}
+        urls = []
         for gran in self.remote_out:
             granout = {}
-            for key in gran:
+            for key, fname in gran.items():
+                s3obj = fname.replace('s3://', '').split('/')
                 vis = visibility.get(key, 'public')
                 if vis == 'public':
-                    granout[key] = os.path.join(public, gran[key])
+                    public = 'http://%s.s3.amazonaws.com' % s3obj[0]
+                    if len(s3obj) > 1:
+                        for d in s3obj[1:]:
+                            public = os.path.join(public, d)
+                    granout[key] = public
                 elif vis == 'protected':
-                    granout[key] = os.path.join(protected_url, gran[key])
+                    granout[key] = os.path.join(protected_url, os.path.basename(fname))
             urls.append(granout)
         return urls
 
-    def download(self, key):
+    def download(self, key=None):
         """ Download input file from S3 """
-        uri = self.remote_in[key]
-        self.logger.info('downloading input file %s' % uri)
-        fname = s3.download(uri, path=self.path)
-        self.local_in[key] = fname
+        keys = self.inputs.keys() if key is None else [key]
+        downloaded = []
+        for key in keys:
+            uri = self.remote_in[key]
+            self.logger.info('downloading input file %s' % uri)
+            fname = s3.download(uri, path=self.path)
+            self.local_in[key] = fname
+            downloaded.append(fname)
+        return downloaded
 
     def upload(self):
         """ Upload local output files to S3 """
@@ -85,13 +105,16 @@ class Granule(object):
         for granule in self.local_out:
             if len(granule) < len(self.outputs):
                 self.logger.warning("Not all output files were available for upload")
+            remote = {}
             for f in granule:
                 fname = granule[f]
                 try:
                     uri = s3.upload(fname, self.s3path)
-                    self.remote_out[f] = uri
+                    remote[f] = uri
                 except Exception as e:
                     self.logger.error("Error uploading file %s: %s" % (os.path.basename(fname), str(e)))
+            self.remote_out.append(remote)
+        return [files.values() for files in self.remote_out]
 
     @classmethod
     def write_metadata(cls, meta, fout, pretty=False):
@@ -127,7 +150,7 @@ class Granule(object):
         try:
             self.logger.info('begin processing')
             self.logger.info('download input files')
-            for f in self.filenames:
+            for f in self.remote_in:
                 self.download(f)
             self.logger.info('processing')
             self.process()
