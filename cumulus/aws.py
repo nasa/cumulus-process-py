@@ -19,7 +19,6 @@ def lambda_handler(payload):
 def run(cls, payload, path='/tmp', s3path='', noclean=False):
     """ Run this payload with the given Granule class """
     pl = parse_payload(payload)
-    from nose.tools import set_trace; set_trace()
     granule = cls(pl['filenames'], gid=pl['gid'], collection=pl['collection'],
                   path=path, s3path=s3path)
     granule.run(noclean=noclean)
