@@ -46,15 +46,14 @@ def cli(cls):
 
     logger.setLevel(args.loglevel * 10)
 
-    if args.command == 'recipe':
-        if args.s3path is None:
-            args.s3path = 's3://' + os.getenv('internal', 'cumulus-internal-testing')
-        granule = cls(args.recipe, path=args.path, s3path=args.s3path)
-        granule.run(noclean=args.noclean)
-        if args.sqs is not None and os.getenv('ProcessingQueue') is not None:
-            delete_message(args.sqs, os.getenv('ProcessingQueue'))
-        if args.dispatcher is not None:
-            granule.next(args.dispatcher)
-    elif args.command == 'process':
+    # process local files
+    if args.command == 'process':
         granule = cls(vars(args), path=args.path)
         granule.run()
+    # process with a recipe
+    elif args.command == 'recipe':
+        granule = cls(args.recipe, path=args.path, s3path=args.s3path)
+        granule.run(noclean=args.noclean)
+    # run as a service
+    elif args.command == 'service':
+        cls.activity()
