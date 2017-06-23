@@ -4,7 +4,6 @@ import os
 import sys
 import argparse
 import logging
-from cumulus.granule import Granule
 from cumulus.loggers import getLogger
 from cumulus.version import __version__
 from cumulus.s3 import delete_message
@@ -57,5 +56,5 @@ def cli(cls):
         if args.dispatcher is not None:
             granule.next(args.dispatcher)
     elif args.command == 'process':
-        granule = Granule(vars(args), path=args.path)
+        granule = cls(vars(args), path=args.path)
         granule.run()
