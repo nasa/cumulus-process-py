@@ -16,12 +16,15 @@ def lambda_handler(payload):
     run(payload)
 
 
-def run(cls, payload, path='/tmp', s3path='', noclean=False, **kwargs):
+def run(cls, payload, path='/tmp', s3path='', noclean=False):
     """ Run this payload with the given Granule class """
     pl = parse_payload(payload)
-    granule = cls(payload['filenames'], gid=pl['gid'], collection=pl['collection'],
+    from nose.tools import set_trace; set_trace()
+    granule = cls(pl['filenames'], gid=pl['gid'], collection=pl['collection'],
                   path=path, s3path=s3path)
     granule.run(noclean=noclean)
+    return granule
+    # update payload with output files
 
 
 def get_and_run_task(cls, sfn, arn):
@@ -35,7 +38,7 @@ def get_and_run_task(cls, sfn, arn):
     try:
         payload = json.loads(task['input'])
         # run job
-        result = run(cls, payload)
+        granule = run(cls, payload)
         # return sucess with result
         sfn.send_task_success(taskToken=task['taskToken'], output=json.dumps({'result': result}))
     except Exception as e:
@@ -50,14 +53,3 @@ def activity(cls):
     while True:
         get_and_run_task(cls, sfn, arn)
 
-
-def next(self, payload, lambda_name):
-    """ Send payload to dispatcher lambda """
-    # update payload
-    try:
-        payload['previousStep'] = self.payload['nextStep']
-        payload['nextStep'] = self.payload['nextStep'] + 1
-        # invoke dispatcher lambda
-        s3.invoke_lambda(payload, lambda_name)
-    except Exception as e:
-        logger.error('Error sending to dispatcher lambda: %s' % str(e))
