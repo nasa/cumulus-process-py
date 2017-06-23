@@ -75,13 +75,13 @@ class TestAWS(unittest.TestCase):
 
         # check for remote files
         uris = granule.remote_out[0].values()
-        self.check_and_remove_output(uris)
+        self.check_and_remove_remote_out(uris)
 
         granule.clean()
         for f in self.output_files.values():
             self.assertFalse(os.path.exists(f))
 
-    def check_and_remove_output(self, uris):
+    def check_and_remove_remote_out(self, uris):
         """ Check for existence of remote files, then remove them """
         for uri in uris:
             self.assertTrue(s3.exists(uri))
