@@ -18,9 +18,15 @@ class TestGranule(unittest.TestCase):
     path = os.path.dirname(__file__)
 
     input_files = [
-        os.path.join(s3path, "input-1.hdf"),
+        os.path.join(s3path, "input-1.txt"),
         os.path.join(s3path, "input-2.txt")
     ]
+
+    output_files = {
+        'out1': os.path.join(path, 'output-1.txt'),
+        'out2': os.path.join(path, 'output-2.txt'),
+        'meta': os.path.join(path, 'TESTGRANULE.meta.xml')
+    }
 
     def uri(self, key):
         return 's3://%s' % os.path.join(self.s3path, key)
@@ -32,8 +38,8 @@ class TestGranule(unittest.TestCase):
         """ Initialize Granule with JSON payload """
         granule = self.get_test_granule()
         self.assertTrue(granule.gid, "test_granule")
-        self.assertTrue(granule.remote_in['hdf'], self.input_files[0])
-        self.assertTrue(granule.remote_in['meta'], self.input_files[1])
+        self.assertTrue(granule.remote_in['in1'], self.input_files[0])
+        self.assertTrue(granule.remote_in['in2'], self.input_files[1])
 
     def test_write_metadata(self):
         """ Write an XML metadata file from a dictionary """
@@ -73,18 +79,12 @@ class TestGranule(unittest.TestCase):
         granule.clean()
         self.assertFalse(os.path.exists(os.path.join(self.path, 'output-1.txt')))
 
-    @patch('cumulus.s3.invoke_lambda')
     @patch('cumulus.granule.Granule.process')
-    def test_run(self, mock_process, mock_lambda):
+    def test_run(self, mock_process):
         """ Make complete run """
-        mock_lambda.return_value = True
-        mock_process.return_value = {
-            'output-1': os.path.join(self.path, 'output-1.txt'),
-            'output-2': os.path.join(self.path, 'output-2.txt'),
-            'meta-xml': os.path.join(self.path, 'TESTCOLLECTION.meta.xml')
-        }
+        mock_process.return_value = self.output_files
         # run
-        granule = Granule(self.input_files, path=self.path, s3path=self.uri('testing/cumulus-py'))
+        granule = Granule(self.input_files, path=self.path, s3path=self.s3path)
         self.fake_process(granule)
         granule.run(noclean=True)
         # check for metadata
@@ -104,12 +104,7 @@ class TestGranule(unittest.TestCase):
 
     def fake_process(self, granule):
         """ Create local output files as if process did something """
-        local_out = {
-            'out1': os.path.join(self.path, 'output-1.txt'),
-            'out2': os.path.join(self.path, 'output-2.txt'),
-            'meta-xml': os.path.join(self.path, 'TESTGRANULE.meta.xml')
-        }
-        for fout in local_out.values():
+        for fout in self.output_files.values():
             with open(fout, 'w') as f:
                 f.write(fout)
-        granule.local_out.append(local_out)
+        granule.local_out.append(self.output_files)
