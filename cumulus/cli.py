@@ -36,6 +36,11 @@ def parse_args(cls, args):
                                help='Do not remove local files when done')
     recipe_parser.add_argument('--dispatcher', help='Name of Dispatcher Lambda', default=None)
     recipe_parser.add_argument('--sqs', help='Receipt of SQS message to delete when done', default=None)
+
+    h = 'Start Step Function Activity'
+    activity_parser = subparsers.add_parser('activity', parents=[pparser], help=h, formatter_class=dhf)
+    activity_parser.add_argument('--arn', help='Activity ARN to use to pull tasks', default=os.getenv('ACTIVITY_ARN'))
+
     parser0 = cls.add_parser_args(parser0)
     return parser0.parse_args(args)
 
