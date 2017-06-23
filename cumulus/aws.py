@@ -1,6 +1,5 @@
 import os
 import json
-import cumulus.s3 as s3
 from cumulus.payload import parse_payload
 import boto3
 import traceback
@@ -9,6 +8,12 @@ from botocore.vendored.requests.exceptions import ReadTimeout
 from cumulus.loggers import getLogger
 
 logger = getLogger(__name__)
+
+"""
+cls is the Granule subclass for a specific data source, such as MODIS, ASTER, etc.
+"""
+
+SFN_PAYLOAD_LIMIT = 32768
 
 
 def lambda_handler(payload):
@@ -22,24 +27,41 @@ def run(cls, payload, path='/tmp', s3path='', noclean=False):
     granule = cls(pl['filenames'], gid=pl['gid'], collection=pl['collection'],
                   path=path, s3path=s3path)
     granule.run(noclean=noclean)
+    # TODO = update payload with output files
     return granule
-    # update payload with output files
 
 
 def get_and_run_task(cls, sfn, arn):
     """ Get and run a single task as part of an activity """
-    logger.info('qury for task')
+    logger.info('query for task')
     try:
         task = sfn.get_activity_task(activityArn=arn, workerName=__name__)
     except ReadTimeout:
         logger.warning('Activity read timed out. Trying again.')
         return
+
+    token = task.get('taskToken', None)
+    if not token:
+        logger.info('No activity task')
+        return
+
     try:
         payload = json.loads(task['input'])
+        # if need to get payload from s3
+        #if 's3uri' in payload:
+        #    payload = download_json(payload['s3uri'])
+
         # run job
-        granule = run(cls, payload)
+        payload = run(cls, payload)
+
         # return sucess with result
-        sfn.send_task_success(taskToken=task['taskToken'], output=json.dumps({'result': result}))
+        output = json.dumps(payload)
+        # check payload size
+        #if len(output) >= SFN_PAYLOAD_LIMIT:
+        #    s3out = upload_result(result)
+        #    output = json.dumps({'result': {'result_s3_uri': s3out}})
+
+        sfn.send_task_success(taskToken=task['taskToken'], output=output)
     except Exception as e:
         tb = traceback.format_exc()
         sfn.send_task_failure(taskToken=task['taskToken'], error=str(e), cause=tb)
@@ -51,4 +73,3 @@ def activity(cls):
     sfn = boto3.client('stepfunctions', config=Config(read_timeout=70))
     while True:
         get_and_run_task(cls, sfn, arn)
-
