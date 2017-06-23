@@ -13,7 +13,7 @@ services:
 
   test:
     image: developmentseed/cumulus:base
-    entrypoint: bash -c 'pip install -r requirements-dev.txt; nosetests --with-coverage --cover-package cumulus --cover-inclusive --with-timer -v -s;'
+    entrypoint: bash -c 'nosetests -v -s --with-coverage --cover-package cumulus --cover-inclusive --with-timer -v -s;'
     env_file: .env
     working_dir: /work
     volumes:
