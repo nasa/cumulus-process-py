@@ -7,7 +7,7 @@ from dicttoxml import dicttoxml
 from xml.dom.minidom import parseString
 import cumulus.s3 as s3
 from cumulus.loggers import getLogger
-from cumulus.main import cli
+from cumulus.cli import cli
 from cumulus.aws import run, activity
 
 logger = getLogger(__name__)
@@ -18,13 +18,13 @@ class Granule(object):
 
     # internally used keys
     inputs = {
-        'hdf': r'^.*.hdf$',
-        'meta': r'^.*.txt'
+        'in1': r'^.*-1.txt$',
+        'in2': r'^.*-2.txt'
     }
     outputs = {
         'out1': r'^.*-1.txt$',
         'out2': r'^.*-2.txt$',
-        'meta-xml': r'^.*.xml$'
+        'meta': r'^.*.xml$'
     }
 
     def add_input_file(self, filename):
