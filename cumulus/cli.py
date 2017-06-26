@@ -4,9 +4,7 @@ import os
 import sys
 import argparse
 import logging
-from cumulus.loggers import getLogger
 from cumulus.version import __version__
-from cumulus.s3 import delete_message
 
 logger = logging.getLogger(__name__)
 
