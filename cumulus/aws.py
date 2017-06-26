@@ -67,7 +67,7 @@ def get_and_run_task(cls, sfn, arn):
         sfn.send_task_failure(taskToken=task['taskToken'], error=str(e), cause=tb)
 
 
-def activity(cls):
+def activity(cls, arn=os.getenv('ACTIVITY_ARN')):
     """ An activity service for use with AWS Step Functions """
     arn = os.getenv('ACTIVITY_ARN')
     sfn = boto3.client('stepfunctions', config=Config(read_timeout=70))
