@@ -11,6 +11,17 @@ import cumulus.s3 as s3
 from cumulus.granule import Granule
 
 
+# mocked function replaced Granule.process
+def fake_process(self):
+    """ Create local output files as if process did something """
+    # produce one fake granu
+    TestGranule.create_files(TestGranule.output_files.values())
+    local_out = {}
+    for f in TestGranule.output_files:
+        local_out[f] = TestGranule.output_files[f]
+    self.local_out.append(local_out)
+
+
 class TestGranule(unittest.TestCase):
     """ Test utiltiies for publishing data on AWS PDS """
 
@@ -27,6 +38,25 @@ class TestGranule(unittest.TestCase):
         'out2': os.path.join(path, 'output-2.txt'),
         'meta': os.path.join(path, 'TESTGRANULE.meta.xml')
     }
+
+    @classmethod
+    def create_files(cls, filenames):
+        """ Create small files for testing """
+        fouts = []
+        for fname in filenames:
+            fout = os.path.join(cls.path, os.path.basename(fname))
+            with open(fout, 'w') as f:
+                f.write(fname)
+            fouts.append(fout)
+        return fouts
+
+    @classmethod
+    def setUpClass(cls):
+        """ Put some input files up on S3 """
+        fouts = cls.create_files(cls.input_files)
+        for f in fouts:
+            s3.upload(f, cls.s3path)
+            os.remove(f)
 
     def uri(self, key):
         return 's3://%s' % os.path.join(self.s3path, key)
@@ -59,52 +89,38 @@ class TestGranule(unittest.TestCase):
         urls = granule.publish()
         self.assertEqual(urls[0]['out1'], 'http://nowhere.s3.amazonaws.com/out1')
 
-    def test_download(self):
-        """ Download input files """
-        granule = self.get_test_granule()
-        fnames = granule.download()
-        self.assertEqual(len(fnames), 2)
-        for f in fnames:
-            self.assertTrue(os.path.exists(f))
-            os.remove(f)
-
+    @patch.object(Granule, 'process', fake_process)
     def test_upload(self):
         """ Upload output files """
         granule = self.get_test_granule()
-        self.fake_process(granule)
+        granule.process()
         uploads = granule.upload()
         self.assertEqual(len(uploads), 1)
         for u in uploads:
-            self.check_and_remove_output(u)
+            self.check_and_remove_remote_out(u)
         granule.clean()
         self.assertFalse(os.path.exists(os.path.join(self.path, 'output-1.txt')))
 
-    @patch('cumulus.granule.Granule.process')
-    def test_run(self, mock_process):
+    @patch.object(Granule, 'process', fake_process)
+    def test_run(self):
         """ Make complete run """
-        mock_process.return_value = self.output_files
-        # run
         granule = Granule(self.input_files, path=self.path, s3path=self.s3path)
-        self.fake_process(granule)
         granule.run(noclean=True)
-        # check for metadata
-        self.assertTrue(os.path.exists(granule.local_out[0]['meta-xml']))
-        # get log output to check for all success messages
-        uris = granule.remote_out[0].values()
-        self.check_and_remove_output(uris)
-        granule.clean()
-        self.assertFalse(os.path.exists(os.path.join(self.path, 'output-1.txt')))
+        # check for local output files
+        for f in self.output_files.values():
+            self.assertTrue(os.path.exists(f))
 
-    def check_and_remove_output(self, uris):
+        # check for remote files
+        uris = granule.remote_out[0].values()
+        self.check_and_remove_remote_out(uris)
+
+        granule.clean()
+        for f in self.output_files.values():
+            self.assertFalse(os.path.exists(f))
+
+    def check_and_remove_remote_out(self, uris):
         """ Check for existence of remote files, then remove them """
         for uri in uris:
             self.assertTrue(s3.exists(uri))
             s3.delete(uri)
             self.assertFalse(s3.exists(uri))
-
-    def fake_process(self, granule):
-        """ Create local output files as if process did something """
-        for fout in self.output_files.values():
-            with open(fout, 'w') as f:
-                f.write(fout)
-        granule.local_out.append(self.output_files)
