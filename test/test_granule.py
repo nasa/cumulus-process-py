@@ -36,7 +36,7 @@ class TestGranule(unittest.TestCase):
     output_files = {
         'out1': os.path.join(path, 'output-1.txt'),
         'out2': os.path.join(path, 'output-2.txt'),
-        'meta': os.path.join(path, 'TESTGRANULE.meta.xml')
+        'meta': os.path.join(path, 'output-3.meta.xml')
     }
 
     @classmethod

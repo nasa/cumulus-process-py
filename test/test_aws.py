@@ -36,7 +36,7 @@ class TestAWS(unittest.TestCase):
     output_files = {
         'out1': os.path.join(path, 'output-1.txt'),
         'out2': os.path.join(path, 'output-2.txt'),
-        'meta': os.path.join(path, 'TESTGRANULE.meta.xml')
+        'meta': os.path.join(path, 'output-3.meta.xml')
     }
 
     @classmethod
@@ -66,20 +66,10 @@ class TestAWS(unittest.TestCase):
     @patch.object(Granule, 'process', fake_process)
     def test_run(self):
         """ Make complete run with payload """
-        granule = run(Granule, self.payload, path=self.path, s3path=self.s3path)
-        granule.run(noclean=True)
-
-        # check for local output files
-        for f in self.output_files.values():
-            self.assertTrue(os.path.exists(f))
-
-        # check for remote files
-        uris = granule.remote_out[0].values()
+        payload = run(Granule, self.payload, path=self.path, s3path=self.s3path)
+        keys = payload['granuleRecord']['recipe']['processStep']['config']['outputFiles']
+        uris = [payload['granuleRecord']['files'][k]['stagingFile'] for k in keys]
         self.check_and_remove_remote_out(uris)
-
-        granule.clean()
-        for f in self.output_files.values():
-            self.assertFalse(os.path.exists(f))
 
     def check_and_remove_remote_out(self, uris):
         """ Check for existence of remote files, then remove them """

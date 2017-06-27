@@ -2,7 +2,7 @@ import os
 import json
 import unittest
 import cumulus.s3 as s3
-from cumulus.payload import parse_payload
+from cumulus.payload import Payload
 from nose.tools import raises
 
 
@@ -13,36 +13,44 @@ class TestPayload(unittest.TestCase):
     testdir = os.path.dirname(__file__)
     payload = os.path.join(testdir, 'payload.json')
 
+    def get_payload(self):
+        """ Get payload object """
+        return Payload(self.payload)
+
     def test_parse_payload_json(self):
         """ Parse JSON payload """
         with open(self.payload, 'r') as f:
             payload = json.loads(f.read())
-        payload = parse_payload(payload)
-        self.assertTrue('gid' in payload)
-        self.assertEqual(len(payload['filenames']), 2)
+        pl = Payload(payload)
+        param = pl.process_parameters()
+        self.assertTrue('gid' in param)
+        self.assertEqual(len(param['filenames']), 2)
 
     def test_parse_payload_string(self):
         """ Parse JSON string payload """
         with open(self.payload, 'r') as f:
             payload = f.read()
-        payload = parse_payload(payload)
-        self.assertTrue('gid' in payload)
-        self.assertEqual(len(payload['filenames']), 2)
+        pl = Payload(payload)
+        param = pl.process_parameters()
+        self.assertTrue('gid' in param)
+        self.assertEqual(len(param['filenames']), 2)
 
     def test_parse_payload_file(self):
         """ Parse test payload file """
-        payload = parse_payload(self.payload)
-        self.assertTrue('gid' in payload)
-        self.assertEqual(len(payload['filenames']), 2)
+        pl = Payload(self.payload)
+        param = pl.process_parameters()
+        self.assertTrue('gid' in param)
+        self.assertEqual(len(param['filenames']), 2)
 
     def test_parse_payload_from_s3(self):
         """ Parse test payload from S3 file """
         uri = s3.upload(self.payload, self.s3path)
-        payload = parse_payload(uri)
-        self.assertTrue('gid' in payload)
-        self.assertEqual(len(payload['filenames']), 2)
+        pl = Payload(uri)
+        param = pl.process_parameters()
+        self.assertTrue('gid' in param)
+        self.assertEqual(len(param['filenames']), 2)
 
     @raises(ValueError)
     def test_parse_invalid_payload(self):
         """ Parse invalid payload """
-        parse_payload('nonsensestring')
+        Payload('nonsensestring')
