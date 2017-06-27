@@ -1,6 +1,6 @@
 import os
 import json
-from cumulus.payload import parse_payload
+from cumulus.payload import Payload
 import boto3
 import traceback
 from botocore.client import Config
@@ -18,17 +18,18 @@ SFN_PAYLOAD_LIMIT = 32768
 
 def lambda_handler(payload):
     """ Handler for AWS Lambda function """
-    run(payload)
+    return run(payload)
 
 
 def run(cls, payload, path='/tmp', s3path='', noclean=False):
     """ Run this payload with the given Granule class """
-    pl = parse_payload(payload)
-    granule = cls(pl['filenames'], gid=pl['gid'], collection=pl['collection'],
+    pl = Payload(payload)
+    param = pl.process_parameters()
+    granule = cls(param['filenames'], gid=param['gid'], collection=param['collection'],
                   path=path, s3path=s3path)
     granule.run(noclean=noclean)
-    # TODO = update payload with output files
-    return granule
+    # TODO update with new payload format allowing for multiple output granules
+    return pl.add_output_files(granule.remote_out[0].values())
 
 
 def get_and_run_task(cls, sfn, arn):
