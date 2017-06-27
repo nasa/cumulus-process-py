@@ -53,7 +53,7 @@ class Payload(object):
             'filenames': filenames
         }
 
-    def output_visibility(self):
+    def visibility(self):
         return {k: self.payload['granuleRecord']['files'][k].get('access', 'public') for k in self.output_keys}
 
     def add_output_files(self, filenames):
