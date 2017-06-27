@@ -9,13 +9,7 @@ from mock import patch, PropertyMock
 import unittest
 import logging
 from cumulus.granule import Granule
-from cumulus.main import parse_args, cli
-
-# quiet these loggers
-logging.getLogger('boto3').setLevel(logging.CRITICAL)
-logging.getLogger('botocore').setLevel(logging.CRITICAL)
-logging.getLogger('nose').setLevel(logging.CRITICAL)
-logging.getLogger('s3transfer').setLevel(logging.CRITICAL)
+from cumulus.cli import parse_args, cli
 
 
 class TestMain(unittest.TestCase):
@@ -60,7 +54,7 @@ class TestMain(unittest.TestCase):
         self.assertEqual(args['test-1'], 'test-1.txt')
         self.assertEqual(args['test-2'], 'test-2.txt')
 
-    def test_cli_recipe(self):
+    def _test_cli_recipe(self):
         """ Test CLI function with a recipe """
         sys.argv = ('program recipe test/payload.json --path %s --loglevel 5' % (self.testdir)).split(' ')
         cli(Granule)
@@ -69,7 +63,7 @@ class TestMain(unittest.TestCase):
             self.assertFalse(os.path.exists(fname))
 
     @patch('cumulus.granule.Granule.inputs', new_callable=PropertyMock)
-    def test_cli(self, mocked_inputs):
+    def _test_cli(self, mocked_inputs):
         """ Test CLI function without recipe """
         mocked_inputs.return_value = ['test-1', 'test-2']
         sys.argv = ('program process test1.txt test-2.txt --path %s' % self.testdir).split(' ')

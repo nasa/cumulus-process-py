@@ -10,136 +10,117 @@ import json
 import cumulus.s3 as s3
 from cumulus.granule import Granule
 
-# quiet these loggers
-logging.getLogger('boto3').setLevel(logging.CRITICAL)
-logging.getLogger('botocore').setLevel(logging.CRITICAL)
-logging.getLogger('nose').setLevel(logging.CRITICAL)
-logging.getLogger('s3transfer').setLevel(logging.CRITICAL)
-logging.getLogger('dicttoxml').setLevel(logging.CRITICAL)
+
+# mocked function replaced Granule.process
+def fake_process(self):
+    """ Create local output files as if process did something """
+    # produce one fake granu
+    TestGranule.create_files(TestGranule.output_files.values())
+    local_out = {}
+    for f in TestGranule.output_files:
+        local_out[f] = TestGranule.output_files[f]
+    self.local_out.append(local_out)
 
 
 class TestGranule(unittest.TestCase):
     """ Test utiltiies for publishing data on AWS PDS """
 
-    bucket = 'cumulus-internal'
-    testdir = os.path.dirname(__file__)
-    payload = os.path.join(testdir, 'payload.json')
+    s3path = 's3://cumulus-internal/testing/cumulus-py'
+    path = os.path.dirname(__file__)
+
+    input_files = [
+        os.path.join(s3path, "input-1.txt"),
+        os.path.join(s3path, "input-2.txt")
+    ]
+
+    output_files = {
+        'out1': os.path.join(path, 'output-1.txt'),
+        'out2': os.path.join(path, 'output-2.txt'),
+        'meta': os.path.join(path, 'output-3.meta.xml')
+    }
+
+    @classmethod
+    def create_files(cls, filenames):
+        """ Create small files for testing """
+        fouts = []
+        for fname in filenames:
+            fout = os.path.join(cls.path, os.path.basename(fname))
+            with open(fout, 'w') as f:
+                f.write(fname)
+            fouts.append(fout)
+        return fouts
+
+    @classmethod
+    def setUpClass(cls):
+        """ Put some input files up on S3 """
+        fouts = cls.create_files(cls.input_files)
+        for f in fouts:
+            s3.upload(f, cls.s3path)
+            os.remove(f)
 
     def uri(self, key):
-        return 's3://%s' % os.path.join(self.bucket, key)
+        return 's3://%s' % os.path.join(self.s3path, key)
+
+    def get_test_granule(self):
+        return Granule(self.input_files, 'test_granule', path=self.path, s3path=self.s3path)
 
     def test_init(self):
         """ Initialize Granule with JSON payload """
-        with open(self.payload, 'r') as f:
-            payload = json.loads(f.read())
-        self.assertTrue('granuleRecord' in payload.keys())
-        granule = Granule(payload)
-        self.assertTrue('granuleRecord' in granule.payload.keys())
-
-    def test_init_s3(self):
-        """ Initialize granule with payload retrieved from s3 """
-        uri = s3.upload(self.payload, self.uri('testing'))
-        granule = Granule(uri)
-        self.assertTrue('granuleRecord' in granule.payload.keys())
-        s3.delete(uri)
-        self.assertFalse(s3.exists(uri))
-
-    def test_init_file(self):
-        """ initialize Ganule with payload JSON file """
-        granule = Granule(self.payload)
-        self.assertTrue('granuleRecord' in granule.payload.keys())
+        granule = self.get_test_granule()
+        self.assertTrue(granule.gid, "test_granule")
+        self.assertTrue(granule.remote_in['in1'], self.input_files[0])
+        self.assertTrue(granule.remote_in['in2'], self.input_files[1])
 
     def test_write_metadata(self):
         """ Write an XML metadata file from a dictionary """
-        fout = os.path.join(self.testdir, 'test_write_metadata.meta.xml')
+        fout = os.path.join(self.path, 'test_write_metadata.meta.xml')
         Granule.write_metadata({'key1': 'val1'}, fout)
         self.assertTrue(os.path.exists(fout))
         os.remove(fout)
 
-    def test_recipe(self):
-        """ Get recipe from payload """
-        granule = Granule(self.payload)
-        self.assertTrue('archive' in granule.recipe)
-        self.assertTrue('order' in granule.recipe)
-        self.assertTrue('processStep' in granule.recipe)
-
-    def test_input_files(self):
-        """ Get input files parsed from payload """
-        granule = Granule(self.payload)
-        files = granule.input_files
-        self.assertEqual(len(files), 2)
-        for i in ['input-1', 'input-2']:
-            self.assertTrue(i in files)
-
-    def test_output_files(self):
-        """ Get output files parsed from payload """
-        granule = Granule(self.payload)
-        files = granule.output_files
-        self.assertEqual(len(files), 3)
-        for o in ['output-1', 'output-2', 'meta-xml']:
-            self.assertTrue(o in files)
-
-    def test_publish_files(self):
+    def test_publish_public_files(self):
         """ Get files to publish + endpoint prefixes """
-        granule = Granule(self.payload)
-        to_publish = granule.publish_files
+        granule = self.get_test_granule()
+        # add fake some remote output files
+        granule.remote_out.append({
+            'out1': 's3://nowhere/out1',
+            'out2': 's3://nowhere/out2'
+        })
+        urls = granule.publish()
+        self.assertEqual(urls[0]['out1'], 'http://nowhere.s3.amazonaws.com/out1')
 
-    def test_download(self):
-        """ Download input files given in payload """
-        granule = Granule(self.payload, path=self.testdir)
-        fnames = granule.download()
-        self.assertEqual(len(fnames), 2)
-        for f in fnames:
-            self.assertTrue(os.path.exists(fnames[f]))
-            os.remove(fnames[f])
-
+    @patch.object(Granule, 'process', fake_process)
     def test_upload(self):
-        """ Upload output files given in payload """
-        granule = Granule(self.payload, path=self.testdir, s3path=self.uri('testing/cumulus-py'))
-        self.fake_process(granule)
-        uris = granule.upload()
-        self.check_and_remove_output(uris)
+        """ Upload output files """
+        granule = self.get_test_granule()
+        granule.process()
+        uploads = granule.upload()
+        self.assertEqual(len(uploads), 1)
+        for u in uploads:
+            self.check_and_remove_remote_out(u)
         granule.clean()
-        self.assertFalse(os.path.exists(os.path.join(self.testdir, 'output-1.txt')))
+        self.assertFalse(os.path.exists(os.path.join(self.path, 'output-1.txt')))
 
-    @patch('cumulus.s3.invoke_lambda')
-    @patch('cumulus.granule.Granule.process')
-    def test_run(self, mock_process, mock_lambda):
+    @patch.object(Granule, 'process', fake_process)
+    def test_run(self):
         """ Make complete run """
-        mock_lambda.return_value = True
-        mock_process.return_value = {
-            'output-1': os.path.join(self.testdir, 'output-1.txt'),
-            'output-2': os.path.join(self.testdir, 'output-2.txt'),
-            'meta-xml': os.path.join(self.testdir, 'TESTCOLLECTION.meta.xml')
-        }
-        # run
-        granule = Granule(self.payload, path=self.testdir, s3path=self.uri('testing/cumulus-py'))
-        self.fake_process(granule)
+        granule = Granule(self.input_files, path=self.path, s3path=self.s3path)
         granule.run(noclean=True)
-        # check for metadata
-        self.assertTrue(os.path.exists(granule.local_output['meta-xml']))
-        # get log output to check for all success messages
-        uris = [f['stagingFile'] for f in granule.output_files.values()]
-        self.check_and_remove_output(uris)
-        granule.clean()
-        self.assertFalse(os.path.exists(os.path.join(self.testdir, 'output-1.txt')))
+        # check for local output files
+        for f in self.output_files.values():
+            self.assertTrue(os.path.exists(f))
 
-    def check_and_remove_output(self, uris):
+        # check for remote files
+        uris = granule.remote_out[0].values()
+        self.check_and_remove_remote_out(uris)
+
+        granule.clean()
+        for f in self.output_files.values():
+            self.assertFalse(os.path.exists(f))
+
+    def check_and_remove_remote_out(self, uris):
         """ Check for existence of remote files, then remove them """
         for uri in uris:
             self.assertTrue(s3.exists(uri))
             s3.delete(uri)
             self.assertFalse(s3.exists(uri))
-
-    def fake_process(self, granule):
-        """ Create local output files as if process did something """
-        outs = ['output-1', 'output-2']
-        for out in outs:
-            fout = os.path.join(self.testdir, out + '.txt')
-            with open(fout, 'w') as f:
-                f.write(out)
-            granule.local_output[out] = fout
-        fout = os.path.join(self.testdir, 'TESTCOLLECTION.meta.xml')
-        with open(fout, 'w') as f:
-            f.write('<metadata>')
-        granule.local_output['meta-xml'] = fout

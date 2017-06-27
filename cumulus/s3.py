@@ -72,7 +72,7 @@ def download_json(uri):
     s3 = get_client()
     s3_uri = uri_parser(uri)
     response = s3.get_object(Bucket=s3_uri['bucket'], Key=s3_uri['key'])
-    return json.loads(response['Body'].read())
+    return json.loads(response['Body'].read().decode())
 
 
 def upload(filename, uri):

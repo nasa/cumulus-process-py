@@ -3,10 +3,10 @@
 import os
 import sys
 import argparse
-from cumulus.granule import Granule
-from cumulus.loggers import getLogger
+import logging
 from cumulus.version import __version__
-from cumulus.s3 import delete_message
+
+logger = logging.getLogger(__name__)
 
 
 def parse_args(cls, args):
@@ -34,6 +34,11 @@ def parse_args(cls, args):
                                help='Do not remove local files when done')
     recipe_parser.add_argument('--dispatcher', help='Name of Dispatcher Lambda', default=None)
     recipe_parser.add_argument('--sqs', help='Receipt of SQS message to delete when done', default=None)
+
+    h = 'Start Step Function Activity'
+    activity_parser = subparsers.add_parser('activity', parents=[pparser], help=h, formatter_class=dhf)
+    activity_parser.add_argument('--arn', help='Activity ARN to use to pull tasks', default=os.getenv('ACTIVITY_ARN'))
+
     parser0 = cls.add_parser_args(parser0)
     return parser0.parse_args(args)
 
@@ -42,20 +47,16 @@ def cli(cls):
     """ Command Line Interface for a specific Granule class """
     args = parse_args(cls, sys.argv[1:])
 
-    if args.command == 'recipe':
-        if args.s3path is None:
-            args.s3path = 's3://' + os.getenv('internal', 'cumulus-internal-testing')
-        logger = getLogger(__name__, stdout={'level': args.loglevel * 10})
-        granule = cls(args.recipe, path=args.path, s3path=args.s3path, logger=logger)
+    logger.setLevel(args.loglevel * 10)
+
+    # process local files
+    if args.command == 'process':
+        granule = cls(vars(args), path=args.path)
+        granule.run()
+    # process with a recipe
+    elif args.command == 'recipe':
+        granule = cls(args.recipe, path=args.path, s3path=args.s3path)
         granule.run(noclean=args.noclean)
-        if args.sqs is not None and os.getenv('ProcessingQueue') is not None:
-            delete_message(args.sqs, os.getenv('ProcessingQueue'))
-        if args.dispatcher is not None:
-            granule.next(args.dispatcher)
-    elif args.command == 'process':
-        logger = getLogger(__name__, stdout={'level': args.loglevel * 10})
-        cls.process(vars(args), path=args.path, logger=logger)
-
-
-if __name__ == "__main__":
-    cli(Granule)
+    # run as a service
+    elif args.command == 'service':
+        cls.activity()

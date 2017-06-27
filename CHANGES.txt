@@ -1,0 +1,4 @@
+v0.1.2:
+- refactored granule class to be more abstracted, payload code moved to aws service module
+- added support for multiple output granules
+- use regex to determine which input files are which so order does not matter (only that all needed files are supplied, in any order)
