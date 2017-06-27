@@ -1,0 +1,31 @@
+version: '2'
+
+services:
+
+  build:
+    build:
+      context: .
+    image: developmentseed/cumulus:dataname
+
+  bash:
+    image: developmentseed/cumulus:dataname
+    entrypoint: /bin/bash
+    env_file: .env
+    working_dir: /work
+    volumes:
+      - '.:/work'
+
+  cumulus:
+    image: developmentseed/cumulus:dataname
+    env_file: .env
+    working_dir: /work
+    volumes:
+      - '.:/work'
+
+  test:
+    image: developmentseed/cumulus:dataname
+    entrypoint: bash -c 'pip install -r requirements-dev.txt; nosetests --with-coverage --cover-package cumulus_modis --cover-inclusive --with-timer -v -s;'
+    env_file: .env
+    working_dir: /work
+    volumes:
+      - '.:/work'

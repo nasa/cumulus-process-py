@@ -30,7 +30,7 @@
 				"access": "protected"
 			},
 			"meta-xml": {
-				"regex": "^TESTCOLLECTION\\.meta\\.xml",
+				"regex": "^output-3.meta.xml$",
 				"access": "public"
 			}
 		},
