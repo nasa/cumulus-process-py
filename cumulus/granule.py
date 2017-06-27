@@ -38,7 +38,7 @@ class Granule(object):
                 else:
                     self.remote_in[f] = filename
 
-    def __init__(self, filenames, gid=None, collection='granule', path='', s3path='', **kwargs):
+    def __init__(self, filenames, gid=None, collection='granule', path='', s3path='', visibility={}, **kwargs):
         """ Initialize a new granule with filenames """
         self.collection = collection
 
@@ -50,6 +50,7 @@ class Granule(object):
         self.gid = gid
         self.path = path
         self.s3path = s3path
+        self.visibility = visibility
 
         self.local_in = {}
         self.local_out = []
@@ -70,14 +71,14 @@ class Granule(object):
         }
         self.logger = logging.LoggerAdapter(logger, extra)
 
-    def publish(self, visibility={}, protected_url='http://cumulus.com'):
+    def publish(self, protected_url='http://cumulus.com'):
         """ Return URLs for output granule(s), defaults to all public """
         urls = []
         for gran in self.remote_out:
             granout = {}
             for key, fname in gran.items():
                 s3obj = fname.replace('s3://', '').split('/')
-                vis = visibility.get(key, 'public')
+                vis = self.visibility.get(key, 'public')
                 if vis == 'public':
                     public = 'http://%s.s3.amazonaws.com' % s3obj[0]
                     if len(s3obj) > 1:

@@ -37,6 +37,11 @@ class Payload(object):
         except:
             raise ValueError("Invalid payload")
 
+    @property
+    def output_keys(self):
+        """ Get keys of output files """
+        return self.payload['granuleRecord']['recipe']['processStep']['config']['outputFiles']
+
     def process_parameters(self):
         """ Get parameters used for processing the granule """
         record = self.payload['granuleRecord']
@@ -47,6 +52,9 @@ class Payload(object):
             'collection': self.payload['granuleRecord']['collectionName'],
             'filenames': filenames
         }
+
+    def output_visibility(self):
+        return {k: self.payload['granuleRecord']['files'][k].get('access', 'public') for k in self.output_keys}
 
     def add_output_files(self, filenames):
         keys = self.payload['granuleRecord']['recipe']['processStep']['config']['outputFiles']
