@@ -82,12 +82,12 @@ class TestGranule(unittest.TestCase):
         """ Get files to publish + endpoint prefixes """
         granule = self.get_test_granule()
         # add fake some remote output files
-        granule.remote_out.append({
-            'out1': 's3://nowhere/out1',
-            'out2': 's3://nowhere/out2'
+        granule.local_out.append({
+            'out1': 'nowhere/out1',
+            'out2': 'nowhere/out2'
         })
         urls = granule.publish()
-        self.assertEqual(urls[0]['out1'], 'http://nowhere.s3.amazonaws.com/out1')
+        self.assertEqual(urls[0]['out1'], 'http://cumulus-internal.s3.amazonaws.com/testing/cumulus-py/out1')
 
     @patch.object(Granule, 'process', fake_process)
     def test_upload(self):
