@@ -20,13 +20,14 @@ class Granule(object):
         'in1': r'^.*-1.txt$',
         'in2': r'^.*-2.txt'
     }
-    required = inputs.keys()
+
     outputs = {
         'out1': r'^.*-1.txt$',
         'out2': r'^.*-2.txt$',
         'meta': r'^.*.xml$'
     }
 
+    autocheck = True
     autodownload = True
 
     def __init__(self, filenames, gid=None, collection='granule', path='', s3path='', visibility={}, **kwargs):
@@ -51,10 +52,12 @@ class Granule(object):
         self.remote_in = {}
         for f in filenames:
             self.add_input_file(f)
-        totalfiles = len(self.remote_in) + len(self.local_in)
 
-        if (len(self.required) != totalfiles) or (len(self.required) != len(filenames)):
-            raise IOError('Files do not make up complete granule or extra files provided')
+        # let child data granules determine if it's not enough
+        if self.autocheck:
+            totalfiles = len(self.remote_in) + len(self.local_in)
+            if (len(self.inputs) != totalfiles) or (len(self.inputs) != len(filenames)):
+                raise IOError('Files do not make up complete granule or extra files provided')
 
         extra = {
             'collectionName': self.collection,
@@ -65,7 +68,7 @@ class Granule(object):
     def add_input_file(self, filename):
         """ Adds an input file """
         for f in self.inputs:
-            m = re.match(self.inputs[f], filename)
+            m = re.match(self.inputs[f], os.path.basename(filename))
             if m is not None:
                 # does the file exist locally
                 if os.path.exists(f):
