@@ -104,7 +104,7 @@ class Granule(object):
             self.logger.info('downloading input file %s' % uri)
             fname = s3.download(uri, path=self.path)
             self.local_in[key] = fname
-            downloaded.append(fname)
+            downloaded.append(str(fname))
         return downloaded
 
     def upload(self):
