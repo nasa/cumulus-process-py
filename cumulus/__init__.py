@@ -9,3 +9,4 @@ logging.getLogger('dicttoxml').setLevel(logging.CRITICAL)
 
 
 from cumulus.granule import Granule
+from cumulus.payload import Payload
