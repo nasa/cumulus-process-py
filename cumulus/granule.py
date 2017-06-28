@@ -79,7 +79,7 @@ class Granule(object):
     def publish(self, protected_url='http://cumulus.com'):
         """ Return URLs for output granule(s), defaults to all public """
         urls = []
-        for gran in self.remote_out:
+        for gran in self.local_out:
             granout = {}
             for key, fname in gran.items():
                 s3obj = fname.replace('s3://', '').split('/')
