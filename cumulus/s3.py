@@ -4,26 +4,12 @@ import os
 import json
 import logging
 import boto3
-from dotenv import load_dotenv
-
-# load envvars
-env_file = os.path.join(os.path.dirname(__file__), '.env')
-if os.path.exists(env_file):
-    load_dotenv(env_file)
-
-# environment variables
-AWS_ACCESS_KEY_ID = os.getenv('AWS_ACCESS_KEY_ID')
-AWS_SECRET_ACCESS_KEY = os.getenv('AWS_SECRET_ACCESS_KEY')
 
 logger = logging.getLogger(__name__)
 
 
 def get_client(client='s3'):
-    return boto3.client(client,
-                        aws_access_key_id=AWS_ACCESS_KEY_ID,
-                        aws_secret_access_key=AWS_SECRET_ACCESS_KEY,
-                        region_name='us-east-1'
-                        )
+    return boto3.client(client)
 
 
 def uri_parser(uri):

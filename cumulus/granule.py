@@ -200,9 +200,5 @@ class Granule(object):
         return {}
 
 
-def handler(payload):
-    return run(Granule, payload)
-
-
 if __name__ == "__main__":
     Granule.cli()
