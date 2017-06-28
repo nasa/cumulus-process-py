@@ -26,7 +26,7 @@ def run(cls, payload, path='/tmp', s3path=None, noclean=False):
     pl = Payload(payload)
     param = pl.process_parameters()
     if s3path is None:
-        s3path = os.getenv('internal', 'cumulus-internal')
+        s3path = 's3://' + os.getenv('internal', 'cumulus-internal')
     granule = cls(param['filenames'], gid=param['gid'], collection=param['collection'],
                   path=path, s3path=s3path, visibility=pl.visibility())
     granule.run(noclean=noclean)
