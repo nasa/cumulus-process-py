@@ -2,7 +2,6 @@
 import os
 import re
 import logging
-import json
 from dicttoxml import dicttoxml
 from xml.dom.minidom import parseString
 import cumulus.s3 as s3
@@ -183,7 +182,7 @@ class Granule(object):
 
     @classmethod
     def run_with_payload(cls, payload, noclean=False):
-        run(payload)
+        run(cls, payload)
 
     def process(self, input, **kwargs):
         """ Process a granule locally to produce one or more output granules """
@@ -195,6 +194,10 @@ class Granule(object):
             The Granule class takes care of logging, validating, writing out metadata, and reporting on timing
         """
         return {}
+
+
+def handler(payload):
+    return run(Granule, payload)
 
 
 if __name__ == "__main__":
