@@ -82,14 +82,14 @@ class Granule(object):
         for gran in self.local_out:
             granout = {}
             for key, fname in gran.items():
-                s3obj = fname.replace('s3://', '').split('/')
+                s3obj = self.s3path.replace('s3://', '').split('/')
                 vis = self.visibility.get(key, 'public')
                 if vis == 'public':
                     public = 'http://%s.s3.amazonaws.com' % s3obj[0]
                     if len(s3obj) > 1:
                         for d in s3obj[1:]:
                             public = os.path.join(public, d)
-                    granout[key] = public
+                    granout[key] = os.path.join(public, os.path.basename(fname))
                 elif vis == 'protected':
                     granout[key] = os.path.join(protected_url, os.path.basename(fname))
             urls.append(granout)
