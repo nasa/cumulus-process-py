@@ -27,6 +27,8 @@ class Granule(object):
         'meta': r'^.*.xml$'
     }
 
+    autodownload = True
+
     def add_input_file(self, filename):
         """ Adds an input file """
         for f in self.inputs:
@@ -152,9 +154,10 @@ class Granule(object):
         """ Run all steps and log: download, process, upload """
         try:
             self.logger.info('begin processing')
-            self.logger.info('download input files')
-            for f in self.remote_in:
-                self.download(f)
+            if not self.autodownload:
+                self.logger.info('download input files')
+                for f in self.remote_in:
+                    self.download(f)
             self.logger.info('processing')
             self.process()
             self.upload()
