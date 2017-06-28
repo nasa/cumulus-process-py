@@ -20,6 +20,7 @@ class Granule(object):
         'in1': r'^.*-1.txt$',
         'in2': r'^.*-2.txt'
     }
+    required = inputs.keys()
     outputs = {
         'out1': r'^.*-1.txt$',
         'out2': r'^.*-2.txt$',
@@ -27,17 +28,6 @@ class Granule(object):
     }
 
     autodownload = True
-
-    def add_input_file(self, filename):
-        """ Adds an input file """
-        for f in self.inputs:
-            m = re.match(self.inputs[f], filename)
-            if m is not None:
-                # does the file exist locally
-                if os.path.exists(f):
-                    self.local_in[f] = filename
-                else:
-                    self.remote_in[f] = filename
 
     def __init__(self, filenames, gid=None, collection='granule', path='', s3path='', visibility={}, **kwargs):
         """ Initialize a new granule with filenames """
@@ -63,7 +53,7 @@ class Granule(object):
             self.add_input_file(f)
         totalfiles = len(self.remote_in) + len(self.local_in)
 
-        if (len(self.inputs) != totalfiles) or (len(self.inputs) != len(filenames)):
+        if (len(self.required) != totalfiles) or (len(self.required) != len(filenames)):
             raise IOError('Files do not make up complete granule or extra files provided')
 
         extra = {
@@ -71,6 +61,17 @@ class Granule(object):
             'granuleId': self.gid
         }
         self.logger = logging.LoggerAdapter(logger, extra)
+
+    def add_input_file(self, filename):
+        """ Adds an input file """
+        for f in self.inputs:
+            m = re.match(self.inputs[f], filename)
+            if m is not None:
+                # does the file exist locally
+                if os.path.exists(f):
+                    self.local_in[f] = filename
+                else:
+                    self.remote_in[f] = filename
 
     def publish(self, protected_url='http://cumulus.com'):
         """ Return URLs for output granule(s), defaults to all public """
@@ -182,7 +183,7 @@ class Granule(object):
 
     @classmethod
     def run_with_payload(cls, payload, noclean=False):
-        run(cls, payload)
+        return run(cls, payload, noclean=noclean)
 
     def process(self, input, **kwargs):
         """ Process a granule locally to produce one or more output granules """
