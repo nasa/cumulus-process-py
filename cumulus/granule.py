@@ -2,7 +2,6 @@
 import os
 import re
 import logging
-import json
 from dicttoxml import dicttoxml
 from xml.dom.minidom import parseString
 import cumulus.s3 as s3
@@ -21,22 +20,15 @@ class Granule(object):
         'in1': r'^.*-1.txt$',
         'in2': r'^.*-2.txt'
     }
+
     outputs = {
         'out1': r'^.*-1.txt$',
         'out2': r'^.*-2.txt$',
         'meta': r'^.*.xml$'
     }
 
-    def add_input_file(self, filename):
-        """ Adds an input file """
-        for f in self.inputs:
-            m = re.match(self.inputs[f], filename)
-            if m is not None:
-                # does the file exist locally
-                if os.path.exists(f):
-                    self.local_in[f] = filename
-                else:
-                    self.remote_in[f] = filename
+    autocheck = True
+    autodownload = True
 
     def __init__(self, filenames, gid=None, collection='granule', path='', s3path='', visibility={}, **kwargs):
         """ Initialize a new granule with filenames """
@@ -60,10 +52,12 @@ class Granule(object):
         self.remote_in = {}
         for f in filenames:
             self.add_input_file(f)
-        totalfiles = len(self.remote_in) + len(self.local_in)
 
-        if (len(self.inputs) != totalfiles) or (len(self.inputs) != len(filenames)):
-            raise IOError('Files do not make up complete granule or extra files provided')
+        # let child data granules determine if it's not enough
+        if self.autocheck:
+            totalfiles = len(self.remote_in) + len(self.local_in)
+            if (len(self.inputs) != totalfiles) or (len(self.inputs) != len(filenames)):
+                raise IOError('Files do not make up complete granule or extra files provided')
 
         extra = {
             'collectionName': self.collection,
@@ -71,20 +65,31 @@ class Granule(object):
         }
         self.logger = logging.LoggerAdapter(logger, extra)
 
+    def add_input_file(self, filename):
+        """ Adds an input file """
+        for f in self.inputs:
+            m = re.match(self.inputs[f], os.path.basename(filename))
+            if m is not None:
+                # does the file exist locally
+                if os.path.exists(f):
+                    self.local_in[f] = filename
+                else:
+                    self.remote_in[f] = filename
+
     def publish(self, protected_url='http://cumulus.com'):
         """ Return URLs for output granule(s), defaults to all public """
         urls = []
-        for gran in self.remote_out:
+        for gran in self.local_out:
             granout = {}
             for key, fname in gran.items():
-                s3obj = fname.replace('s3://', '').split('/')
+                s3obj = self.s3path.replace('s3://', '').split('/')
                 vis = self.visibility.get(key, 'public')
                 if vis == 'public':
                     public = 'http://%s.s3.amazonaws.com' % s3obj[0]
                     if len(s3obj) > 1:
                         for d in s3obj[1:]:
                             public = os.path.join(public, d)
-                    granout[key] = public
+                    granout[key] = os.path.join(public, os.path.basename(fname))
                 elif vis == 'protected':
                     granout[key] = os.path.join(protected_url, os.path.basename(fname))
             urls.append(granout)
@@ -99,7 +104,7 @@ class Granule(object):
             self.logger.info('downloading input file %s' % uri)
             fname = s3.download(uri, path=self.path)
             self.local_in[key] = fname
-            downloaded.append(fname)
+            downloaded.append(str(fname))
         return downloaded
 
     def upload(self):
@@ -152,9 +157,10 @@ class Granule(object):
         """ Run all steps and log: download, process, upload """
         try:
             self.logger.info('begin processing')
-            self.logger.info('download input files')
-            for f in self.remote_in:
-                self.download(f)
+            if not self.autodownload:
+                self.logger.info('download input files')
+                for f in self.remote_in:
+                    self.download(f)
             self.logger.info('processing')
             self.process()
             self.upload()
@@ -180,7 +186,7 @@ class Granule(object):
 
     @classmethod
     def run_with_payload(cls, payload, noclean=False):
-        run(payload)
+        return run(cls, payload, noclean=noclean)
 
     def process(self, input, **kwargs):
         """ Process a granule locally to produce one or more output granules """
