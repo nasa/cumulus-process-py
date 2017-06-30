@@ -28,7 +28,6 @@ class Granule(object):
     }
 
     autocheck = True
-    autodownload = True
 
     def __init__(self, filenames, gid=None, collection='granule', path='', s3path='', visibility={}, **kwargs):
         """ Initialize a new granule with filenames """
@@ -154,14 +153,9 @@ class Granule(object):
                     os.remove(f)
 
     def run(self, noclean=False):
-        """ Run all steps and log: download, process, upload """
+        """ Run all steps and log: process, upload """
         try:
             self.logger.info('begin processing')
-            if not self.autodownload:
-                self.logger.info('download input files')
-                for f in self.remote_in:
-                    self.download(f)
-            self.logger.info('processing')
             self.process()
             self.upload()
             if noclean is False:

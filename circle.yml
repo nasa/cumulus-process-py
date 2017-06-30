@@ -3,12 +3,10 @@
 # environment variables added through the CircleCI webpage:
 #   AWS_ACCESS_KEY_ID
 #   AWS_SECRET_ACCESS_KEY
+#   AWS_REGION
 #   DOCKER_EMAIL
 #   DOCKER_USER
 #   DOCKER_PASS
-#   SPLUNK_HOST
-#   SPLUNK_USERNAME
-#   SPLUNK_PASSWORD
 
 machine:
   python:
@@ -28,9 +26,7 @@ test:
   pre:
     - echo "AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID" >> .env
     - echo "AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY" >> .env
-    - echo "SPLUNK_HOST=$SPLUNK_HOST" >> .env
-    - echo "SPLUNK_USERNAME=$SPLUNK_USERNAME" >> .env
-    - echo "SPLUNK_PASSWORD=$SPLUNK_PASSWORD" >> .env
+    - echo "AWS_REGION=$AWS_REGION" >> .env
     - docker-compose build
   override:
     - docker-compose run test
