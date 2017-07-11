@@ -1,24 +1,34 @@
 # Cumulus project base docker file
 FROM developmentseed/geolambda:gdal2hdf
 
-WORKDIR /work
+MAINTAINER developmentseed
+
+ENV \
+	BUILD=/build; \
+	HOME=/home/cumulus
+
+WORKDIR $BUILD
 
 # install requirements
-COPY requirements.txt /work/
-COPY requirements-dev.txt /work/
+COPY requirements.txt $BUILD
+COPY requirements-dev.txt $BUILD
 RUN \
   	easy_install pip; \
   	pip install numpy wheel; \
   	pip install -r requirements.txt; \
-  	pip install -r requirements-dev.txt; \
-  	rm -rf /work
+  	pip install -r requirements-dev.txt;
 
 # install package
-COPY ./ /work/
+COPY ./ $BUILD
 RUN \
 	pip install .; \
-  	rm -rf /work
+  	rm -rf $BUILD
 
-# default to bash entrypoint
-ENTRYPOINT /bin/bash
-CMD []
+### create cumulus user
+RUN \
+    mkdir -p $HOME; \
+    groupadd -r cumulus -g 299; \
+    useradd -u 299 -r -g cumulus -d $HOME -s /sbin/nologin -c "Cumulus processing" cumulus; \
+    chown -R cumulus:cumulus $HOME
+
+CMD ["/bin/bash"]
