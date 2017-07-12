@@ -33,12 +33,6 @@ class Granule(object):
         """ Initialize a new granule with filenames """
         self.collection = collection
 
-        # if gid not provided get common prefix
-        if gid is not None:
-            self.gid = gid
-        else:
-            self.gid = self._gid()
-
         self.path = path
         self.s3path = s3path
         self.visibility = visibility
@@ -51,6 +45,12 @@ class Granule(object):
         self.remote_in = {}
         for f in filenames:
             self.add_input_file(f)
+
+        # if gid not provided get common prefix
+        if gid is not None:
+            self.gid = gid
+        else:
+            self.gid = self._gid()
 
         # let child data granules determine if it's not enough
         if self.autocheck:
