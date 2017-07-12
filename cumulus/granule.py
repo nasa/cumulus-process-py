@@ -34,11 +34,11 @@ class Granule(object):
         self.collection = collection
 
         # if gid not provided get common prefix
-        if gid is None:
-            gid = os.path.commonprefix([os.path.basename(f) for f in filenames])
-            if gid == '':
-                raise ValueError('Unable to determine granule ID from files, provide manually')
-        self.gid = gid
+        if gid is not None:
+            self.gid = gid
+        else:
+            self.gid = self._gid()
+
         self.path = path
         self.s3path = s3path
         self.visibility = visibility
@@ -63,6 +63,21 @@ class Granule(object):
             'granuleId': self.gid
         }
         self.logger = logging.LoggerAdapter(logger, extra)
+
+    def _gid(self):
+        gid = os.path.commonprefix([os.path.basename(f) for f in self.input_files])
+        if gid == '':
+            raise ValueError('Unable to determine granule ID from files, provide manually')
+        return gid
+
+    @property
+    def input_files(self):
+        """ Get dictionary of all input files, local or remote (prefers local first) """
+        fnames = {k: v for k, v in self.local_in.items()}
+        for k, v in self.remote_in.items():
+            if k not in fnames:
+                fnames[k] = v
+        return fnames
 
     def add_input_file(self, filename):
         """ Adds an input file """
