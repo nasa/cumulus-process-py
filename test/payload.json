@@ -8,10 +8,10 @@
       "cmr": "arn:aws:states:us-west-2:xxxxxxx:stateMachine:cumulus-generic-test-cmr"
     },
     "buckets": {
-      "internal": "cumulus-generic-test-internal",
-      "private": "cumulus-generic-test-private",
-      "public": "cumulus-generic-test-public",
-      "protected": "cumulus-generic-test-protected"
+      "internal": "cumulus-internal",
+      "private": "cumulus-internal",
+      "public": "cumulus-internal",
+      "protected": "cumulus-internal"
     }
   },
   "collections": {
@@ -28,58 +28,14 @@
 			"access": "private"
 		}
       }  		
-  	},
-  	"OutputCollection": {
-		"files": {
-
-			"output-1": {
-				"regex": "^output-1.txt$",
-				"access": "protected",
-				"access": "protected"
-			},
-			"output-2": {
-				"regex": "^output-2.txt$",
-				"access": "protected"
-			},
-			"meta-xml": {
-				"regex": "^output-3.meta.xml$",
-				"access": "public"
-			}
-		}
   	}
   },
   "payload": {
-
+  	"InputCollection": {
+  		"files": {
+			"input-1": "s3://cumulus-internal/testing/cumulus-py/input-1.txt",
+			"input-2": "s3://cumulus-internal/testing/cumulus-py/input-2.txt"
+  		}
+	}
   }
 }
-
-
-
-			"input-1": {
-				"access": "public",
-				"stagingFile": "s3://cumulus-internal/testing/cumulus-py/input-1.txt"
-			},
-			"input-2": {
-				"access": "public",
-				"sipFile": "https://developmentseed.org/nosuchfile",
-				"stagingFile": "s3://cumulus-internal/testing/cumulus-py/input-2.txt",
-				"access": "private"
-			},
-			"output-1": {
-				"regex": "^output-1.txt$",
-				"access": "public",
-				"sipFile": null,
-				"stagingFile": null,
-				"access": "protected"
-			},
-			"output-2": {
-				"regex": "^output-2.txt$",
-				"access": "public",
-				"sipFile": null,
-				"stagingFile": null,
-				"access": "protected"
-			},
-			"meta-xml": {
-				"regex": "^output-3.meta.xml$",
-				"access": "public"
-			}
