@@ -85,7 +85,7 @@ class Granule(object):
             m = re.match(self.inputs[f], os.path.basename(filename))
             if m is not None:
                 # does the file exist locally
-                if os.path.exists(f):
+                if os.path.exists(filename):
                     self.local_in[f] = filename
                 else:
                     self.remote_in[f] = filename
