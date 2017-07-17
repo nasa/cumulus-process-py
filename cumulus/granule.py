@@ -177,7 +177,9 @@ class Granule(object):
                 self.clean()
             self.logger.info('processing completed')
         except Exception as e:
-            self.logger.error({'message': 'Run error with granule', 'error': str(e)})
+            import traceback
+            self.logger.error({'message': 'Run error with granule: %s' % str(e),
+                              'error': traceback.format_exc()})
             raise e
 
     @classmethod
