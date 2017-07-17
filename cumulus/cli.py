@@ -40,23 +40,30 @@ def parse_args(cls, args):
     activity_parser.add_argument('--arn', help='Activity ARN to use to pull tasks', default=os.getenv('ACTIVITY_ARN'))
 
     parser0 = cls.add_parser_args(parser0)
-    return parser0.parse_args(args)
+
+    parsed_args = vars(parser0.parse_args(args))
+
+    if parsed_args['command'] == 'process':
+        parsed_args['filenames'] = [parsed_args.pop(i) for i in cls.inputs]
+
+    return parsed_args
 
 
 def cli(cls):
     """ Command Line Interface for a specific Granule class """
     args = parse_args(cls, sys.argv[1:])
 
-    logger.setLevel(args.loglevel * 10)
+    logger.setLevel(args.pop('loglevel') * 10)
+    cmd = args.pop('command')
 
     # process local files
-    if args.command == 'process':
-        granule = cls(**vars(args))
+    if cmd == 'process':
+        granule = cls(**args)
         granule.run()
     # process with a recipe
-    elif args.command == 'recipe':
-        granule = cls.run_with_payload(args.recipe, path=args.path, s3path=args.s3path)
+    elif cmd == 'recipe':
+        granule = cls.run_with_payload(args['recipe'], path=args.path, s3path=args.s3path)
         granule.run(noclean=args.noclean)
     # run as a service
-    elif args.command == 'service':
+    elif cmd == 'service':
         cls.activity()

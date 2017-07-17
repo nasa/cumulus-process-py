@@ -18,7 +18,7 @@ class Granule(object):
     # internally used keys
     inputs = {
         'in1': r'^.*-1.txt$',
-        'in2': r'^.*-2.txt'
+        'in2': r'^.*-2.txt$'
     }
 
     outputs = {
@@ -32,7 +32,6 @@ class Granule(object):
     def __init__(self, filenames, gid=None, collection='granule', path='', s3path='', visibility={}, **kwargs):
         """ Initialize a new granule with filenames """
         self.collection = collection
-
         self.path = path
         self.s3path = s3path
         self.visibility = visibility
@@ -82,6 +81,7 @@ class Granule(object):
     def add_input_file(self, filename):
         """ Adds an input file """
         for f in self.inputs:
+
             m = re.match(self.inputs[f], os.path.basename(filename))
             if m is not None:
                 # does the file exist locally
@@ -197,7 +197,7 @@ class Granule(object):
     def run_with_payload(cls, payload, **kwargs):
         return run(cls, payload, **kwargs)
 
-    def process(self, input, **kwargs):
+    def process(self, **kwargs):
         """ Process a granule locally to produce one or more output granules """
         """
             The Granule class automatically fetches input files and uploads output files, while

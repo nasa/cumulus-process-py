@@ -41,18 +41,17 @@ class TestMain(unittest.TestCase):
         """ Parse arguments given input files """
         cmd = 'recipe test/payload.json --path test/ --s3path s3://nosuchbucket'
         args = parse_args(Granule, cmd.split(' '))
-        self.assertEqual(args.recipe, 'test/payload.json')
-        self.assertEqual(args.path, 'test/')
-        self.assertEqual(args.s3path, 's3://nosuchbucket')
+        self.assertEqual(args['recipe'], 'test/payload.json')
+        self.assertEqual(args['path'], 'test/')
+        self.assertEqual(args['s3path'], 's3://nosuchbucket')
 
-    @patch('cumulus.granule.Granule.inputs', new_callable=PropertyMock)
-    def test_parse_args(self, mocked_inputs):
+    #@patch('cumulus.granule.Granule.inputs', new_callable=PropertyMock)
+    def test_parse_args(self): #, mocked_inputs):
         """ Test argument parsing """
-        mocked_inputs.return_value = ['test-1', 'test-2']
+        #mocked_inputs.return_value = ['test-1', 'test-2']
         cmd = 'process test-1.txt test-2.txt'
-        args = vars(parse_args(Granule, cmd.split(' ')))
-        self.assertEqual(args['test-1'], 'test-1.txt')
-        self.assertEqual(args['test-2'], 'test-2.txt')
+        args = parse_args(Granule, cmd.split(' '))
+        self.assertEqual(args['filenames'], ['test-1.txt', 'test-2.txt'])
 
     def _test_cli_recipe(self):
         """ Test CLI function with a recipe """
@@ -62,9 +61,9 @@ class TestMain(unittest.TestCase):
             fname = os.path.join(self.testdir, f + '.txt')
             self.assertFalse(os.path.exists(fname))
 
-    @patch('cumulus.granule.Granule.inputs', new_callable=PropertyMock)
-    def _test_cli(self, mocked_inputs):
+    #@patch('cumulus.granule.Granule.inputs', new_callable=PropertyMock)
+    def test_cli(self): #, mocked_inputs):
         """ Test CLI function without recipe """
-        mocked_inputs.return_value = ['test-1', 'test-2']
-        sys.argv = ('program process test1.txt test-2.txt --path %s' % self.testdir).split(' ')
+        #mocked_inputs.return_value = ['test-1', 'test-2']
+        sys.argv = ('program process test-1.txt test-2.txt --path %s' % self.testdir).split(' ')
         cli(Granule)
