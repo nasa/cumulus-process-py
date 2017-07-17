@@ -51,7 +51,7 @@ def cli(cls):
 
     # process local files
     if args.command == 'process':
-        granule = cls(vars(args), path=args.path)
+        granule = cls(path=args.path, **vars(args))
         granule.run()
     # process with a recipe
     elif args.command == 'recipe':
