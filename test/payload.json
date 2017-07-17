@@ -1,30 +1,80 @@
 {
-	"granuleRecord": {
-		"archivedAt": 1480962569,
-		"collectionName": "TESTCOLLECTION",
-		"createdAt": 1480962569,
+  "resources": {
+    "stack": "cumulus-generic-test",
+    "stateMachines": {
+      "download": "arn:aws:states:us-west-2:xxxxxxx:stateMachine:cumulus-generic-test-download",
+      "process": "arn:aws:states:us-west-2:xxxxxxx:stateMachine:cumulus-generic-test-process",
+      "archive": "arn:aws:states:us-west-2:xxxxxxx:stateMachine:cumulus-generic-test-archive",
+      "cmr": "arn:aws:states:us-west-2:xxxxxxx:stateMachine:cumulus-generic-test-cmr"
+    },
+    "buckets": {
+      "internal": "cumulus-generic-test-internal",
+      "private": "cumulus-generic-test-private",
+      "public": "cumulus-generic-test-public",
+      "protected": "cumulus-generic-test-protected"
+    }
+  },
+  "collections": {
+  	"InputCollection": {
+      "granuleId": "",
+      "granuleIdExtraction": "",
+      "files": {
+		"input-1": {
+			"regex": "^input-1.txt$",
+			"access": "public"
+		},
+		"input-2": {
+			"regex": "^input-2.txt$",
+			"access": "private"
+		}
+      }  		
+  	},
+  	"OutputCollection": {
 		"files": {
+
+			"output-1": {
+				"regex": "^output-1.txt$",
+				"access": "protected",
+				"access": "protected"
+			},
+			"output-2": {
+				"regex": "^output-2.txt$",
+				"access": "protected"
+			},
+			"meta-xml": {
+				"regex": "^output-3.meta.xml$",
+				"access": "public"
+			}
+		}
+  	}
+  },
+  "payload": {
+
+  }
+}
+
+
+
 			"input-1": {
-				"archivedFile": null,
-				"sipFile": "https://developmentseed.org/nosuchfile",
+				"access": "public",
 				"stagingFile": "s3://cumulus-internal/testing/cumulus-py/input-1.txt"
 			},
 			"input-2": {
-				"archivedFile": null,
+				"access": "public",
 				"sipFile": "https://developmentseed.org/nosuchfile",
 				"stagingFile": "s3://cumulus-internal/testing/cumulus-py/input-2.txt",
 				"access": "private"
 			},
 			"output-1": {
 				"regex": "^output-1.txt$",
-				"archivedFile": null,
+				"access": "public",
 				"sipFile": null,
 				"stagingFile": null,
 				"access": "protected"
 			},
 			"output-2": {
 				"regex": "^output-2.txt$",
-				"archivedFile": null,
+				"access": "public",
 				"sipFile": null,
 				"stagingFile": null,
 				"access": "protected"
@@ -33,41 +83,3 @@
 				"regex": "^output-3.meta.xml$",
 				"access": "public"
 			}
-		},
-		"granuleId": "TESTGRANULE",
-		"granuleShortName": "TESTGRANULE",
-		"processedAt": 1480962569,
-		"pushedToCMRAt": 1480962569,
-		"readyForProcess": 1480962569,
-		"recipe": {
-			"archive": {
-				"config": {}
-			},
-			"order": [
-				"processStep",
-				"pushToCMR",
-				"archive"
-			],
-			"processStep": {
-				"config": {
-					"image": "developmentseed/nosuchimage:nosuchtag",
-					"inputFiles": [
-						"input-1",
-						"input-2"
-					],
-					"outputFiles": [
-						"output-1",
-						"output-2",
-						"meta-xml"
-					]
-				}
-			},
-			"pushToCMR": {
-				"config": {}
-			}
-		},
-		"updatedAt": 1480962569
-	},
-	"nextStep": 0,
-	"previousStep": 0
-}
