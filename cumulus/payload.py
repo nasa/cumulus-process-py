@@ -29,11 +29,10 @@ class Payload(object):
     def validate(cls, payload):
         """ Test validity of payload """
         try:
-            assert('granuleRecord' in payload)
-            assert('recipe' in payload['granuleRecord'])
-            assert('files' in payload['granuleRecord'])
-            assert('processStep' in payload['granuleRecord']['recipe'])
-            assert('config' in payload['granuleRecord']['recipe']['processStep'])
+            assert('resources' in payload)
+            assert('collections' in payload)
+            assert('payload' in payload)
+            assert('buckets' in payload['resources'])
         except:
             raise ValueError("Invalid payload")
 
