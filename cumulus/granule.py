@@ -194,8 +194,8 @@ class Granule(object):
         activity(cls)
 
     @classmethod
-    def run_with_payload(cls, payload, noclean=False):
-        return run(cls, payload, noclean=noclean)
+    def run_with_payload(cls, payload, **kwargs):
+        return run(cls, payload, **kwargs)
 
     def process(self, input, **kwargs):
         """ Process a granule locally to produce one or more output granules """
