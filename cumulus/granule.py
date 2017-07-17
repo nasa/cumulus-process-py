@@ -114,11 +114,12 @@ class Granule(object):
         keys = self.inputs.keys() if key is None else [key]
         downloaded = []
         for key in keys:
-            uri = self.remote_in[key]
-            self.logger.info('downloading input file %s' % uri)
-            fname = s3.download(uri, path=self.path)
-            self.local_in[key] = fname
-            downloaded.append(str(fname))
+            if key not in self.local_in:
+                uri = self.remote_in[key]
+                self.logger.info('downloading input file %s' % uri)
+                fname = s3.download(uri, path=self.path)
+                self.local_in[key] = fname
+                downloaded.append(str(fname))
         return downloaded
 
     def upload(self):
