@@ -51,11 +51,11 @@ def cli(cls):
 
     # process local files
     if args.command == 'process':
-        granule = cls(path=args.path, **vars(args))
+        granule = cls(**vars(args))
         granule.run()
     # process with a recipe
     elif args.command == 'recipe':
-        granule = cls(args.recipe, path=args.path, s3path=args.s3path)
+        granule = cls.run_with_payload(args.recipe, path=args.path, s3path=args.s3path)
         granule.run(noclean=args.noclean)
     # run as a service
     elif args.command == 'service':
