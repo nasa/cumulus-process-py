@@ -24,14 +24,11 @@ def lambda_handler(payload):
 def run(cls, payload, path='/tmp', s3path=None, noclean=False):
     """ Run this payload with the given Granule class """
     pl = Payload(payload)
-    param = pl.process_parameters()
     if s3path is None:
         s3path = 's3://' + os.getenv('internal', 'cumulus-internal')
-    granule = cls(param['filenames'], gid=param['gid'], collection=param['collection'],
-                  path=path, s3path=s3path, visibility=pl.visibility())
+    granule = cls(pl.input_filenames(), path=path, s3path=s3path, visibility=pl.visibility())
     granule.run(noclean=noclean)
-    # TODO update with new payload format allowing for multiple output granules
-    return pl.add_output_files(granule.remote_out[0].values())
+    return pl.add_output_files(granule.remote_out)
 
 
 def get_and_run_task(cls, sfn, arn):
