@@ -32,8 +32,6 @@ def parse_args(cls, args):
     recipe_parser.add_argument('--s3path', help='S3 prefix to save output', default=None)
     recipe_parser.add_argument('--noclean', action='store_true', default=False,
                                help='Do not remove local files when done')
-    recipe_parser.add_argument('--dispatcher', help='Name of Dispatcher Lambda', default=None)
-    recipe_parser.add_argument('--sqs', help='Receipt of SQS message to delete when done', default=None)
 
     h = 'Start Step Function Activity'
     activity_parser = subparsers.add_parser('activity', parents=[pparser], help=h, formatter_class=dhf)
