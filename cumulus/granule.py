@@ -29,9 +29,8 @@ class Granule(object):
 
     autocheck = True
 
-    def __init__(self, filenames, gid=None, collection='granule', path='', s3path='', visibility={}, **kwargs):
+    def __init__(self, filenames, path='', s3path='', visibility={}, **kwargs):
         """ Initialize a new granule with filenames """
-        self.collection = collection
         self.path = path
         self.s3path = s3path
         self.visibility = visibility
@@ -45,12 +44,6 @@ class Granule(object):
         for f in filenames:
             self.add_input_file(f)
 
-        # if gid not provided get common prefix
-        if gid is not None:
-            self.gid = gid
-        else:
-            self.gid = self._gid()
-
         # let child data granules determine if it's not enough
         if self.autocheck:
             totalfiles = len(self.remote_in) + len(self.local_in)
@@ -58,12 +51,12 @@ class Granule(object):
                 raise IOError('Files do not make up complete granule or extra files provided')
 
         extra = {
-            'collectionName': self.collection,
             'granuleId': self.gid
         }
         self.logger = logging.LoggerAdapter(logger, extra)
 
-    def _gid(self):
+    @property
+    def gid(self):
         gid = os.path.commonprefix([os.path.basename(f) for f in self.input_files])
         if gid == '':
             raise ValueError('Unable to determine granule ID from files, provide manually')
