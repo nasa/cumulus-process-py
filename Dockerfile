@@ -26,9 +26,12 @@ RUN \
 
 ### create cumulus user
 RUN \
-    mkdir -p $HOME; \
     groupadd -r cumulus -g 299; \
-    useradd -u 299 -r -g cumulus -d $HOME -s /sbin/nologin -c "Cumulus processing" cumulus; \
+    useradd -u 299 -r -g cumulus -d $HOME -c "Cumulus processing" cumulus; \
+    #mkdir -p $HOME; \
     chown -R cumulus:cumulus $HOME
+
+#USER cumulus
+WORKDIR $HOME/work
 
 CMD ["/bin/bash"]
