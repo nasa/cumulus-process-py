@@ -54,7 +54,11 @@
         ]
       }
     },
-    "outputs": {}
+    "outputs": {
+      "CollectionA": {
+        "granules": []
+      }
+    }
   }
 }
 
