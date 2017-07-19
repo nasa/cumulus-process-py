@@ -1,5 +1,4 @@
 import os
-import re
 import json
 import cumulus.s3 as s3
 
@@ -30,7 +29,8 @@ class Payload(object):
         """ Test validity of payload """
         try:
             assert('resources' in payload)
-            assert('collections' in payload)
+            assert('meta' in payload)
+            assert('collections' in payload['meta'])
             assert('payload' in payload)
             assert('buckets' in payload['resources'])
         except:
@@ -39,11 +39,11 @@ class Payload(object):
     @property
     def collections(self):
         """ Get list of collections referenced in payload """
-        return self.payload['collections'].keys()
+        return self.payload['meta']['collections'].keys()
 
     def input_filenames(self):
         """ Get parameters used for processing the granule """
-        inputs = self.payload['payload']['inputs']
+        inputs = self.payload['payload']['input']
         filenames = []
         for c in inputs:
             for g in inputs[c]['granules']:
@@ -53,7 +53,7 @@ class Payload(object):
     def visibility(self, collection=None):
         if collection is None:
             collection = self.collections[0]
-        files = self.payload['collections'][collection]['files']
+        files = self.payload['meta']['collections'][collection]['files']
         return {k: files[k].get('access', 'public') for k in files}
 
 
@@ -62,7 +62,7 @@ class Payload(object):
         if collection is None:
             collection = self.collections[0]
 
-        self.payload['payload']['outputs'][collection]['granules'] += granules
+        self.payload['payload']['output'][collection]['granules'] += granules
 
         return self.payload
         #for c in collections:
