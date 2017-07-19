@@ -1,1 +1,0 @@
-from .dataname import DATANAME
