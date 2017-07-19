@@ -61,5 +61,5 @@ class TestS3(unittest.TestCase):
         """ Download file from S3 as JSON """
         uri = s3.upload(self.payload, self.s3path)
         record = s3.download_json(uri)
-        self.assertTrue('granuleRecord' in record.keys())
+        self.assertTrue('resources' in record.keys())
         s3.delete(uri)

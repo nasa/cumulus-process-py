@@ -1,5 +1,4 @@
 import os
-import re
 import json
 import cumulus.s3 as s3
 
@@ -29,39 +28,49 @@ class Payload(object):
     def validate(cls, payload):
         """ Test validity of payload """
         try:
-            assert('granuleRecord' in payload)
-            assert('recipe' in payload['granuleRecord'])
-            assert('files' in payload['granuleRecord'])
-            assert('processStep' in payload['granuleRecord']['recipe'])
-            assert('config' in payload['granuleRecord']['recipe']['processStep'])
+            assert('resources' in payload)
+            assert('meta' in payload)
+            assert('collections' in payload['meta'])
+            assert('payload' in payload)
+            assert('buckets' in payload['resources'])
         except:
             raise ValueError("Invalid payload")
 
     @property
-    def output_keys(self):
-        """ Get keys of output files """
-        return self.payload['granuleRecord']['recipe']['processStep']['config']['outputFiles']
+    def collections(self):
+        """ Get list of collections referenced in payload """
+        return self.payload['meta']['collections'].keys()
 
-    def process_parameters(self):
+    def input_filenames(self):
         """ Get parameters used for processing the granule """
-        record = self.payload['granuleRecord']
-        filenames = [record['files'][r]['stagingFile'] for r in record['recipe']['processStep']['config']['inputFiles']]
+        inputs = self.payload['payload']['input']
+        filenames = []
+        for c in inputs:
+            for g in inputs[c]['granules']:
+                filenames += g['files'].values()
+        return filenames
 
-        return {
-            'gid': self.payload['granuleRecord']['granuleId'],
-            'collection': self.payload['granuleRecord']['collectionName'],
-            'filenames': filenames
-        }
+    def visibility(self, collection=None):
+        if collection is None:
+            collection = self.collections[0]
+        files = self.payload['meta']['collections'][collection]['files']
+        return {k: files[k].get('access', 'public') for k in files}
 
-    def visibility(self):
-        return {k: self.payload['granuleRecord']['files'][k].get('access', 'public') for k in self.output_keys}
 
-    def add_output_files(self, filenames):
-        keys = self.payload['granuleRecord']['recipe']['processStep']['config']['outputFiles']
-        for k in keys:
-            pattern = self.payload['granuleRecord']['files'][k]['regex']
-            for f in filenames:
-                m = re.match(pattern, os.path.basename(f))
-                if m is not None:
-                    self.payload['granuleRecord']['files'][k]['stagingFile'] = f
+    def add_output_files(self, granules, collection=None):
+        """ Add output granules to the payload """
+        if collection is None:
+            collection = self.collections[0]
+
+        self.payload['payload']['output'][collection]['granules'] += granules
+
         return self.payload
+        #for c in collections:
+        #    keys = self.payload['collections'][c]['files'].keys()
+        #    for k in keys:
+        #        pattern = self.payload['collections'][c]['files'][k]['regex']
+        #        for f in filenames:
+        #            m = re.match(pattern, os.path.basename(f))
+        #            if m is not None:
+        #                self.payload['payload']['outputs'][c]['granules'][k]['stagingFile'] = f
+        #return self.payload

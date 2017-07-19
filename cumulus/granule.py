@@ -18,7 +18,7 @@ class Granule(object):
     # internally used keys
     inputs = {
         'in1': r'^.*-1.txt$',
-        'in2': r'^.*-2.txt'
+        'in2': r'^.*-2.txt$'
     }
 
     outputs = {
@@ -29,16 +29,8 @@ class Granule(object):
 
     autocheck = True
 
-    def __init__(self, filenames, gid=None, collection='granule', path='', s3path='', visibility={}, **kwargs):
+    def __init__(self, filenames, path='', s3path='', visibility={}, **kwargs):
         """ Initialize a new granule with filenames """
-        self.collection = collection
-
-        # if gid not provided get common prefix
-        if gid is None:
-            gid = os.path.commonprefix([os.path.basename(f) for f in filenames])
-            if gid == '':
-                raise ValueError('Unable to determine granule ID from files, provide manually')
-        self.gid = gid
         self.path = path
         self.s3path = s3path
         self.visibility = visibility
@@ -59,18 +51,34 @@ class Granule(object):
                 raise IOError('Files do not make up complete granule or extra files provided')
 
         extra = {
-            'collectionName': self.collection,
             'granuleId': self.gid
         }
         self.logger = logging.LoggerAdapter(logger, extra)
 
+    @property
+    def gid(self):
+        gid = os.path.commonprefix([os.path.basename(f) for f in self.input_files])
+        if gid == '':
+            raise ValueError('Unable to determine granule ID from files, provide manually')
+        return gid
+
+    @property
+    def input_files(self):
+        """ Get dictionary of all input files, local or remote (prefers local first) """
+        fnames = {k: v for k, v in self.local_in.items()}
+        for k, v in self.remote_in.items():
+            if k not in fnames:
+                fnames[k] = v
+        return fnames
+
     def add_input_file(self, filename):
         """ Adds an input file """
         for f in self.inputs:
+
             m = re.match(self.inputs[f], os.path.basename(filename))
             if m is not None:
                 # does the file exist locally
-                if os.path.exists(f):
+                if os.path.exists(filename):
                     self.local_in[f] = filename
                 else:
                     self.remote_in[f] = filename
@@ -99,11 +107,12 @@ class Granule(object):
         keys = self.inputs.keys() if key is None else [key]
         downloaded = []
         for key in keys:
-            uri = self.remote_in[key]
-            self.logger.info('downloading input file %s' % uri)
-            fname = s3.download(uri, path=self.path)
-            self.local_in[key] = fname
-            downloaded.append(str(fname))
+            if key not in self.local_in:
+                uri = self.remote_in[key]
+                self.logger.info('downloading input file %s' % uri)
+                fname = s3.download(uri, path=self.path)
+                self.local_in[key] = fname
+                downloaded.append(str(fname))
         return downloaded
 
     def upload(self):
@@ -162,7 +171,9 @@ class Granule(object):
                 self.clean()
             self.logger.info('processing completed')
         except Exception as e:
-            self.logger.error({'message': 'Run error with granule', 'error': str(e)})
+            import traceback
+            self.logger.error({'message': 'Run error with granule: %s' % str(e),
+                              'error': traceback.format_exc()})
             raise e
 
     @classmethod
@@ -179,10 +190,10 @@ class Granule(object):
         activity(cls)
 
     @classmethod
-    def run_with_payload(cls, payload, noclean=False):
-        return run(cls, payload, noclean=noclean)
+    def run_with_payload(cls, payload, **kwargs):
+        return run(cls, payload, **kwargs)
 
-    def process(self, input, **kwargs):
+    def process(self, **kwargs):
         """ Process a granule locally to produce one or more output granules """
         """
             The Granule class automatically fetches input files and uploads output files, while

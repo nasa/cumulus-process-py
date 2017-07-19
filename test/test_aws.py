@@ -67,8 +67,8 @@ class TestAWS(unittest.TestCase):
     def test_run(self):
         """ Make complete run with payload """
         payload = run(Granule, self.payload, path=self.path, s3path=self.s3path)
-        keys = payload['granuleRecord']['recipe']['processStep']['config']['outputFiles']
-        uris = [payload['granuleRecord']['files'][k]['stagingFile'] for k in keys]
+        outputs = payload['payload']['output']
+        uris = [uri for c in outputs for g in outputs[c]['granules'] for uri in g.values()]
         self.check_and_remove_remote_out(uris)
 
     def check_and_remove_remote_out(self, uris):

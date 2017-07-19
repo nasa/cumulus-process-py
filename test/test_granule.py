@@ -62,7 +62,7 @@ class TestGranule(unittest.TestCase):
         return 's3://%s' % os.path.join(self.s3path, key)
 
     def get_test_granule(self):
-        return Granule(self.input_files, 'test_granule', path=self.path, s3path=self.s3path)
+        return Granule(self.input_files, path=self.path, s3path=self.s3path)
 
     def test_init(self):
         """ Initialize Granule with JSON payload """
