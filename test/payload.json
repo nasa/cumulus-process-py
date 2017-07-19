@@ -14,34 +14,36 @@
       "protected": "cumulus-internal"
     }
   },
-  "collections": {
-    "CollectionA": {
-      "files": {
-        "input-1": {
-            "regex": "^input-1.txt$",
-            "access": "public"
-        },
-        "input-2": {
-            "regex": "^input-2.txt$",
-            "access": "private"
-        },
-        "output-1": {
-            "regex": "^output-1.txt$",
-            "access": "public"
-        },
-        "output-2": {
-            "regex": "^output-2.txt$",
-            "access": "private"
-        },
-        "meta": {
-            "regex": "^output-3.meta.xml$",
-            "access": "private"
+  "meta": {
+    "collections": {
+      "CollectionA": {
+        "files": {
+          "input-1": {
+              "regex": "^input-1.txt$",
+              "access": "public"
+          },
+          "input-2": {
+              "regex": "^input-2.txt$",
+              "access": "private"
+          },
+          "output-1": {
+              "regex": "^output-1.txt$",
+              "access": "public"
+          },
+          "output-2": {
+              "regex": "^output-2.txt$",
+              "access": "private"
+          },
+          "meta": {
+              "regex": "^output-3.meta.xml$",
+              "access": "private"
+          }
         }
       }
     }
   },
   "payload": {
-    "inputs": {
+    "input": {
       "CollectionA": {
         "granules": [
           {
@@ -54,7 +56,7 @@
         ]
       }
     },
-    "outputs": {
+    "output": {
       "CollectionA": {
         "granules": []
       }
