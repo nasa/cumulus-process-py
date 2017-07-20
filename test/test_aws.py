@@ -66,7 +66,7 @@ class TestAWS(unittest.TestCase):
     @patch.object(Granule, 'process', fake_process)
     def test_run(self):
         """ Make complete run with payload """
-        payload = run(Granule, self.payload, path=self.path, s3path=self.s3path)
+        payload = run(Granule, self.payload, path=self.path)
         outputs = payload['payload']['output']
         uris = [uri for c in outputs for g in outputs[c]['granules'] for uri in g.values()]
         self.check_and_remove_remote_out(uris)

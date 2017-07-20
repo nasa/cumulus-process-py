@@ -5,8 +5,6 @@ This testing module relies on some testing data available in s3://cumulus-intern
 import os
 import unittest
 from mock import patch
-import logging
-import json
 import cumulus.s3 as s3
 from cumulus.granule import Granule
 
@@ -34,8 +32,8 @@ class TestGranule(unittest.TestCase):
     ]
 
     output_files = {
-        'out1': os.path.join(path, 'output-1.txt'),
-        'out2': os.path.join(path, 'output-2.txt'),
+        'output-1': os.path.join(path, 'output-1.txt'),
+        'output-2': os.path.join(path, 'output-2.txt'),
         'meta': os.path.join(path, 'output-3.meta.xml')
     }
 
@@ -62,14 +60,14 @@ class TestGranule(unittest.TestCase):
         return 's3://%s' % os.path.join(self.s3path, key)
 
     def get_test_granule(self):
-        return Granule(self.input_files, path=self.path, s3path=self.s3path)
+        return Granule(self.input_files, path=self.path, s3paths=self.s3path)
 
     def test_init(self):
         """ Initialize Granule with JSON payload """
         granule = self.get_test_granule()
         self.assertTrue(granule.gid, "test_granule")
-        self.assertTrue(granule.remote_in['in1'], self.input_files[0])
-        self.assertTrue(granule.remote_in['in2'], self.input_files[1])
+        self.assertTrue(granule.remote_in['input-1'], self.input_files[0])
+        self.assertTrue(granule.remote_in['input-2'], self.input_files[1])
 
     def test_write_metadata(self):
         """ Write an XML metadata file from a dictionary """
@@ -83,11 +81,11 @@ class TestGranule(unittest.TestCase):
         granule = self.get_test_granule()
         # add fake some remote output files
         granule.local_out.append({
-            'out1': 'nowhere/out1',
-            'out2': 'nowhere/out2'
+            'output-1': 'nowhere/output-1',
+            'output-2': 'nowhere/output-2'
         })
         urls = granule.publish()
-        self.assertEqual(urls[0]['out1'], 'http://cumulus-internal.s3.amazonaws.com/testing/cumulus-py/out1')
+        self.assertEqual(urls[0]['output-1'], 'http://cumulus-internal.s3.amazonaws.com/testing/cumulus-py/output-1')
 
     @patch.object(Granule, 'process', fake_process)
     def test_upload(self):
