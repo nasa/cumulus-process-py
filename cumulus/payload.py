@@ -51,11 +51,18 @@ class Payload(object):
         return filenames
 
     def visibility(self, collection=None):
-        if collection is None:
-            collection = self.collections[0]
-        files = self.payload['meta']['collections'][collection]['files']
-        return {k: files[k].get('access', 'public') for k in files}
+        vis = {}
+        for c in self.collections:
+            files = self.payload['meta']['collections'][c]['files']
+            vis.update({k: files[k].get('access', 'public') for k in files})
+        return vis
 
+    def s3paths(self):
+        """ Get dictionary of buckets based on access """
+        buckets = self.payload['resources']['buckets']
+        for b in buckets:
+            buckets[b] = 's3://%s' % buckets[b]
+        return buckets
 
     def add_output_files(self, granules, collection=None):
         """ Add output granules to the payload """
@@ -65,6 +72,7 @@ class Payload(object):
         self.payload['payload']['output'][collection]['granules'] += granules
 
         return self.payload
+        # match output with regex
         #for c in collections:
         #    keys = self.payload['collections'][c]['files'].keys()
         #    for k in keys:

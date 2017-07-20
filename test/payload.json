@@ -8,10 +8,10 @@
       "cmr": "arn:aws:states:us-west-2:xxxxxxx:stateMachine:cumulus-generic-test-cmr"
     },
     "buckets": {
-      "internal": "cumulus-internal",
-      "private": "cumulus-internal",
-      "public": "cumulus-internal",
-      "protected": "cumulus-internal"
+      "internal": "cumulus-internal/testing/cumulus-py/",
+      "private": "cumulus-internal/testing/cumulus-py/",
+      "public": "cumulus-internal/testing/cumulus-py/",
+      "protected": "cumulus-internal/testing/cumulus-py/"
     }
   },
   "meta": {

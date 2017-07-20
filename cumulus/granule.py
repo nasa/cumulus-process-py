@@ -17,28 +17,29 @@ class Granule(object):
 
     # internally used keys
     inputs = {
-        'in1': r'^.*-1.txt$',
-        'in2': r'^.*-2.txt$'
+        'input-1': r'^.*-1.txt$',
+        'input-2': r'^.*-2.txt$'
     }
 
     outputs = {
-        'out1': r'^.*-1.txt$',
-        'out2': r'^.*-2.txt$',
+        'output-1': r'^.*-1.txt$',
+        'output-2': r'^.*-2.txt$',
         'meta': r'^.*.xml$'
     }
 
     autocheck = True
 
-    def __init__(self, filenames, path='', s3path='', visibility={}, **kwargs):
+    def __init__(self, filenames, path='', s3paths={}, visibility={}, **kwargs):
         """ Initialize a new granule with filenames """
         self.path = path
-        self.s3path = s3path
+        if isinstance(s3paths, str):
+            s3paths = {'': s3paths}
+        self.s3paths = s3paths
         self.visibility = visibility
 
         self.local_in = {}
         self.local_out = []
         self.remote_out = []
-
         # determine which file is which type of input through use of regular expression
         self.remote_in = {}
         for f in filenames:
@@ -89,13 +90,13 @@ class Granule(object):
         for gran in self.local_out:
             granout = {}
             for key, fname in gran.items():
-                s3obj = self.s3path.replace('s3://', '').split('/')
                 vis = self.visibility.get(key, 'public')
+                s3path = self.s3path(key)
+                if s3path is None:
+                    continue
+                s3obj = s3.uri_parser(s3path)
                 if vis == 'public':
-                    public = 'http://%s.s3.amazonaws.com' % s3obj[0]
-                    if len(s3obj) > 1:
-                        for d in s3obj[1:]:
-                            public = os.path.join(public, d)
+                    public = 'http://%s.s3.amazonaws.com/%s' % (s3obj['bucket'], s3obj['key'])
                     granout[key] = os.path.join(public, os.path.basename(fname))
                 elif vis == 'protected':
                     granout[key] = os.path.join(protected_url, os.path.basename(fname))
@@ -115,9 +116,17 @@ class Granule(object):
                 downloaded.append(str(fname))
         return downloaded
 
+    def s3path(self, key):
+        """ Get bucket for this key """
+        vis = self.visibility.get(key, 'public')
+        s3path = self.s3paths.get(key, None)
+        if s3path is None and '' in self.s3paths:
+            s3path = self.s3paths['']
+        return s3path
+
     def upload(self):
         """ Upload local output files to S3 """
-        self.logger.info('uploading output granules to %s' % self.s3path)
+        self.logger.info('uploading output granules')
         for granule in self.local_out:
             if len(granule) < len(self.outputs):
                 self.logger.warning("Not all output files were available for upload")
@@ -125,8 +134,10 @@ class Granule(object):
             for f in granule:
                 fname = granule[f]
                 try:
-                    uri = s3.upload(fname, self.s3path)
-                    remote[f] = uri
+                    s3path = self.s3path(f)
+                    if s3path is not None:
+                        uri = s3.upload(fname, s3path)
+                        remote[f] = uri
                 except Exception as e:
                     self.logger.error("Error uploading file %s: %s" % (os.path.basename(fname), str(e)))
             self.remote_out.append(remote)

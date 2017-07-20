@@ -21,12 +21,10 @@ def lambda_handler(payload):
     return run(payload)
 
 
-def run(cls, payload, path='/tmp', s3path=None, noclean=False):
+def run(cls, payload, path='/tmp', noclean=False):
     """ Run this payload with the given Granule class """
     pl = Payload(payload)
-    if s3path is None:
-        s3path = 's3://' + os.getenv('internal', 'cumulus-internal')
-    granule = cls(pl.input_filenames(), path=path, s3path=s3path, visibility=pl.visibility())
+    granule = cls(pl.input_filenames(), path=path, s3paths=pl.s3paths(), visibility=pl.visibility())
     granule.run(noclean=noclean)
     return pl.add_output_files(granule.remote_out)
 
