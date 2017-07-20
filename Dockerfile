@@ -21,6 +21,7 @@ RUN \
 # install package
 COPY ./ $BUILD
 RUN \
+    mv bin/deploy-to-s3.sh /usr/local/bin; \
 	pip install .; \
   	rm -rf $BUILD
 
