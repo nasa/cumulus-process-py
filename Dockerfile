@@ -14,7 +14,7 @@ COPY requirements.txt $BUILD
 COPY requirements-dev.txt $BUILD
 RUN \
   	easy_install pip; \
-  	pip install numpy wheel; \
+  	pip install numpy wheel awscli; \
   	pip install -r requirements.txt; \
   	pip install -r requirements-dev.txt;
 
@@ -22,7 +22,7 @@ RUN \
 COPY ./ $BUILD
 RUN \
     mv bin/deploy-to-s3.sh /usr/local/bin; \
-	pip install .; \
+	  pip install .; \
   	rm -rf $BUILD
 
 ### create cumulus user
