@@ -4,7 +4,7 @@ FROM developmentseed/geolambda:gdal2hdf
 MAINTAINER developmentseed
 
 ENV \
-	BUILD=/build; \
+	BUILD=/build \
 	HOME=/home/cumulus
 
 WORKDIR $BUILD
