@@ -91,7 +91,7 @@ class Granule(object):
             granout = {}
             for key, fname in gran.items():
                 vis = self.visibility.get(key, 'public')
-                s3path = self.s3path(key)
+                s3path = self.s3path(vis)
                 if s3path is None:
                     continue
                 s3obj = s3.uri_parser(s3path)
@@ -119,7 +119,7 @@ class Granule(object):
     def s3path(self, key):
         """ Get bucket for this key """
         vis = self.visibility.get(key, 'public')
-        s3path = self.s3paths.get(key, None)
+        s3path = self.s3paths.get(vis, None)
         if s3path is None and '' in self.s3paths:
             s3path = self.s3paths['']
         return s3path

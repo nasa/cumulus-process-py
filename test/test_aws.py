@@ -34,8 +34,8 @@ class TestAWS(unittest.TestCase):
     ]
 
     output_files = {
-        'out1': os.path.join(path, 'output-1.txt'),
-        'out2': os.path.join(path, 'output-2.txt'),
+        'output-1': os.path.join(path, 'output-1.txt'),
+        'output-2': os.path.join(path, 'output-2.txt'),
         'meta': os.path.join(path, 'output-3.meta.xml')
     }
 
@@ -69,6 +69,7 @@ class TestAWS(unittest.TestCase):
         payload = run(Granule, self.payload, path=self.path)
         outputs = payload['payload']['output']
         uris = [uri for c in outputs for g in outputs[c]['granules'] for uri in g.values()]
+        self.assertEqual(len(uris), 3)
         self.check_and_remove_remote_out(uris)
 
     def check_and_remove_remote_out(self, uris):
