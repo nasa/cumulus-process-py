@@ -15,4 +15,4 @@ services:
     entrypoint: bash -c 'nosetests -v -s --with-coverage --cover-package cumulus --cover-inclusive --with-timer -v -s;'
     env_file: .env
     volumes:
-      - '.:/home/cumulus/work'
+      - './test:/home/cumulus/work'
