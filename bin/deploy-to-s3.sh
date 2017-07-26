@@ -6,7 +6,7 @@ S3_BUCKET=$1
 #DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 # location of cumulus package
-PACKAGEDIR=$(find cumulus_* -type d)
+PACKAGEDIR=$(find cumulus_* -type d | head -n 1)
 PACKAGENAME=$(basename $PACKAGEDIR)
 DATANAME=${PACKAGENAME:8}
 S3_PATH=deploy/cumulus-process/$DATANAME
