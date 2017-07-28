@@ -39,11 +39,11 @@ class TestMain(unittest.TestCase):
 
     def test_parse_args_recipe(self):
         """ Parse arguments given input files """
-        cmd = 'recipe test/payload.json --path test/ --s3path s3://nosuchbucket'
+        cmd = 'recipe test/payload.json --path test/ --noclean'
         args = parse_args(Granule, cmd.split(' '))
         self.assertEqual(args['recipe'], 'test/payload.json')
         self.assertEqual(args['path'], 'test/')
-        self.assertEqual(args['s3path'], 's3://nosuchbucket')
+        self.assertEqual(args['noclean'], True)
 
     #@patch('cumulus.granule.Granule.inputs', new_callable=PropertyMock)
     def test_parse_args(self): #, mocked_inputs):
@@ -53,7 +53,7 @@ class TestMain(unittest.TestCase):
         args = parse_args(Granule, cmd.split(' '))
         self.assertEqual(args['filenames'], ['test-1.txt', 'test-2.txt'])
 
-    def _test_cli_recipe(self):
+    def test_cli_recipe(self):
         """ Test CLI function with a recipe """
         sys.argv = ('program recipe test/payload.json --path %s --loglevel 5' % (self.testdir)).split(' ')
         cli(Granule)
