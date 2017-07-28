@@ -59,8 +59,7 @@ def cli(cls):
         granule.run()
     # process with a recipe
     elif cmd == 'recipe':
-        granule = cls.run_with_payload(args['recipe'], path=args['path'], noclean=args['noclean'])
-        granule.run(noclean=args.noclean)
+        payload = cls.run_with_payload(args['recipe'], path=args['path'], noclean=args['noclean'])
     # run as a service
     elif cmd == 'service':
         cls.activity()

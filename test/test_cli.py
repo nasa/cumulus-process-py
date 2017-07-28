@@ -55,7 +55,8 @@ class TestMain(unittest.TestCase):
 
     def test_cli_recipe(self):
         """ Test CLI function with a recipe """
-        sys.argv = ('program recipe test/payload.json --path %s --loglevel 5' % (self.testdir)).split(' ')
+        pl = os.path.join(self.testdir, 'payload.json')
+        sys.argv = ('program recipe %s --path %s --loglevel 5' % (pl, (self.testdir))).split(' ')
         cli(Granule)
         for f in ['input-1', 'input-2']:
             fname = os.path.join(self.testdir, f + '.txt')
