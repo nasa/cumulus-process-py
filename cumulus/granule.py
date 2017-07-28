@@ -197,8 +197,8 @@ class Granule(object):
         cli(cls)
 
     @classmethod
-    def activity(cls):
-        activity(cls)
+    def activity(cls, arn=os.getenv('ACTIVITY_ARN')):
+        activity(cls, arn=arn)
 
     @classmethod
     def run_with_payload(cls, payload, **kwargs):
