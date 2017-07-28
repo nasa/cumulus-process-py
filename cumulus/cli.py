@@ -29,7 +29,6 @@ def parse_args(cls, args):
 
     recipe_parser = subparsers.add_parser('recipe', parents=[pparser], help='Process recipe file', formatter_class=dhf)
     recipe_parser.add_argument('recipe', help='Granule recipe (JSON, S3 address, or local file)')
-    recipe_parser.add_argument('--s3path', help='S3 prefix to save output', default=None)
     recipe_parser.add_argument('--noclean', action='store_true', default=False,
                                help='Do not remove local files when done')
 
@@ -60,7 +59,7 @@ def cli(cls):
         granule.run()
     # process with a recipe
     elif cmd == 'recipe':
-        granule = cls.run_with_payload(args['recipe'], path=args.path, s3path=args.s3path)
+        granule = cls.run_with_payload(args['recipe'], path=args['path'], noclean=args['noclean'])
         granule.run(noclean=args.noclean)
     # run as a service
     elif cmd == 'service':
