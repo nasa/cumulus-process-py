@@ -1,5 +1,5 @@
 # Cumulus project base docker file
-FROM developmentseed/geolambda:gdal2hdf
+FROM developmentseed/geolambda:full
 
 MAINTAINER developmentseed
 
