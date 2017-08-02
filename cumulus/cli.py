@@ -34,7 +34,7 @@ def parse_args(cls, args):
 
     h = 'Start Step Function Activity'
     activity_parser = subparsers.add_parser('activity', parents=[pparser], help=h, formatter_class=dhf)
-    activity_parser.add_argument('--arn', help='Activity ARN to use to pull tasks', default=os.getenv('ACTIVITY_ARN'))
+    activity_parser.add_argument('--arn', help='ARN for Step Function Activity', default=os.getenv('ACTIVITY_ARN'))
 
     parser0 = cls.add_parser_args(parser0)
 

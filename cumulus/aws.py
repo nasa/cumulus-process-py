@@ -67,7 +67,6 @@ def get_and_run_task(cls, sfn, arn):
 
 def activity(cls, arn=os.getenv('ACTIVITY_ARN')):
     """ An activity service for use with AWS Step Functions """
-    arn = os.getenv('ACTIVITY_ARN')
     sfn = boto3.client('stepfunctions', config=Config(read_timeout=70))
     while True:
         get_and_run_task(cls, sfn, arn)
