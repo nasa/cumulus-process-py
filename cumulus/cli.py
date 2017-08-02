@@ -61,5 +61,7 @@ def cli(cls):
     elif cmd == 'recipe':
         payload = cls.run_with_payload(args['recipe'], path=args['path'], noclean=args['noclean'])
     # run as a service
-    elif cmd == 'service':
+    elif cmd == 'activity':
         cls.activity()
+    else:
+        logger.error('Unknown command %s (choose between: process, recipe, activity)' % cmd)
