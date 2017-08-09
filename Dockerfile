@@ -29,7 +29,6 @@ RUN \
 RUN \
     groupadd -r cumulus -g 299; \
     useradd -u 299 -r -g cumulus -d $HOME -c "Cumulus processing" cumulus; \
-    #mkdir -p $HOME; \
     chown -R cumulus:cumulus $HOME
 
 #USER cumulus
