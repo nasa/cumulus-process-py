@@ -6,21 +6,21 @@ import os
 import unittest
 from mock import patch
 import cumulus.s3 as s3
-from cumulus.granule import Granule
+from cumulus.process import Process
 
 
 # mocked function replaced Granule.process
 def fake_process(self):
     """ Create local output files as if process did something """
     # produce one fake granu
-    TestGranule.create_files(TestGranule.output_files.values())
+    Test.create_files(Test.output_files.values())
     local_out = {}
-    for f in TestGranule.output_files:
-        local_out[f] = TestGranule.output_files[f]
+    for f in Test.output_files:
+        local_out[f] = Test.output_files[f]
     self.local_out.append(local_out)
 
 
-class TestGranule(unittest.TestCase):
+class Test(unittest.TestCase):
     """ Test utiltiies for publishing data on AWS PDS """
 
     s3path = 's3://cumulus-internal/testing/cumulus-py'
@@ -60,7 +60,7 @@ class TestGranule(unittest.TestCase):
         return 's3://%s' % os.path.join(self.s3path, key)
 
     def get_test_granule(self):
-        return Granule(self.input_files, path=self.path, s3paths=self.s3path)
+        return Process(self.input_files, path=self.path, s3paths=self.s3path)
 
     def test_init(self):
         """ Initialize Granule with JSON payload """
@@ -72,7 +72,7 @@ class TestGranule(unittest.TestCase):
     def test_write_metadata(self):
         """ Write an XML metadata file from a dictionary """
         fout = os.path.join(self.path, 'test_write_metadata.meta.xml')
-        Granule.write_metadata({'key1': 'val1'}, fout)
+        Process.write_metadata({'key1': 'val1'}, fout)
         self.assertTrue(os.path.exists(fout))
         os.remove(fout)
 
@@ -87,7 +87,7 @@ class TestGranule(unittest.TestCase):
         urls = granule.publish()
         self.assertEqual(urls[0]['output-1'], 'http://cumulus-internal.s3.amazonaws.com/testing/cumulus-py/output-1')
 
-    @patch.object(Granule, 'process', fake_process)
+    @patch.object(Process, 'process', fake_process)
     def test_upload(self):
         """ Upload output files """
         granule = self.get_test_granule()
@@ -99,10 +99,10 @@ class TestGranule(unittest.TestCase):
         granule.clean()
         self.assertFalse(os.path.exists(os.path.join(self.path, 'output-1.txt')))
 
-    @patch.object(Granule, 'process', fake_process)
+    @patch.object(Process, 'process', fake_process)
     def test_run(self):
         """ Make complete run """
-        granule = Granule(self.input_files, path=self.path, s3path=self.s3path)
+        granule = Process(self.input_files, path=self.path, s3path=self.s3path)
         granule.run(noclean=True)
         # check for local output files
         for f in self.output_files.values():

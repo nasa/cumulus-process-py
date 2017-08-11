@@ -12,7 +12,7 @@ from cumulus.aws import run, activity
 logger = getLogger(__name__)
 
 
-class Granule(object):
+class Process(object):
     """ Class representing a data granule on S3 and processing that granule """
 
     # internally used keys

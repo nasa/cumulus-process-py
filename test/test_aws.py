@@ -6,11 +6,11 @@ import os
 import unittest
 from mock import patch
 import cumulus.s3 as s3
-from cumulus.granule import Granule
+from cumulus.process import Process
 from cumulus.aws import run
 
 
-# mocked function replaced Granule.process
+# mocked function replaced Process.process
 def fake_process(self):
     """ Create local output files as if process did something """
     # produce one fake granu
@@ -63,10 +63,10 @@ class TestAWS(unittest.TestCase):
         for f in cls.input_files:
             s3.delete(f)
 
-    @patch.object(Granule, 'process', fake_process)
+    @patch.object(Process, 'process', fake_process)
     def test_run(self):
         """ Make complete run with payload """
-        payload = run(Granule, self.payload, path=self.path)
+        payload = run(Process, self.payload, path=self.path)
         outputs = payload['payload']['output']
         uris = [uri for c in outputs for g in outputs[c]['granules'] for uri in g.values()]
         self.assertEqual(len(uris), 3)
