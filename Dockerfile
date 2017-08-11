@@ -9,29 +9,23 @@ ENV \
 
 WORKDIR $BUILD
 
-# install requirements
-COPY requirements.txt $BUILD
-COPY requirements-dev.txt $BUILD
+# install cumulus package and any scripts
+COPY requirements.txt requirements-dev.txt setup.py $BUILD/
+COPY cumulus $BUILD/cumulus
 RUN \
-  	easy_install pip; \
-  	pip install numpy wheel awscli; \
   	pip install -r requirements.txt; \
-  	pip install -r requirements-dev.txt;
+  	pip install -r requirements-dev.txt; \
+  	pip install . -v;  \
+  	mv bin/* /usr/local/bin/; \
+  	rm -rf $BUILD/*
 
-# install package
-COPY ./ $BUILD
-RUN \
-    mv bin/deploy-to-s3.sh /usr/local/bin; \
-	  pip install .; \
-  	rm -rf $BUILD
-
-### create cumulus user
-RUN \
-    groupadd -r cumulus -g 299; \
-    useradd -u 299 -r -g cumulus -d $HOME -c "Cumulus processing" cumulus; \
-    chown -R cumulus:cumulus $HOME
-
+### create cumulus user - mounted volumes don't change perms TODO - figure this out
+#RUN \
+#    groupadd -r cumulus -g 299; \
+#    useradd -u 299 -r -g cumulus -d $HOME -c "Cumulus processing" cumulus; \
+#    chown -R cumulus:cumulus $HOME
 #USER cumulus
-WORKDIR $HOME/work
+
+WORKDIR $HOME
 
 CMD ["/bin/bash"]
