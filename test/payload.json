@@ -1,66 +1,49 @@
 {
   "resources": {
-    "stack": "cumulus-generic-test",
-    "stateMachines": {
-      "download": "arn:aws:states:us-west-2:xxxxxxx:stateMachine:cumulus-generic-test-download",
-      "process": "arn:aws:states:us-west-2:xxxxxxx:stateMachine:cumulus-generic-test-process",
-      "archive": "arn:aws:states:us-west-2:xxxxxxx:stateMachine:cumulus-generic-test-archive",
-      "cmr": "arn:aws:states:us-west-2:xxxxxxx:stateMachine:cumulus-generic-test-cmr"
-    },
     "buckets": {
-      "internal": "cumulus-internal/testing/cumulus-py/",
-      "private": "cumulus-internal/testing/cumulus-py/",
-      "public": "cumulus-internal/testing/cumulus-py/",
-      "protected": "cumulus-internal/testing/cumulus-py/"
-    }
+      "internal": "cumulus-internal",
+      "private": "cumulus-internal",
+      "public": "cumulus-internal",
+      "protected": "cumulus-internal"
+    },
+    "distribution_endpoint": "https://cumulus.developmentseed.org/distribution/"
   },
-  "meta": {
-    "collections": {
-      "CollectionA": {
-        "files": {
-          "input-1": {
-              "regex": "^input-1.txt$",
-              "access": "public"
-          },
-          "input-2": {
-              "regex": "^input-2.txt$",
-              "access": "private"
-          },
-          "output-1": {
-              "regex": "^output-1.txt$",
-              "access": "public"
-          },
-          "output-2": {
-              "regex": "^output-2.txt$",
-              "access": "private"
-          },
-          "meta": {
-              "regex": "^output-3.meta.xml$",
-              "access": "private"
-          }
-        }
-      }
-    }
+  "collection": {
+    "name": "CollectionA",
+    "url_path": "testing/cumulus-py",
+    "files": [
+      {
+          "regex": "^input-1.txt$",
+          "bucket": "public"
+      },
+      {
+          "regex": "^input-2.txt$",
+          "bucket": "private"
+      },
+      {
+          "regex": "^output-1.txt$",
+          "bucket": "public"
+      },
+      {
+          "regex": "^output-2.txt$",
+          "bucket": "private"
+      },
+      {
+          "regex": "^output-3.meta.xml$",
+          "bucket": "public",
+          "url_path": "testing/cumulus-py/otherfolder"
+      }]
   },
   "payload": {
-    "input": {
-      "CollectionA": {
-        "granules": [
-          {
-            "granuleId": "TestGranule",
-            "files": {
-              "input-1": "s3://cumulus-internal/testing/cumulus-py/input-1.txt",
-              "input-2": "s3://cumulus-internal/testing/cumulus-py/input-2.txt"
-            }
-          }
+    "granules": [
+      {
+        "granuleId": "TestGranule",
+        "files": [
+          {"filename": "s3://cumulus-internal/testing/cumulus-py/input-1.txt"},
+          {"filename": "s3://cumulus-internal/testing/cumulus-py/input-2.txt"}
         ]
       }
-    },
-    "output": {
-      "CollectionA": {
-        "granules": []
-      }
-    }
+    ]
   }
 }
 

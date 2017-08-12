@@ -23,9 +23,9 @@ def fake_process(self):
 class Test(unittest.TestCase):
     """ Test utiltiies for publishing data on AWS PDS """
 
-    s3path = 's3://cumulus-internal/testing/cumulus-py'
     path = os.path.dirname(__file__)
 
+    s3path = 's3://cumulus-internal/testing/cumulus-py'
     input_files = [
         os.path.join(s3path, "input-1.txt"),
         os.path.join(s3path, "input-2.txt")
@@ -35,6 +35,13 @@ class Test(unittest.TestCase):
         'output-1': os.path.join(path, 'output-1.txt'),
         'output-2': os.path.join(path, 'output-2.txt'),
         'meta': os.path.join(path, 'output-3.meta.xml')
+    }
+
+    urls = {
+        '.*': {
+            's3': s3path,
+            'http': 'http://cumulus.com/testing/cumulus-py'
+        }
     }
 
     @classmethod
@@ -56,15 +63,13 @@ class Test(unittest.TestCase):
             s3.upload(f, cls.s3path)
             os.remove(f)
 
-    def uri(self, key):
-        return 's3://%s' % os.path.join(self.s3path, key)
-
-    def get_test_granule(self):
-        return Process(self.input_files, path=self.path, s3paths=self.s3path)
+    def get_test_process(self):
+        """ Get Process class for testing """
+        return Process(self.input_files, path=self.path, url_paths=self.urls)
 
     def test_init(self):
         """ Initialize Granule with JSON payload """
-        granule = self.get_test_granule()
+        granule = self.get_test_process()
         self.assertTrue(granule.gid, "test_granule")
         self.assertTrue(granule.remote_in['input-1'], self.input_files[0])
         self.assertTrue(granule.remote_in['input-2'], self.input_files[1])
@@ -78,19 +83,19 @@ class Test(unittest.TestCase):
 
     def test_publish_public_files(self):
         """ Get files to publish + endpoint prefixes """
-        granule = self.get_test_granule()
+        granule = self.get_test_process()
         # add fake some remote output files
         granule.local_out.append({
             'output-1': 'nowhere/output-1',
             'output-2': 'nowhere/output-2'
         })
         urls = granule.publish()
-        self.assertEqual(urls[0]['output-1'], 'http://cumulus-internal.s3.amazonaws.com/testing/cumulus-py/output-1')
+        self.assertEqual(urls[0]['output-1'], 'http://cumulus.com/testing/cumulus-py/output-1')
 
     @patch.object(Process, 'process', fake_process)
     def test_upload(self):
         """ Upload output files """
-        granule = self.get_test_granule()
+        granule = self.get_test_process()
         granule.process()
         uploads = granule.upload()
         self.assertEqual(len(uploads), 1)

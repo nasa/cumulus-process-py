@@ -1,6 +1,7 @@
 
 import os
 import re
+import subprocess
 import logging
 from dicttoxml import dicttoxml
 from xml.dom.minidom import parseString
@@ -21,34 +22,30 @@ class Process(object):
         'input-2': r'^.*-2.txt$'
     }
 
-    outputs = {
-        'output-1': r'^.*-1.txt$',
-        'output-2': r'^.*-2.txt$',
-        'meta': r'^.*.xml$'
-    }
-
     autocheck = True
 
-    def __init__(self, filenames, path='', s3paths={}, visibility={}, **kwargs):
+    def __init__(self, filenames, path='', url_paths={}, **kwargs):
         """ Initialize a new granule with filenames """
         self.path = path
-        if isinstance(s3paths, str):
-            s3paths = {'': s3paths}
-        self.s3paths = s3paths
-        self.visibility = visibility
+        self.url_paths = url_paths
 
         self.local_in = {}
         self.local_out = []
         self.remote_out = []
         # determine which file is which type of input through use of regular expression
         self.remote_in = {}
-        for f in filenames:
-            self.add_input_file(f)
+
+        for el in filenames:
+            if isinstance(el, list):
+                for f in el:
+                    self.add_input_file(f)
+            else:
+                self.add_input_file(el)
 
         # let child data granules determine if it's not enough
         if self.autocheck:
             totalfiles = len(self.remote_in) + len(self.local_in)
-            if (len(self.inputs) != totalfiles) or (len(self.inputs) != len(filenames)):
+            if (len(self.inputs) != totalfiles):
                 raise IOError('Files do not make up complete granule or extra files provided')
 
         extra = {
@@ -75,31 +72,41 @@ class Process(object):
     def add_input_file(self, filename):
         """ Adds an input file """
         for f in self.inputs:
-
             m = re.match(self.inputs[f], os.path.basename(filename))
             if m is not None:
                 # does the file exist locally
                 if os.path.exists(filename):
-                    self.local_in[f] = filename
+                    # add as new unused key
+                    key = f
+                    i = 1
+                    while key in self.local_in:
+                        key = key + '-%s' % i
+                        i += 1
+                    self.local_in[key] = filename
                 else:
-                    self.remote_in[f] = filename
+                    key = f
+                    i = 1
+                    while key in self.remote_in:
+                        key = key + '-%s' % i
+                        i += 1
+                    self.remote_in[key] = filename
 
-    def publish(self, protected_url='http://cumulus.com'):
+    def urls(self, filename):
+        if len(self.url_paths.keys()) == 0:
+            return {'s3': None, 'http': None}
+        for pattern in self.url_paths:
+            m = re.match(pattern, os.path.basename(filename))
+            if m is not None:
+                return self.url_paths[pattern]
+
+    def publish(self):
         """ Return URLs for output granule(s), defaults to all public """
         urls = []
         for gran in self.local_out:
             granout = {}
             for key, fname in gran.items():
-                vis = self.visibility.get(key, 'public')
-                s3path = self.s3path(vis)
-                if s3path is None:
-                    continue
-                s3obj = s3.uri_parser(s3path)
-                if vis == 'public':
-                    public = 'http://%s.s3.amazonaws.com/%s' % (s3obj['bucket'], s3obj['key'])
-                    granout[key] = os.path.join(public, os.path.basename(fname))
-                elif vis == 'protected':
-                    granout[key] = os.path.join(protected_url, os.path.basename(fname))
+                # get urls
+                granout[key] = os.path.join(self.urls(fname)['http'], os.path.basename(fname))
             urls.append(granout)
         return urls
 
@@ -130,15 +137,13 @@ class Process(object):
         """ Upload local output files to S3 """
         self.logger.info('uploading output granules')
         for granule in self.local_out:
-            if len(granule) < len(self.outputs):
-                self.logger.warning("Not all output files were available for upload")
             remote = {}
             for f in granule:
                 fname = granule[f]
+                s3url = self.urls(fname)['s3']
                 try:
-                    s3path = self.s3path(f)
-                    if s3path is not None:
-                        uri = s3.upload(fname, s3path)
+                    if s3url is not None:
+                        uri = s3.upload(fname, s3url)
                         remote[f] = uri
                 except Exception as e:
                     self.logger.error("Error uploading file %s: %s" % (os.path.basename(fname), str(e)))
@@ -189,6 +194,17 @@ class Process(object):
                               'error': traceback.format_exc()})
             raise e
 
+    def run_command(self, cmd):
+        """ Run cmd as a system command """
+        try:
+            self.logger.debug(cmd)
+            out = subprocess.check_output(cmd.split(' '), stderr=subprocess.STDOUT)
+            self.logger.debug(out)
+            return out
+        except Exception as e:
+            self.logger.debug(str(e))
+            raise RuntimeError('Error running %s' % cmd)
+
     @classmethod
     def add_parser_args(cls, parser):
         """ Add class specific arguments to the parser """
@@ -219,4 +235,4 @@ class Process(object):
 
 
 if __name__ == "__main__":
-    Granule.cli()
+    Process.cli()

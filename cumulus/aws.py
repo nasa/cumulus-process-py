@@ -24,9 +24,11 @@ def lambda_handler(payload):
 def run(cls, payload, path='/tmp', noclean=False):
     """ Run this payload with the given Process class """
     pl = Payload(payload)
-    granule = cls(pl.input_filenames(), path=path, s3paths=pl.s3paths(), visibility=pl.visibility())
+    granule = cls(pl.filenames(), path=path, url_paths=pl.urls)
     granule.run(noclean=noclean)
-    return pl.add_output_files(granule.remote_out)
+    for gran in granule.remote_out:
+        pl.add_output_granule(gran.values())
+    return pl.payload
 
 
 def get_and_run_task(cls, sfn, arn):

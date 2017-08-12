@@ -67,8 +67,9 @@ class TestAWS(unittest.TestCase):
     def test_run(self):
         """ Make complete run with payload """
         payload = run(Process, self.payload, path=self.path)
-        outputs = payload['payload']['output']
-        uris = [uri for c in outputs for g in outputs[c]['granules'] for uri in g.values()]
+        # assumes first granule is input, all others output
+        outputs = payload['payload']['granules'][1:]
+        uris = [uri for g in outputs for f in g['files'] for uri in f.values()]
         self.assertEqual(len(uris), 3)
         self.check_and_remove_remote_out(uris)
 
