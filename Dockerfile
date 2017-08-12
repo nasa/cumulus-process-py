@@ -12,6 +12,7 @@ WORKDIR $BUILD
 # install cumulus package and any scripts
 COPY requirements.txt requirements-dev.txt setup.py $BUILD/
 COPY cumulus $BUILD/cumulus
+COPY bin $BUILD/bin
 RUN \
   	pip install -r requirements.txt; \
   	pip install -r requirements-dev.txt; \
