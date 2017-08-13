@@ -1,6 +1,9 @@
 import os
 import json
 import cumulus.s3 as s3
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 class Payload(object):
@@ -29,56 +32,57 @@ class Payload(object):
         """ Test validity of payload """
         try:
             assert('resources' in payload)
-            assert('meta' in payload)
-            assert('collections' in payload['meta'])
-            assert('payload' in payload)
             assert('buckets' in payload['resources'])
-        except:
+            assert('collection' in payload)
+            assert('files' in payload['collection'])
+            assert('payload' in payload)
+            assert('granules' in payload['payload'])
+        except Exception as e:
+            logger.error(str(e))
             raise ValueError("Invalid payload")
 
-    @property
-    def collections(self):
-        """ Get list of collections referenced in payload """
-        return self.payload['meta']['collections'].keys()
-
-    def input_filenames(self):
-        """ Get parameters used for processing the granule """
-        inputs = self.payload['payload']['input']
+    def filenames(self):
+        """ Get input filenames """
+        granules = self.payload['payload']['granules']
         filenames = []
-        for c in inputs:
-            for g in inputs[c]['granules']:
-                filenames += g['files'].values()
+        for g in granules:
+            filenames.append([f['filename'] for f in g['files']])
         return filenames
 
-    def visibility(self, collection=None):
-        vis = {}
-        for c in self.collections:
-            files = self.payload['meta']['collections'][c]['files']
-            vis.update({k: files[k].get('access', 'public') for k in files})
-        return vis
+    @property
+    def default_url(self):
+        """ Get default endpoint """
+        default = 'https://cumulus.com'
+        return self.payload['resources'].get('distribution_endpoint', default)
 
-    def s3paths(self):
-        """ Get dictionary of buckets based on access """
+    @property
+    def default_urlpath(self):
+        """ Get default s3 path """
+        return self.payload['collection'].get('url_path', '')
+
+    @property
+    def urls(self):
+        """ Get dictionary of regex keys with s3 and http urls """
+        files = self.payload['collection']['files']
         buckets = self.payload['resources']['buckets']
-        for b in buckets:
-            buckets[b] = 's3://%s' % buckets[b]
-        return buckets
+        urls = {}
+        for f in files:
+            url_path = f.get('url_path', self.default_urlpath)
+            access = f['bucket']
+            if access == 'public':
+                http = 'http://%s.s3.amazonaws.com' % buckets[access]
+            else:
+                http = self.default_url
+            http = os.path.join(http, url_path)
+            urls[f['regex']] = {
+                's3': os.path.join('s3://%s' % buckets[access], url_path),
+                'http': os.path.join(http, url_path)
+            }
+        return urls
 
-    def add_output_files(self, granules, collection=None):
+    def add_output_granule(self, granule):
         """ Add output granules to the payload """
-        if collection is None:
-            collection = self.collections[0]
-
-        self.payload['payload']['output'][collection]['granules'] += granules
-
+        self.payload['payload']['granules'].append(
+            {'files': [{'filename': f} for f in granule]}
+        )
         return self.payload
-        # match output with regex
-        #for c in collections:
-        #    keys = self.payload['collections'][c]['files'].keys()
-        #    for k in keys:
-        #        pattern = self.payload['collections'][c]['files'][k]['regex']
-        #        for f in filenames:
-        #            m = re.match(pattern, os.path.basename(f))
-        #            if m is not None:
-        #                self.payload['payload']['outputs'][c]['granules'][k]['stagingFile'] = f
-        #return self.payload

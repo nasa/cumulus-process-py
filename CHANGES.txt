@@ -1,3 +1,7 @@
+v0.3.0:
+- Refactor Granule class into new Process class
+- New payload format
+
 v0.2.0:
 - Payloads updated for Cumulus phase 3
 - refactored granule class to be more abstracted, payload code moved to aws service module

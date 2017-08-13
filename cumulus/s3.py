@@ -113,24 +113,3 @@ def exists(uri):
             return False
         else:
             raise
-
-
-def invoke_lambda(payload, lambda_name):
-    """ Invoke Lambda function with payload """
-    logger.debug('Invoking %s with payload: %s' % (lambda_name, json.dumps(payload)))
-    client = get_client('lambda')
-    result = client.invoke(
-        FunctionName=lambda_name,
-        InvocationType='Event',
-        Payload=json.dumps(payload),
-    )
-    return result
-
-
-def delete_message(receipt, queue_name):
-    """ Delete message given receipt from a queue """
-    logger.debug('Deleting message (%s) from %s' % (receipt, queue_name))
-    client = get_client('sqs')
-    queue_url = client.get_queue_url(QueueName=queue_name)['QueueUrl']
-    result = client.delete_message(QueueUrl=queue_url, ReceiptHandle=receipt)
-    return result

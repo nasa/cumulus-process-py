@@ -56,7 +56,7 @@ def cli(cls):
     # process local files
     if cmd == 'process':
         granule = cls(**args)
-        granule.run()
+        granule.run(noclean=True)
     # process with a recipe
     elif cmd == 'recipe':
         payload = cls.run_with_payload(args['recipe'], path=args['path'], noclean=args['noclean'])
