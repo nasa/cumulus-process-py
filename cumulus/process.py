@@ -105,8 +105,10 @@ class Process(object):
         for gran in self.local_out:
             granout = {}
             for key, fname in gran.items():
-                # get urls
-                granout[key] = os.path.join(self.urls(fname)['http'], os.path.basename(fname))
+                # get url
+                url = self.urls(fname)['http']
+                if url is not None:
+                    granout[key] = os.path.join(self.urls(fname)['http'], os.path.basename(fname))
             urls.append(granout)
         return urls
 
