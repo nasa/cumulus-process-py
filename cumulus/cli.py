@@ -24,8 +24,7 @@ def parse_args(cls, args):
     subparsers = parser0.add_subparsers(dest='command')
 
     parser = subparsers.add_parser('process', parents=[pparser], help='Process local files', formatter_class=dhf)
-    for f in cls.inputs:
-        parser.add_argument(f, default=None)
+    parser.add_argument('filenames', nargs='*', default=[])
 
     recipe_parser = subparsers.add_parser('recipe', parents=[pparser], help='Process recipe file', formatter_class=dhf)
     recipe_parser.add_argument('recipe', help='Granule recipe (JSON, S3 address, or local file)')
@@ -39,9 +38,6 @@ def parse_args(cls, args):
     parser0 = cls.add_parser_args(parser0)
 
     parsed_args = vars(parser0.parse_args(args))
-
-    if parsed_args['command'] == 'process':
-        parsed_args['filenames'] = [parsed_args.pop(i) for i in cls.inputs]
 
     return parsed_args
 
@@ -62,6 +58,6 @@ def cli(cls):
         payload = cls.run_with_payload(args['recipe'], path=args['path'], noclean=args['noclean'])
     # run as a service
     elif cmd == 'activity':
-        cls.activity(args['arn'])
+        cls.activity(args['arn'], path=args['path'])
     else:
         logger.error('Unknown command %s (choose between: process, recipe, activity)' % cmd)
