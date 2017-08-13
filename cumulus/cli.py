@@ -24,8 +24,7 @@ def parse_args(cls, args):
     subparsers = parser0.add_subparsers(dest='command')
 
     parser = subparsers.add_parser('process', parents=[pparser], help='Process local files', formatter_class=dhf)
-    for f in cls.inputs:
-        parser.add_argument(f, default=None)
+    parser.add_argument('filenames', nargs='*', default=[])
 
     recipe_parser = subparsers.add_parser('recipe', parents=[pparser], help='Process recipe file', formatter_class=dhf)
     recipe_parser.add_argument('recipe', help='Granule recipe (JSON, S3 address, or local file)')
