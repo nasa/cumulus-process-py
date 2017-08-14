@@ -80,14 +80,14 @@ class Process(object):
                     key = f
                     i = 1
                     while key in self.local_in:
-                        key = key + '-%s' % i
+                        key = f + '-%s' % i
                         i += 1
                     self.local_in[key] = filename
                 else:
                     key = f
                     i = 1
                     while key in self.remote_in:
-                        key = key + '-%s' % i
+                        key = f + '-%s' % i
                         i += 1
                     self.remote_in[key] = filename
 
