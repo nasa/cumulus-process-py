@@ -117,7 +117,7 @@ class Process(object):
         keys = self.inputs.keys() if key is None else [key]
         downloaded = []
         for key in keys:
-            if key not in self.local_in:
+            if key not in self.local_in and key in self.remote_in:
                 uri = self.remote_in[key]
                 self.logger.info('downloading input file %s' % uri)
                 fname = s3.download(uri, path=self.path)
