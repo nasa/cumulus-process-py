@@ -112,13 +112,15 @@ class Process(object):
             urls.append(granout)
         return urls
 
+    def download_all(self):
+        """ Download all files in remote_in """
+        return [self.download(key=key) for key in self.remote_in]
+
     def download(self, key=None):
         """ Download input file from S3 """
         keys = self.inputs.keys() if key is None else [key]
         downloaded = []
         for key in keys:
-            if key not in self.remote_in:
-                continue
             if key not in self.local_in:
                 uri = self.remote_in[key]
                 self.logger.info('downloading input file %s' % uri)
