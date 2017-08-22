@@ -131,14 +131,6 @@ class Process(object):
             downloaded.append(str(fname))
         return downloaded
 
-    def s3path(self, key):
-        """ Get bucket for this key """
-        vis = self.visibility.get(key, 'public')
-        s3path = self.s3paths.get(vis, None)
-        if s3path is None and '' in self.s3paths:
-            s3path = self.s3paths['']
-        return s3path
-
     def upload(self):
         """ Upload local output files to S3 """
         self.logger.info('uploading output granules')
@@ -146,10 +138,11 @@ class Process(object):
             remote = {}
             for f in granule:
                 fname = granule[f]
-                s3url = self.urls(fname)['s3']
+                urls = self.urls(fname)
                 try:
-                    if s3url is not None:
-                        uri = s3.upload(fname, s3url)
+                    if urls['s3'] is not None:
+                        extra = {'ACL': 'public-read'} if urls.get('access', 'public') == 'public' else {}
+                        uri = s3.upload(fname, urls['s3'], extra=extra)
                         remote[f] = uri
                 except Exception as e:
                     self.logger.error("Error uploading file %s: %s" % (os.path.basename(fname), str(e)))

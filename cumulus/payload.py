@@ -75,6 +75,7 @@ class Payload(object):
                 http = self.default_url
             http = os.path.join(http, url_path)
             urls[f['regex']] = {
+                'access': access,
                 's3': os.path.join('s3://%s' % buckets[access], url_path),
                 'http': os.path.join(http, url_path)
             }
