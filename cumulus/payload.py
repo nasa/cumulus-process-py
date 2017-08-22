@@ -34,7 +34,7 @@ class Payload(object):
             assert('resources' in payload)
             assert('buckets' in payload['resources'])
             assert('collection' in payload)
-            assert('files' in payload['collection'])
+            assert('files' in payload['collection']['meta'])
             assert('payload' in payload)
             assert('granules' in payload['payload'])
         except Exception as e:
@@ -58,12 +58,12 @@ class Payload(object):
     @property
     def default_urlpath(self):
         """ Get default s3 path """
-        return self.payload['collection'].get('url_path', '')
+        return self.payload['collection']['meta'].get('url_path', '')
 
     @property
     def urls(self):
         """ Get dictionary of regex keys with s3 and http urls """
-        files = self.payload['collection']['files']
+        files = self.payload['collection']['meta']['files']
         buckets = self.payload['resources']['buckets']
         urls = {}
         for f in files:
