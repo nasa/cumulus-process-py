@@ -17,7 +17,7 @@ def fake_process(self):
     local_out = {}
     for f in Test.output_files:
         local_out[f] = Test.output_files[f]
-    self.local_out.append(local_out)
+    self.local_out['TestGranule'] = local_out
 
 
 class Test(unittest.TestCase):
@@ -85,10 +85,10 @@ class Test(unittest.TestCase):
         """ Get files to publish + endpoint prefixes """
         granule = self.get_test_process()
         # add fake some remote output files
-        granule.local_out.append({
+        granule.local_out['TestGranule'] = {
             'output-1': 'nowhere/output-1',
             'output-2': 'nowhere/output-2'
-        })
+        }
         urls = granule.publish()
         self.assertEqual(urls[0]['output-1'], 'http://cumulus.com/testing/cumulus-py/output-1')
 
@@ -107,14 +107,15 @@ class Test(unittest.TestCase):
     @patch.object(Process, 'process', fake_process)
     def test_run(self):
         """ Make complete run """
-        granule = Process(self.input_files, path=self.path, s3path=self.s3path)
+        granule = Process(self.input_files, path=self.path, url_paths=self.urls)
         granule.run(noclean=True)
         # check for local output files
         for f in self.output_files.values():
             self.assertTrue(os.path.exists(f))
 
         # check for remote files
-        uris = granule.remote_out[0].values()
+        uris = [uri for f in granule.remote_out.values() for uri in f.values()]
+        self.assertTrue(len(uris) > 1)
         self.check_and_remove_remote_out(uris)
 
         granule.clean()
