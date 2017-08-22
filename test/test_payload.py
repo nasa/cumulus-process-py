@@ -87,7 +87,7 @@ class TestPayload(unittest.TestCase):
         pl = self.get_payload_json()
         payload = Payload(pl)
         self.assertEqual(payload.default_urlpath, 'testing/cumulus-py')
-        del pl['collection']['url_path']
+        del pl['collection']['meta']['url_path']
         payload = Payload(pl)
         self.assertEqual(payload.default_urlpath, '')
 
