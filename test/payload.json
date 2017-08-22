@@ -10,29 +10,31 @@
   },
   "collection": {
     "name": "CollectionA",
-    "url_path": "testing/cumulus-py",
-    "files": [
-      {
-          "regex": "^input-1.txt$",
-          "bucket": "public"
-      },
-      {
-          "regex": "^input-2.txt$",
-          "bucket": "private"
-      },
-      {
-          "regex": "^output-1.txt$",
-          "bucket": "public"
-      },
-      {
-          "regex": "^output-2.txt$",
-          "bucket": "private"
-      },
-      {
-          "regex": "^output-3.meta.xml$",
-          "bucket": "public",
-          "url_path": "testing/cumulus-py/otherfolder"
-      }]
+    "meta": {
+      "url_path": "testing/cumulus-py",
+      "files": [
+        {
+            "regex": "^input-1.txt$",
+            "bucket": "public"
+        },
+        {
+            "regex": "^input-2.txt$",
+            "bucket": "private"
+        },
+        {
+            "regex": "^output-1.txt$",
+            "bucket": "public"
+        },
+        {
+            "regex": "^output-2.txt$",
+            "bucket": "private"
+        },
+        {
+            "regex": "^output-3.meta.xml$",
+            "bucket": "public",
+            "url_path": "testing/cumulus-py/otherfolder"
+        }]
+    }
   },
   "payload": {
     "granules": [

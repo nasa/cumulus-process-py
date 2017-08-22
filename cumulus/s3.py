@@ -61,7 +61,7 @@ def download_json(uri):
     return json.loads(response['Body'].read().decode())
 
 
-def upload(filename, uri):
+def upload(filename, uri, extra={}):
     """ Upload object to S3 uri (bucket + prefix), keeping same base filename """
     logger.debug("Uploading %s to %s" % (filename, uri))
     s3 = get_client()
@@ -69,7 +69,7 @@ def upload(filename, uri):
     bname = os.path.basename(filename)
     uri_out = 's3://%s' % os.path.join(s3_uri['bucket'], os.path.join(s3_uri['key'], bname))
     with open(filename, 'rb') as data:
-        s3.upload_fileobj(data, s3_uri['bucket'], os.path.join(s3_uri['key'], bname))
+        s3.upload_fileobj(data, s3_uri['bucket'], os.path.join(s3_uri['key'], bname), ExtraArgs=extra)
     return uri_out
 
 

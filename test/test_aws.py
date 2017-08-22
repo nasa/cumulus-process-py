@@ -18,7 +18,7 @@ def fake_process(self):
     local_out = {}
     for f in TestAWS.output_files:
         local_out[f] = TestAWS.output_files[f]
-    self.local_out.append(local_out)
+    self.local_out['TestGranule'] = local_out
 
 
 class TestAWS(unittest.TestCase):

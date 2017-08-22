@@ -30,11 +30,11 @@ class Process(object):
         self.url_paths = url_paths
 
         self.local_in = {}
-        self.local_out = []
-        self.remote_out = []
-        # determine which file is which type of input through use of regular expression
         self.remote_in = {}
+        self.local_out = {}
+        self.remote_out = {}
 
+        # determine which file is which type of input through use of regular expression
         for el in filenames:
             if isinstance(el, list):
                 for f in el:
@@ -102,7 +102,7 @@ class Process(object):
     def publish(self):
         """ Return URLs for output granule(s), defaults to all public """
         urls = []
-        for gran in self.local_out:
+        for gran in self.local_out.values():
             granout = {}
             for key, fname in gran.items():
                 # get url
@@ -112,13 +112,15 @@ class Process(object):
             urls.append(granout)
         return urls
 
+    def download_all(self):
+        """ Download all files in remote_in """
+        return [self.download(key=key) for key in self.remote_in]
+
     def download(self, key=None):
         """ Download input file from S3 """
         keys = self.inputs.keys() if key is None else [key]
         downloaded = []
         for key in keys:
-            if key not in self.remote_in:
-                continue
             if key not in self.local_in:
                 uri = self.remote_in[key]
                 self.logger.info('downloading input file %s' % uri)
@@ -129,30 +131,23 @@ class Process(object):
             downloaded.append(str(fname))
         return downloaded
 
-    def s3path(self, key):
-        """ Get bucket for this key """
-        vis = self.visibility.get(key, 'public')
-        s3path = self.s3paths.get(vis, None)
-        if s3path is None and '' in self.s3paths:
-            s3path = self.s3paths['']
-        return s3path
-
     def upload(self):
         """ Upload local output files to S3 """
         self.logger.info('uploading output granules')
-        for granule in self.local_out:
+        for gid, granule in self.local_out.items():
             remote = {}
             for f in granule:
                 fname = granule[f]
-                s3url = self.urls(fname)['s3']
+                urls = self.urls(fname)
                 try:
-                    if s3url is not None:
-                        uri = s3.upload(fname, s3url)
+                    if urls['s3'] is not None:
+                        extra = {'ACL': 'public-read'} if urls.get('access', 'public') == 'public' else {}
+                        uri = s3.upload(fname, urls['s3'], extra=extra)
                         remote[f] = uri
                 except Exception as e:
                     self.logger.error("Error uploading file %s: %s" % (os.path.basename(fname), str(e)))
-            self.remote_out.append(remote)
-        return [files.values() for files in self.remote_out]
+            self.remote_out[gid] = remote
+        return [files.values() for files in self.remote_out.values()]
 
     @classmethod
     def write_metadata(cls, meta, fout, pretty=False):
@@ -178,7 +173,7 @@ class Process(object):
         for f in self.local_in.values():
             if os.path.exists(f):
                 os.remove(f)
-        for gran in self.local_out:
+        for gran in self.local_out.values():
             for f in gran.values():
                 if os.path.exists(f):
                     os.remove(f)
