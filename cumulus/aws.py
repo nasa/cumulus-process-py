@@ -26,8 +26,8 @@ def run(cls, payload, path='/tmp', noclean=False):
     pl = Payload(payload)
     granule = cls(pl.filenames(), path=path, url_paths=pl.urls)
     granule.run(noclean=noclean)
-    for gran in granule.remote_out.values():
-        pl.add_output_granule(gran.values())
+    for gid, gran in granule.remote_out.items():
+        pl.add_output_granule(gid, gran.values())
     return pl.payload
 
 

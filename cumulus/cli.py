@@ -3,6 +3,7 @@
 import os
 import sys
 import argparse
+import json
 import logging
 from cumulus.version import __version__
 
@@ -51,11 +52,17 @@ def cli(cls):
 
     # process local files
     if cmd == 'process':
+        logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
         granule = cls(**args)
         granule.run(noclean=True)
     # process with a recipe
     elif cmd == 'recipe':
+        logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
         payload = cls.run_with_payload(args['recipe'], path=args['path'], noclean=args['noclean'])
+        bname = os.path.splitext(os.path.basename(args['recipe']))[0]
+        fname = os.path.join(args['path'], bname + '_out.json')
+        with open(fname, 'w') as f:
+            f.write(json.dumps(payload))
     # run as a service
     elif cmd == 'activity':
         cls.activity(args['arn'], path=args['path'])

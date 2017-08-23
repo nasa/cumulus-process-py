@@ -98,6 +98,8 @@ class Process(object):
             m = re.match(pattern, os.path.basename(filename))
             if m is not None:
                 return self.url_paths[pattern]
+        self.logger.warning('No URL provided for %s' % filename)
+        return {'s3': None, 'http': None}
 
     def publish(self):
         """ Return URLs for output granule(s), defaults to all public """
@@ -105,7 +107,6 @@ class Process(object):
         for gran in self.local_out.values():
             granout = {}
             for key, fname in gran.items():
-                # get url
                 url = self.urls(fname)['http']
                 if url is not None:
                     granout[key] = os.path.join(self.urls(fname)['http'], os.path.basename(fname))

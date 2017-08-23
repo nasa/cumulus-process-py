@@ -106,7 +106,7 @@ class TestPayload(unittest.TestCase):
         """ Testing of output files """
         pl = self.get_payload_json()
         payload = Payload(pl)
-        payload.add_output_granule(['output-1.txt', 'output-2.txt', 'output-3.meta.xml'])
+        payload.add_output_granule('TestGranule', ['output-1.txt', 'output-2.txt', 'output-3.meta.xml'])
         fnames = payload.filenames()
         self.assertEqual(len(fnames), 2)
         self.assertEqual(len(fnames[1]), 3)
