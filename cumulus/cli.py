@@ -56,6 +56,10 @@ def cli(cls):
     # process with a recipe
     elif cmd == 'recipe':
         payload = cls.run_with_payload(args['recipe'], path=args['path'], noclean=args['noclean'])
+        bname = os.path.splitext(os.path.basename(args['recipe']))[0]
+        fname = os.path.join(args['path'], bname + '_out.json')
+        with open(fname, 'w') as f:
+            f.write(payload)
     # run as a service
     elif cmd == 'activity':
         cls.activity(args['arn'], path=args['path'])
