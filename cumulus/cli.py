@@ -3,6 +3,7 @@
 import os
 import sys
 import argparse
+import json
 import logging
 from cumulus.version import __version__
 
@@ -59,7 +60,7 @@ def cli(cls):
         bname = os.path.splitext(os.path.basename(args['recipe']))[0]
         fname = os.path.join(args['path'], bname + '_out.json')
         with open(fname, 'w') as f:
-            f.write(payload)
+            f.write(json.dumps(payload))
     # run as a service
     elif cmd == 'activity':
         cls.activity(args['arn'], path=args['path'])
