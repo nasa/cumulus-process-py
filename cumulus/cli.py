@@ -65,6 +65,6 @@ def cli(cls):
             f.write(json.dumps(payload))
     # run as a service
     elif cmd == 'activity':
-        cls.activity(args['arn'], path=args['path'])
+        cls.activity(args['arn'])
     else:
         logger.error('Unknown command %s (choose between: process, recipe, activity)' % cmd)
