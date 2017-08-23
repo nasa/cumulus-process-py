@@ -68,7 +68,7 @@ class Payload(object):
         urls = {}
         for f in files:
             url_path = f.get('url_path', self.default_urlpath)
-            access = f['bucket']
+            access = f.get('bucket', 'public')
             if access == 'public':
                 http = 'http://%s.s3.amazonaws.com' % buckets[access]
             else:
@@ -81,9 +81,9 @@ class Payload(object):
             }
         return urls
 
-    def add_output_granule(self, granule):
+    def add_output_granule(self, gid, granule):
         """ Add output granules to the payload """
         self.payload['payload']['granules'].append(
-            {'files': [{'filename': f} for f in granule]}
+            {'granuleId': gid, 'files': [{'filename': f} for f in granule]}
         )
         return self.payload
