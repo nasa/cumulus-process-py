@@ -64,6 +64,9 @@ def get_and_run_task(cls, sfn, arn):
         sfn.send_task_success(taskToken=task['taskToken'], output=output)
     except MemoryError as e:
         logger.error("Memory error when running task: %s" % str(e))
+        tb = traceback.format_exc()
+        sfn.send_task_failure(taskToken=task['taskToken'], error=str(e), cause=tb)
+        raise e
     except Exception as e:
         tb = traceback.format_exc()
         sfn.send_task_failure(taskToken=task['taskToken'], error=str(e), cause=tb)
