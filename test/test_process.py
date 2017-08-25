@@ -90,7 +90,7 @@ class Test(unittest.TestCase):
             'output-2': 'nowhere/output-2'
         }
         urls = granule.publish()
-        self.assertEqual(urls[0]['output-1'], 'http://cumulus.com/testing/cumulus-py/output-1')
+        self.assertEqual(urls[urls.keys()[0]]['output-1'], 'http://cumulus.com/testing/cumulus-py/output-1')
 
     @patch.object(Process, 'process', fake_process)
     def test_upload(self):

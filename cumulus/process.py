@@ -103,14 +103,14 @@ class Process(object):
 
     def publish(self):
         """ Return URLs for output granule(s), defaults to all public """
-        urls = []
-        for gran in self.local_out.values():
+        urls = {}
+        for gid, gran in self.local_out.items():
             granout = {}
             for key, fname in gran.items():
                 url = self.urls(fname)['http']
                 if url is not None:
                     granout[key] = os.path.join(self.urls(fname)['http'], os.path.basename(fname))
-            urls.append(granout)
+            urls[gid] = granout
         return urls
 
     def download_all(self):
@@ -151,8 +151,8 @@ class Process(object):
         return [files.values() for files in self.remote_out.values()]
 
     @classmethod
-    def write_metadata(cls, meta, fout, pretty=False):
-        """ Write metadata dictionary as XML file """
+    def dicttoxml(cls, meta, pretty=False):
+        """ Convert dictionary metadata to XML string """
         # for lists, use the singular version of the parent XML name
         singular_key_func = lambda x: x[:-1]
         # convert to XML
@@ -165,6 +165,12 @@ class Process(object):
         if pretty:
             dom = parseString(xml)
             xml = dom.toprettyxml()
+        return xml
+
+    @classmethod
+    def write_metadata(cls, meta, fout, pretty=False):
+        """ Write metadata dictionary as XML file """
+        xml = cls.dicttoxml(meta, pretty=pretty)
         with open(fout, 'w') as f:
             f.write(xml)
 
