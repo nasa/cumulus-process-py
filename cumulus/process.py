@@ -151,12 +151,15 @@ class Process(object):
         return [files.values() for files in self.remote_out.values()]
 
     @classmethod
-    def dicttoxml(cls, meta, pretty=False):
+    def dicttoxml(cls, meta, pretty=False, root='Granule'):
         """ Convert dictionary metadata to XML string """
         # for lists, use the singular version of the parent XML name
         singular_key_func = lambda x: x[:-1]
         # convert to XML
-        xml = dicttoxml(meta, custom_root='Granule', attr_type=False, item_func=singular_key_func)
+        if root is None:
+            xml = dicttoxml(meta, root=False, attr_type=False, item_func=singular_key_func)
+        else:
+            xml = dicttoxml(meta, custom_root=root, attr_type=False, item_func=singular_key_func)
         # The <Point> XML tag does not follow the same rule as singular
         # of parent since the parent in CMR is <Boundary>. Create metadata
         # with the <Points> parent, and this removes that tag
