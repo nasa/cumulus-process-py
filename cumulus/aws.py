@@ -24,7 +24,7 @@ def lambda_handler(payload):
 def run(cls, payload, path='/tmp', noclean=False):
     """ Run this payload with the given Process class """
     pl = Payload(payload)
-    granule = cls(pl.filenames(), path=path, url_paths=pl.urls)
+    granule = cls(pl.filenames(), path=path, url_paths=pl.urls, gid_regex=pl.gid_regex)
     granule.run(noclean=noclean)
     for gid, gran in granule.remote_out.items():
         pl.add_output_granule(gid, gran.values())
