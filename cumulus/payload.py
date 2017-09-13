@@ -83,7 +83,20 @@ class Payload(object):
 
     def add_output_granule(self, gid, granule):
         """ Add output granules to the payload """
-        self.payload['payload']['granules'].append(
-            {'granuleId': gid, 'files': [{'filename': f} for f in granule]}
-        )
+        # new files to add
+        files = []
+        for f in granule:
+            uri = s3.uri_parser(f)
+            files.append({
+                'filename': f,
+                'name': uri['filename'],
+                'bucket': uri['bucket']
+            })
+        # check if granule already exists in payload, and add to it
+        for g in self.payload['payload']['granules']:
+            if gid == g['granuleId']:
+                g['files'] += files
+                return self.payload
+        # otherwise, create new granule
+        self.payload['payload']['granules'].append({'granuleId': gid, 'files': files})
         return self.payload

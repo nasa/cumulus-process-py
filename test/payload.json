@@ -10,6 +10,7 @@
   },
   "collection": {
     "name": "CollectionA",
+    "granuleIdExtraction": "(.+?)(\\.[^.]*$|$)",
     "meta": {
       "url_path": "testing/cumulus-py",
       "files": [
@@ -30,7 +31,7 @@
             "bucket": "private"
         },
         {
-            "regex": "^output-3.meta.xml$",
+            "regex": "^output-3.cmr.xml$",
             "bucket": "public",
             "url_path": "testing/cumulus-py/otherfolder"
         }]
