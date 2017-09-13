@@ -24,7 +24,7 @@ class Process(object):
 
     autocheck = True
 
-    def __init__(self, filenames, path='', url_paths={}, **kwargs):
+    def __init__(self, filenames, path='', url_paths={}, gid_regex=None, **kwargs):
         """ Initialize a new granule with filenames """
         self.path = path
         self.url_paths = url_paths
@@ -48,6 +48,20 @@ class Process(object):
             if (len(self.inputs) != totalfiles):
                 raise IOError('Files do not make up complete granule or extra files provided')
 
+        # extract the regex from the first filename
+        if gid_regex is not None:
+            # get first file passed in
+            file0 = filenames[0]
+            if isinstance(file0, list):
+                file0 = file0[0]
+            m = re.match(gid_regex, os.path.basename(file0))
+            if m is not None:
+                self._gid = ''.join(m.groups())
+            else:
+                raise ValueError('Unable to determine granule ID from filenames using regex')
+        else:
+            self._gid = None
+
         extra = {
             'granuleId': self.gid
         }
@@ -55,6 +69,8 @@ class Process(object):
 
     @property
     def gid(self):
+        if self._gid is not None:
+            return self._gid
         gid = os.path.commonprefix([os.path.basename(f) for f in self.input_files])
         if gid == '':
             raise ValueError('Unable to determine granule ID from files, provide manually')

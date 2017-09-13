@@ -10,9 +10,9 @@
   },
   "collection": {
     "name": "CollectionA",
-    "granuleIdExtraction": "(.+?)(\\.[^.]*$|$)",
     "meta": {
       "url_path": "testing/cumulus-py",
+      "granuleIdExtraction": "(.+?)\\.[^.]*$|$",
       "files": [
         {
             "regex": "^input-1.txt$",

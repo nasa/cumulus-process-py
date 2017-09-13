@@ -81,6 +81,10 @@ class Payload(object):
             }
         return urls
 
+    @property
+    def gid_regex(self):
+        return self.payload['collection']['meta'].get('granuleIdExtraction', None)
+
     def add_output_granule(self, gid, granule):
         """ Add output granules to the payload """
         # new files to add

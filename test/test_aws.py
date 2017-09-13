@@ -36,7 +36,7 @@ class TestAWS(unittest.TestCase):
     output_files = {
         'output-1': os.path.join(path, 'output-1.txt'),
         'output-2': os.path.join(path, 'output-2.txt'),
-        'meta': os.path.join(path, 'output-3.meta.xml')
+        'meta': os.path.join(path, 'output-3.cmr.xml')
     }
 
     @classmethod
@@ -68,9 +68,9 @@ class TestAWS(unittest.TestCase):
         """ Make complete run with payload """
         payload = run(Process, self.payload, path=self.path)
         # assumes first granule is input, all others output
-        outputs = payload['payload']['granules'][1:]
-        uris = [uri for g in outputs for f in g['files'] for uri in f.values()]
-        self.assertEqual(len(uris), 3)
+        outputs = payload['payload']['granules']
+        uris = [f['filename'] for g in outputs for f in g['files']]
+        self.assertEqual(len(uris), 5)
         self.check_and_remove_remote_out(uris)
 
     def check_and_remove_remote_out(self, uris):
