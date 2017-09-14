@@ -25,7 +25,7 @@ references:
       paths:
         - /caches/project.tar
 
-  create_env: $create_env
+  create_env: &create_env
     run:
       name: Creating .env
       command: |
