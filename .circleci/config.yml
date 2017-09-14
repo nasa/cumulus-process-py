@@ -60,6 +60,11 @@ jobs:
     steps:  
       - *restore_repo
       - *restore_cache
+      - run:
+          name: Load Docker image layer cache
+          command: |
+            set +o pipefail
+            docker load -i /caches/project.tar | true
       - run: 
           name: Build docker image
           command: |
