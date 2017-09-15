@@ -62,7 +62,7 @@ jobs:
           command: |
             docker build --cache-from=project -t developmentseed/cumulus:base .
       - save_cache:
-          key: v1-{{ .Branch }}-{{ epoch }}
+          key: v1-{{ .Branch }}
           paths:
             - /caches/project.tar
       - *create_env
