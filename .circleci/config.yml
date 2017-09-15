@@ -69,7 +69,7 @@ jobs:
       - run:
           name: Run tests
           command: |
-            docker run --env-file .env -t developmentseed/cumulus:base  nosetests /build/cumulus-py/tests -v -s
+            docker run --env-file .env -t developmentseed/cumulus:base  nosetests /build/cumulus-py/test -v -s
 
   deploy:
     <<: *container
