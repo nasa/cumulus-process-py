@@ -45,13 +45,13 @@ jobs:
           key: v1-repo-{{ .Branch }}-{{ .Revision }}
           paths:
             - ~/project
-      - setup_remote_docker
 
   build_and_test_image:
     <<: *container
     steps:  
       - *restore_repo
       - *restore_cache
+      - setup_remote_docker
       - run:
           name: Load Docker image layer cache
           command: |
@@ -77,6 +77,7 @@ jobs:
       - *restore_repo
       - *restore_cache
       - *create_env
+      - setup_remote_docker
       - run:
           name: Deploy
           command: |
