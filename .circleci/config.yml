@@ -39,18 +39,13 @@ jobs:
   setup_and_checkout_code:
     <<: *container
     steps:
-      - setup_remote_docker
-      - run:
-          name: Install dependencies
-          command: |
-            apk add --no-cache \
-              py-pip=9.0.0-r1
       - *restore_repo
       - checkout
       - save_cache:
           key: v1-repo-{{ .Branch }}-{{ .Revision }}
           paths:
             - ~/project
+      - setup_remote_docker
 
   build_and_test_image:
     <<: *container
