@@ -61,8 +61,13 @@ jobs:
           name: Build docker image
           command: |
             docker build --cache-from=project -t developmentseed/cumulus:base .
+      - run:
+          name: Save Docker image layer cache
+          command: |
+            mkdir -p /caches
+            docker save -o /caches/project.tar project
       - save_cache:
-          key: v1-{{ .Branch }}
+          key: v1-{{ .Branch }}-{{ epoch }}
           paths:
             - /caches/project.tar
       - *create_env
@@ -84,6 +89,7 @@ jobs:
             docker build --cache-from=project -t developmentseed/cumulus:base .
             docker login -e $DOCKER_EMAIL -u $DOCKER_USER -p $DOCKER_PASS
             docker push developmentseed/cumulus:base
+            mkdir -p ~/.ssh
             ssh-keyscan github.com >> ~/.ssh/known_hosts
             VERSION=`awk -F\' '{print $2,$4}' cumulus/version.py`
             git tag $VERSION
