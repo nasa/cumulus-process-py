@@ -81,6 +81,7 @@ jobs:
       - run:
           name: Deploy
           command: |
+            docker build --cache-from=project -t developmentseed/cumulus:base .
             docker login -e $DOCKER_EMAIL -u $DOCKER_USER -p $DOCKER_PASS
             docker push developmentseed/cumulus:base
             ssh-keyscan github.com >> ~/.ssh/known_hosts
