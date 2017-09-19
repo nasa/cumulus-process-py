@@ -95,7 +95,7 @@ jobs:
       - run:
           name: Push image to Docker Hub
           command: |
-            docker build --cache-from=project -t developmentseed/cumulus:base .
+            docker build --cache-from=developmentseed/cumulus:base -t developmentseed/cumulus:base .
             docker login -e $DOCKER_EMAIL -u $DOCKER_USER -p $DOCKER_PASS
             docker push developmentseed/cumulus:base
 
