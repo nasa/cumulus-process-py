@@ -83,6 +83,7 @@ jobs:
       - *restore_cache
       - *create_env
       - setup_remote_docker
+      - add_ssh_keys
       - run:
           name: Push tag to github
           command: |
