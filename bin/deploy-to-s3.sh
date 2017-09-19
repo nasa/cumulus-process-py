@@ -1,5 +1,7 @@
 #!/bin/bash
 
+lambda-package.sh
+
 S3_BUCKET=$1
 
 # location of this script
