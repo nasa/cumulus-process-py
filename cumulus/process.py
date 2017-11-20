@@ -155,6 +155,8 @@ class Process(object):
             remote = {}
             for f in granule:
                 fname = granule[f]
+                if 'hdf' in fname:
+                    continue # skip hdf which is already in s3
                 urls = self.urls(fname)
                 try:
                     if urls['s3'] is not None:
