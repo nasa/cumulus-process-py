@@ -49,6 +49,11 @@ class Payload(object):
             filenames.append([f['filename'] for f in g['files']])
         return filenames
 
+    def metafiles(self):
+        """ Get collection meta file regexes """
+        metafiles = [f['regex'] for f in self.payload['collection']['meta']['files']]
+        return metafiles
+
     @property
     def default_url(self):
         """ Get default endpoint """
