@@ -24,15 +24,38 @@ class Process(object):
 
     autocheck = True
 
-    def __init__(self, filenames, path='', url_paths={}, gid_regex=None, **kwargs):
+    def __init__(self, payload, path='', **kwargs):
         """ Initialize a new granule with filenames """
         self.path = path
-        self.url_paths = url_paths
+        self.url_paths = payload.urls
 
         self.local_in = {}
         self.remote_in = {}
         self.local_out = {}
         self.remote_out = {}
+
+        gid_regex = payload.gid_regex
+        filenames = payload.filenames()
+        filemeta = payload.metafiles()
+
+        # build input regex
+        input_regex = gid_regex.replace('\\', '')
+        if input_regex[0] == '^':
+            input_regex = input_regex[1:]
+        if input_regex[-1] == '$':
+            input_regex = input_regex[:-1]
+        # allow inputs with pre/postfixes e.g. '^BROWSE\\.' and '\\.met$'
+        input_regex = '.{,12}' + input_regex + '.{,12}'
+
+        # populate inputs
+        self.inputs = []
+        for f in filemeta:
+            m = re.match(input_regex, f)
+            if m is not None:
+                self.inputs.append(f)
+        
+        # map inputs with overridden func
+        self.map_inputs()
 
         # determine which file is which type of input through use of regular expression
         for el in filenames:
@@ -247,6 +270,10 @@ class Process(object):
     def run_with_payload(cls, payload, **kwargs):
         return run(cls, payload, **kwargs)
 
+    def map_inputs(self):
+        """ Override: Use the list of inputs generated in the Process parent constructor to create a process-specific dictionary of inputs. """
+        raise NotImplementedError('Input mapping must be implemented in the product-specific child process.')
+    
     def process(self, **kwargs):
         """ Process a granule locally to produce one or more output granules """
         """
