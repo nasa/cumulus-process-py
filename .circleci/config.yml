@@ -91,12 +91,20 @@ jobs:
             ssh-keyscan github.com >> ~/.ssh/known_hosts
             VERSION=`awk -F\' '{print $2,$4}' cumulus/version.py`
             git tag $VERSION
-            git push origin $VERSION            
+            git push origin $VERSION     
+      - run:
+          name: Load Docker image layer cache
+          command: |
+            set +o pipefail
+            docker load -i /caches/project.tar | true
+      - run: 
+          name: Build docker image
+          command: |
+            docker login -e $DOCKER_EMAIL -u $DOCKER_USER -p $DOCKER_PASS
+            docker build --cache-from=developmentseed/cumulus:base -t developmentseed/cumulus:base .       
       - run:
           name: Push image to Docker Hub
           command: |
-            docker build --cache-from=developmentseed/cumulus:base -t developmentseed/cumulus:base .
-            docker login -e $DOCKER_EMAIL -u $DOCKER_USER -p $DOCKER_PASS
             docker push developmentseed/cumulus:base
 
 workflows:
