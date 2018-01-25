@@ -1,14 +1,7 @@
 
-import os
 import logging
 import datetime
-from dotenv import load_dotenv
 from pythonjsonlogger import jsonlogger
-
-# load envvars
-env_file = os.path.join(os.path.dirname(__file__), '.env')
-if os.path.exists(env_file):
-    load_dotenv(env_file)
 
 
 class CumulusFormatter(jsonlogger.JsonFormatter):
