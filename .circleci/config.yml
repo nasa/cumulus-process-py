@@ -1,88 +1,106 @@
 # Python CircleCI 2.0 configuration file
-#
-# Check https://circleci.com/docs/2.0/language-python/ for more details
 version: 2
 
-
 references:
-
-  container: &container
+  container_python27: &container_python27
     docker:
-      - image: docker:17.05.0-ce-git
+      - image: circleci/python:2.7.13
+    working_dir: ~/project
+
+  container_python36: &container_python36
+    docker:
+      - image: circleci/python:3.6.2
     working_dir: ~/project
 
   restore_repo: &restore_repo
     restore_cache:
       keys:
-        - v1-repo-{{ .Branch }}-{{ .Revision }}
-        - v1-repo-{{ .Branch }}
-        - v1-repo
+        - v0-repo-{{ .Branch }}-{{ .Revision }}
+        - v0-repo-{{ .Branch }}
+        - v0-repo
 
-  restore_cache: &restore_cache
-    restore_cache:
-      keys: 
-        - v1-{{ .Branch }}
+  save_repo: &save_repo
+    save_cache:
+      key: v0-repo-{{ .Branch }}-{{ .Revision }}
       paths:
-        - /caches/project.tar
+        ~/project  
 
-  create_env: &create_env
-    run:
-      name: Creating .env
-      command: |
-        echo "AWS_REGION=us-west-2" >> .env
-        echo "AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID" >> .env
-        echo "AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY" >> .env      
+  restore_dependencies27: &restore_dependencies
+    restore_cache:
+      keys:
+        - v0-dependencies27-{{ checksum "requirements.txt" }}
+        - v0-dependencies27
 
+  restore_dependencies36: &restore_dependencies
+    restore_cache:
+      keys:
+        - v0-dependencies36-{{ checksum "requirements.txt" }}
+        - v0-dependencies36
 
 jobs:
-
   setup_and_checkout_code:
     <<: *container
     steps:
       - *restore_repo
       - checkout
-      - save_cache:
-          key: v1-repo-{{ .Branch }}-{{ .Revision }}
-          paths:
-            - ~/project
+      - *save_repo
 
-  build_and_test_image:
-    <<: *container
+  install_and_test_27:
+    <<: *container_python27
     steps:  
       - *restore_repo
-      - *restore_cache
-      - setup_remote_docker
+      - *restore_dependencies27:
       - run:
-          name: Load Docker image layer cache
-          command: |
-            set +o pipefail
-            docker load -i /caches/project.tar | true
+          name: Install virtualenv
+          command: pip install virtualenv
       - run: 
-          name: Build docker image
+          name: Install dependencies
           command: |
-            docker build --cache-from=developmentseed/cumulus:base -t developmentseed/cumulus:base .
-      - run:
-          name: Save Docker image layer cache
-          command: |
-            mkdir -p /caches
-            docker save -o /caches/project.tar developmentseed/cumulus
+            virtualenv ~/venv27
+            . ~/venv27/bin/activate
+            pip install -r requirements.txt
+            pip install -r requirements-dev.txt
       - save_cache:
-          key: v1-{{ .Branch }}-{{ epoch }}
+          key: v0-dependencies27-{{ checksum "requirements.txt"}}
           paths:
-            - /caches/project.tar
-      - *create_env
-      - run:
+            - ~/venv27
+      - run :
           name: Run tests
           command: |
-            docker run --env-file .env -t developmentseed/cumulus:base  nosetests /build/cumulus-py/test -v -s
+            . ~/venv36/bin/activate
+            nosetests -v --with-coverage --cover-package cumulus
+
+  install_and_test_36:
+    <<: *container_python36
+    steps:  
+      - *restore_repo
+      - *restore_dependencies36
+      - run:
+          name: Install virtualenv
+          command: pip install virtualenv
+      - run: 
+          name: Install dependencies
+          command: |
+            virtualenv ~/venv36
+            . ~/venv36/bin/activate
+            pip install -r requirements.txt
+            pip install -r requirements-dev.txt
+            nosetests -v --with-coverage --cover-package cumulus
+      - save_cache:
+          key: v0-dependencies36-{{ checksum "requirements.txt"}}
+          paths:
+            - ~/venv36
+      - run :
+          name: Run tests
+          command: |
+            . ~/venv36/bin/activate
+            nosetests -v --with-coverage --cover-package cumulus
 
   deploy:
-    <<: *container
+    <<: *container_python36
     steps:
       - *restore_repo
-      - *restore_cache
-      - *create_env
-      - setup_remote_docker
+      - *restore_dependencies
       - add_ssh_keys
       - run:
           name: Push tag to github
@@ -91,33 +109,33 @@ jobs:
             ssh-keyscan github.com >> ~/.ssh/known_hosts
             VERSION=`awk -F\' '{print $2,$4}' cumulus/version.py`
             git tag $VERSION
-            git push origin $VERSION     
+            git push origin $VERSION
       - run:
-          name: Load Docker image layer cache
+          name: Deploy to PyPi
           command: |
-            set +o pipefail
-            docker load -i /caches/project.tar | true
-      - run: 
-          name: Build docker image
-          command: |
-            docker login -e $DOCKER_EMAIL -u $DOCKER_USER -p $DOCKER_PASS
-            docker build --cache-from=developmentseed/cumulus:base -t developmentseed/cumulus:base .       
-      - run:
-          name: Push image to Docker Hub
-          command: |
-            docker push developmentseed/cumulus:base
+            . ~/venv/bin/activate
+            pip install twine
+            python setup.py sdist
+            twine upload --username "${PYPI_USER}" --password "${PYPI_PASS}" dist/*
+
 
 workflows:
   version: 2
-  build_test_deploy:
+  build_test_36_deploy:
     jobs:
-      - setup_and_checkout_code
-      - build_and_test_image:
+      - checkout_code
+      - install_and_test_36:
           requires:
-            - setup_and_checkout_code
+            - checkout_code
       - deploy:
           requires:
-            - build_and_test_image
+            - install_and_test_36
           filters:
             branches:
               only: master
+  build_test_27:
+    jobs:
+      - checkout_code
+      - install_and_test_27:
+          requires:
+            - checkout_code
