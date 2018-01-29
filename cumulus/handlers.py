@@ -21,6 +21,16 @@ def lambda_handler(payload):
     return run(payload)
 
 
+def run(cls, payload, path='/tmp', noclean=False):
+    """ Run this payload with the given Process class """
+    pl = Payload(payload)
+    granule = cls(pl.filenames(), path=path, url_paths=pl.urls, gid_regex=pl.gid_regex)
+    granule.run(noclean=noclean)
+    for gid, gran in granule.remote_out.items():
+        pl.add_output_granule(gid, gran.values())
+    return pl.payload
+
+
 def get_and_run_task(cls, sfn, arn):
     """ Get and run a single task as part of an activity """
     logger.info('query for task')
