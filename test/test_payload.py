@@ -12,7 +12,7 @@ logging.basicConfig(stream=sys.stdout)
 testpath = os.path.dirname(__file__)
 
 
-class TestPayload(unittest.TestCase):
+class _TestPayload(unittest.TestCase):
     """ Test utiltiies for publishing data on AWS PDS """
 
     s3path = 's3://cumulus-internal/testing/cumulus-py'
