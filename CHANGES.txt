@@ -1,3 +1,9 @@
+v0.4.0:
+- Refactored Process class to remove any automatic functionality
+- Update to use cumulus-message-adapter
+- cumulus-py now public and open source, turned into standard package, docker files removed
+- ci updated to auto tag and deploy to PyPi on merge to master
+
 v0.3.0:
 - Refactor Granule class into new Process class
 - New payload format
