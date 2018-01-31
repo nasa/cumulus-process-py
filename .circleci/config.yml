@@ -23,7 +23,7 @@ references:
     save_cache:
       key: v0-repo-{{ .Branch }}-{{ .Revision }}
       paths:
-        ~/project  
+        - ~/project  
 
   restore_dependencies27: &restore_dependencies27
     restore_cache:
