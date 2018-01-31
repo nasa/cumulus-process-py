@@ -9,7 +9,7 @@ class CumulusFormatter(jsonlogger.JsonFormatter):
 
     def format(self, record):
         # if just a string, convert to JSON
-        if isinstance(record.msg, str) or isinstance(record.msg, unicode):
+        if isinstance(record.msg, str):
             record.msg = {'message': record.msg}
         # create blank msg if not present
         if 'message' not in record.msg.keys():
