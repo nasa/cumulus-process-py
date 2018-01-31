@@ -100,7 +100,7 @@ jobs:
     <<: *container_python36
     steps:
       - *restore_repo
-      - *restore_dependencies
+      - *restore_dependencies36
       - add_ssh_keys
       - run:
           name: Push tag to github
