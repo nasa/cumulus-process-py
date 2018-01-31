@@ -39,7 +39,7 @@ references:
 
 jobs:
   setup_and_checkout_code:
-    <<: *container
+    <<: *container_python36
     steps:
       - *restore_repo
       - checkout
