@@ -38,7 +38,7 @@ references:
         - v0-dependencies36
 
 jobs:
-  setup_and_checkout_code:
+  checkout_code:
     <<: *container_python36
     steps:
       - *restore_repo
