@@ -78,7 +78,7 @@ jobs:
       - *restore_dependencies36
       - run:
           name: Install virtualenv
-          command: pip --user install virtualenv
+          command: pip install --user virtualenv
       - run: 
           name: Install dependencies
           command: |
