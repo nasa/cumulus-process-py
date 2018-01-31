@@ -134,6 +134,8 @@ CMD ["<arg1>", "<arg2>"]
 
 ### cumulus-py Development
 
+# nosetests -v -s --with-coverage --cover-package cumulus --cover-inclusive --with-timer -v -s
+
 The base docker image is automatically built and pushed to Dockerhub when merging into master. To manually build this image for development:
 
     $ docker-compose build

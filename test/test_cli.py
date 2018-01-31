@@ -53,7 +53,7 @@ class Test(unittest.TestCase):
         args = parse_args(Process, cmd.split(' '))
         self.assertEqual(args['filenames'], ['test-1.txt', 'test-2.txt'])
 
-    def test_cli_recipe(self):
+    def _test_cli_recipe(self):
         """ Test CLI function with a recipe """
         pl = os.path.join(self.testdir, 'payload.json')
         sys.argv = ('program recipe %s --path %s --loglevel 5' % (pl, (self.testdir))).split(' ')
