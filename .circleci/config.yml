@@ -68,7 +68,7 @@ jobs:
       - run :
           name: Run tests
           command: |
-            . ~/venv36/bin/activate
+            . ~/venv27/bin/activate
             nosetests -v --with-coverage --cover-package cumulus
 
   install_and_test_36:
