@@ -8,7 +8,7 @@ from xml.dom.minidom import parseString
 import cumulus.s3 as s3
 from cumulus.loggers import getLogger
 from cumulus.cli import cli
-from cumulus.handlers import activity
+from cumulus.handlers import activity_handler
 
 logger = getLogger(__name__)
 
@@ -32,7 +32,9 @@ class Process(object):
     def gid(self):
         """ Get GID based on regex if provided """
         gid = None
-        regex = self.collection.get('granuleIdExtraction', None)
+        regex = None
+        if self.collection is not None:
+            regex = self.collection.get('granuleIdExtraction', None)
         if regex is not None:
             # get first file passed in
             file0 = self.input[0]
@@ -41,7 +43,7 @@ class Process(object):
                 gid = ''.join(m.groups())
         if gid is None:
             # try and determine an GID from a commonprefix
-            gid = os.path.commonprefix([os.path.basename(f) for f in self.input_files])
+            gid = os.path.commonprefix([os.path.basename(f) for f in self.input])
         if gid == '':
             # make gid the basename within extension of first file
             gid = os.path.splitext(os.path.basename(self.input[0]))[0]
@@ -68,11 +70,11 @@ class Process(object):
 
     def get_filenames(self, key, remote=False):
         """ Get local (default) or remote input filename """
-        regex = self.inputs.get(key, None)
+        regex = self.input.get(key, None)
         if regex is None:
             raise Exception('No files matching %s' % regex)
         outfiles = []
-        for f in self.input:
+        for f in self.input_keys:
             m = re.match(regex, f)
             if m is not None:
                 # if remote desired, or input is already local
@@ -205,14 +207,14 @@ class Process(object):
 
     @classmethod
     def activity(cls, arn):
-        activity(cls, arn=arn)
+        activity_handler(cls, arn=arn)
 
     @classmethod
     def run(cls, noclean=False, **kwargs):
         """ Run this payload with the given Process class """
         process = cls(**kwargs)
         process.process(noclean=noclean)
-        return process.outputs
+        return process.output
 
 
 if __name__ == "__main__":
