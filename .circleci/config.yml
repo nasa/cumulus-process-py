@@ -38,6 +38,7 @@ references:
         - v0-dependencies36
 
 jobs:
+
   checkout_code:
     <<: *container_python36
     steps:
@@ -133,9 +134,9 @@ workflows:
           filters:
             branches:
               only: master
-  build_test_27:
-    jobs:
-      - checkout_code
-      - install_and_test_27:
-          requires:
-            - checkout_code
+#  build_test_27:
+#    jobs:
+#      - checkout_code
+#      - install_and_test_27:
+#          requires:
+#            - checkout_code
