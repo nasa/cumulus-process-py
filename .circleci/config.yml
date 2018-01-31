@@ -25,13 +25,13 @@ references:
       paths:
         ~/project  
 
-  restore_dependencies27: &restore_dependencies
+  restore_dependencies27: &restore_dependencies27
     restore_cache:
       keys:
         - v0-dependencies27-{{ checksum "requirements.txt" }}
         - v0-dependencies27
 
-  restore_dependencies36: &restore_dependencies
+  restore_dependencies36: &restore_dependencies36
     restore_cache:
       keys:
         - v0-dependencies36-{{ checksum "requirements.txt" }}
