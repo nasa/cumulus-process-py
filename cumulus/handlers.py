@@ -1,6 +1,5 @@
 import os
 import json
-from cumulus.payload import Payload
 import boto3
 import traceback
 from botocore.client import Config
@@ -68,6 +67,3 @@ def get_and_run_task(cls, sfn, arn):
     except Exception as e:
         tb = traceback.format_exc()
         sfn.send_task_failure(taskToken=task['taskToken'], error=str(e), cause=tb)
-
-
-
