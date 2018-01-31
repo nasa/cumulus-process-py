@@ -1,14 +1,7 @@
 
-import os
 import logging
 import datetime
-from dotenv import load_dotenv
 from pythonjsonlogger import jsonlogger
-
-# load envvars
-env_file = os.path.join(os.path.dirname(__file__), '.env')
-if os.path.exists(env_file):
-    load_dotenv(env_file)
 
 
 class CumulusFormatter(jsonlogger.JsonFormatter):
@@ -16,7 +9,7 @@ class CumulusFormatter(jsonlogger.JsonFormatter):
 
     def format(self, record):
         # if just a string, convert to JSON
-        if isinstance(record.msg, str) or isinstance(record.msg, unicode):
+        if isinstance(record.msg, str):
             record.msg = {'message': record.msg}
         # create blank msg if not present
         if 'message' not in record.msg.keys():

@@ -43,11 +43,11 @@ def download(uri, path=''):
 
     s3 = get_client()
 
-    with open(fout, 'wb') as data:
+    with open(fout, 'wb') as f:
         s3.download_fileobj(
             Bucket=s3_uri['bucket'],
             Key=s3_uri['key'],
-            Fileobj=data
+            Fileobj=f
         )
     return fout
 

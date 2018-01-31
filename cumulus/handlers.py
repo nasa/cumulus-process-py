@@ -1,11 +1,11 @@
 import os
 import json
-from cumulus.payload import Payload
 import boto3
 import traceback
 from botocore.client import Config
 from botocore.vendored.requests.exceptions import ReadTimeout
 from cumulus.loggers import getLogger
+#from run_cumulus_task import run_cumulus_task
 
 logger = getLogger(__name__)
 
@@ -16,19 +16,17 @@ cls is the Process subclass for a specific data source, such as MODIS, ASTER, et
 SFN_PAYLOAD_LIMIT = 32768
 
 
-def lambda_handler(payload):
+def lambda_handler(cls, payload):
     """ Handler for AWS Lambda function """
-    return run(payload)
+    process = cls(**payload)
+    return process.run()
 
 
-def run(cls, payload, path='/tmp', noclean=False):
-    """ Run this payload with the given Process class """
-    pl = Payload(payload)
-    granule = cls(pl.filenames(), path=path, url_paths=pl.urls, gid_regex=pl.gid_regex)
-    granule.run(noclean=noclean)
-    for gid, gran in granule.remote_out.items():
-        pl.add_output_granule(gid, gran.values())
-    return pl.payload
+def activity_handler(cls, arn=os.getenv('ACTIVITY_ARN')):
+    """ An activity service for use with AWS Step Functions """
+    sfn = boto3.client('stepfunctions', config=Config(read_timeout=70))
+    while True:
+        get_and_run_task(cls, sfn, arn)
 
 
 def get_and_run_task(cls, sfn, arn):
@@ -52,10 +50,10 @@ def get_and_run_task(cls, sfn, arn):
         #    payload = download_json(payload['s3uri'])
 
         # run job
-        payload = run(cls, payload)
-
+        process = cls(**payload)
         # return sucess with result
-        output = json.dumps(payload)
+        output = json.dumps(process.run())
+
         # check payload size
         #if len(output) >= SFN_PAYLOAD_LIMIT:
         #    s3out = upload_result(result)
@@ -70,10 +68,3 @@ def get_and_run_task(cls, sfn, arn):
     except Exception as e:
         tb = traceback.format_exc()
         sfn.send_task_failure(taskToken=task['taskToken'], error=str(e), cause=tb)
-
-
-def activity(cls, arn=os.getenv('ACTIVITY_ARN')):
-    """ An activity service for use with AWS Step Functions """
-    sfn = boto3.client('stepfunctions', config=Config(read_timeout=70))
-    while True:
-        get_and_run_task(cls, sfn, arn)

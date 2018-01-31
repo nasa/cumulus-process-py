@@ -8,7 +8,7 @@ from xml.dom.minidom import parseString
 import cumulus.s3 as s3
 from cumulus.loggers import getLogger
 from cumulus.cli import cli
-from cumulus.aws import run, activity
+from cumulus.handlers import activity_handler
 
 logger = getLogger(__name__)
 
@@ -16,155 +16,150 @@ logger = getLogger(__name__)
 class Process(object):
     """ Class representing a data granule on S3 and processing that granule """
 
-    # internally used keys
-    inputs = {
-        'input-1': r'^.*-1.txt$',
-        'input-2': r'^.*-2.txt$'
-    }
-
-    autocheck = True
-
-    def __init__(self, filenames, path='', url_paths={}, gid_regex=None, **kwargs):
-        """ Initialize a new granule with filenames """
-        self.path = path
-        self.url_paths = url_paths
-
-        self.local_in = {}
-        self.remote_in = {}
-        self.local_out = {}
-        self.remote_out = {}
-
-        # determine which file is which type of input through use of regular expression
-        for el in filenames:
-            if isinstance(el, list):
-                for f in el:
-                    self.add_input_file(f)
-            else:
-                self.add_input_file(el)
-
-        # let child data granules determine if it's not enough
-        if self.autocheck:
-            totalfiles = len(self.remote_in) + len(self.local_in)
-            if (len(self.inputs) != totalfiles):
-                raise IOError('Files do not make up complete granule or extra files provided')
-
-        # extract the regex from the first filename
-        if gid_regex is not None:
-            # get first file passed in
-            file0 = filenames[0]
-            if isinstance(file0, list):
-                file0 = file0[0]
-            m = re.match(gid_regex, os.path.basename(file0))
-            if m is not None:
-                self._gid = ''.join(m.groups())
-            else:
-                raise ValueError('Unable to determine granule ID from filenames using regex')
-        else:
-            self._gid = None
-
-        extra = {
-            'granuleId': self.gid
+    @property
+    def input_keys(self):
+        """ Keys used to reference files internally """
+        return {
+            'input-1': r'^.*-1.txt$',
+            'input-2': r'^.*-2.txt$'
         }
-        self.logger = logging.LoggerAdapter(logger, extra)
+
+    def process(self, **kwargs):
+        """ Process data to produce one or more output granules """
+        return {}
 
     @property
     def gid(self):
-        if self._gid is not None:
-            return self._gid
-        gid = os.path.commonprefix([os.path.basename(f) for f in self.input_files])
+        """ Get GID based on regex if provided """
+        gid = None
+        regex = None
+        if self.collection is not None:
+            regex = self.collection.get('granuleIdExtraction', None)
+        if regex is not None:
+            # get first file passed in
+            file0 = self.input[0]
+            m = re.match(regex, os.path.basename(file0))
+            if m is not None:
+                gid = ''.join(m.groups())
+        if gid is None:
+            # try and determine an GID from a commonprefix
+            gid = os.path.commonprefix([os.path.basename(f) for f in self.input])
         if gid == '':
-            raise ValueError('Unable to determine granule ID from files, provide manually')
+            # make gid the basename within extension of first file
+            gid = os.path.splitext(os.path.basename(self.input[0]))[0]
         return gid
 
-    @property
-    def input_files(self):
-        """ Get dictionary of all input files, local or remote (prefers local first) """
-        fnames = {k: v for k, v in self.local_in.items()}
-        for k, v in self.remote_in.items():
-            if k not in fnames:
-                fnames[k] = v
-        return fnames
+    @classmethod
+    def add_parser_args(cls, parser):
+        """ Add class specific arguments to the parser """
+        return parser
 
-    def add_input_file(self, filename):
-        """ Adds an input file """
-        for f in self.inputs:
-            m = re.match(self.inputs[f], os.path.basename(filename))
+    def __init__(self, filenames, path='./', **kwargs):
+        """ Initialize a Process with input filenames and optional kwargs """
+        self.path = path
+        self.kwargs = kwargs
+
+        # list of input filenames
+        self.input = filenames
+        # output granules
+        self.output = {}
+
+        # set up logger
+        extra = {'granuleId': self.gid}
+        self.logger = logging.LoggerAdapter(logger, extra)
+
+    def get_filenames(self, key, remote=False):
+        """ Get local (default) or remote input filename """
+        regex = self.input.get(key, None)
+        if regex is None:
+            raise Exception('No files matching %s' % regex)
+        outfiles = []
+        for f in self.input_keys:
+            m = re.match(regex, f)
             if m is not None:
-                # does the file exist locally
-                if os.path.exists(filename):
-                    # add as new unused key
-                    key = f
-                    i = 1
-                    while key in self.local_in:
-                        key = f + '-%s' % i
-                        i += 1
-                    self.local_in[key] = filename
+                # if remote desired, or input is already local
+                if remote or os.path.exists(f):
+                    outfiles.append(f)
                 else:
-                    key = f
-                    i = 1
-                    while key in self.remote_in:
-                        key = f + '-%s' % i
-                        i += 1
-                    self.remote_in[key] = filename
+                    outfiles.append(s3.download(f, path=self.path))
 
-    def urls(self, filename):
-        if len(self.url_paths.keys()) == 0:
-            return {'s3': None, 'http': None}
-        for pattern in self.url_paths:
-            m = re.match(pattern, os.path.basename(filename))
-            if m is not None:
-                return self.url_paths[pattern]
-        self.logger.warning('No URL provided for %s' % filename)
-        return {'s3': None, 'http': None}
-
-    def publish(self):
-        """ Return URLs for output granule(s), defaults to all public """
-        urls = {}
-        for gid, gran in self.local_out.items():
-            granout = {}
-            for key, fname in gran.items():
-                url = self.urls(fname)['http']
-                if url is not None:
-                    granout[key] = os.path.join(self.urls(fname)['http'], os.path.basename(fname))
-            urls[gid] = granout
-        return urls
-
-    def download_all(self):
+    def get_all_filenames(self, remote=False):
         """ Download all files in remote_in """
-        return [self.download(key=key) for key in self.remote_in]
+        return {key: self.get_filenames(key=key, remote=remote) for key in self.input_keys}
 
-    def download(self, key=None):
-        """ Download input file from S3 """
-        keys = self.inputs.keys() if key is None else [key]
-        downloaded = []
-        for key in keys:
-            if key not in self.local_in:
-                uri = self.remote_in[key]
-                self.logger.info('downloading input file %s' % uri)
-                fname = s3.download(uri, path=self.path)
-                self.local_in[key] = fname
-            else:
-                fname = self.local_in[key]
-            downloaded.append(str(fname))
-        return downloaded
+    def upload_file(self, filename):
+        """ Upload a local file to s3 if collection payload provided """
+        info = self.get_publish_info(filename)
+        try:
+            uri = None
+            if info.get('s3', None) is not None:
+                extra = {'ACL': 'public-read'} if info.get('bucket', 'public') == 'public' else {}
+                uri = s3.upload(filename, info['s3'], extra=extra)
+            return uri
+        except Exception as e:
+            self.logger.error("Error uploading file %s: %s" % (os.path.basename(os.path.basename(filename)), str(e)))
 
-    def upload(self):
-        """ Upload local output files to S3 """
-        self.logger.info('uploading output granules')
-        for gid, granule in self.local_out.items():
-            remote = {}
-            for f in granule:
-                fname = granule[f]
-                urls = self.urls(fname)
-                try:
-                    if urls['s3'] is not None:
-                        extra = {'ACL': 'public-read'} if urls.get('access', 'public') == 'public' else {}
-                        uri = s3.upload(fname, urls['s3'], extra=extra)
-                        remote[f] = uri
-                except Exception as e:
-                    self.logger.error("Error uploading file %s: %s" % (os.path.basename(fname), str(e)))
-            self.remote_out[gid] = remote
-        return [files.values() for files in self.remote_out.values()]
+    def upload_output_files(self):
+        """ Uploads all self.outputs """
+        return [self.upload_file(f) for f in self.outputs]
+
+    def clean_input(self):
+        """ Remove input files """
+        self.logger.info('Cleaning local input files')
+        for f in self.input:
+            if os.path.exists(f):
+                os.remove(f)
+
+    def clean_output(self):
+        """ Remove local output files """
+        for gran in self.output.values():
+            for f in gran.values():
+                if os.path.exists(f):
+                    os.remove(f)
+
+    def clean_all(self):
+        """ Remove all local files """
+        self.clean_input()
+        self.clean_output()
+
+    # ## Publishing functions
+    # properties to access payload parameters for publishing
+    @property
+    def buckets(self):
+        return self.kwargs.get('buckets', None)
+
+    @property
+    def collection(self):
+        return self.kwargs.get('collection', None)
+
+    @property
+    def default_url(self):
+        """ Get default endpoint """
+        return self.collection.get('distribution_endpoint', 'https://cumulus.com')
+
+    def get_publish_info(self, filename):
+        """ Get publishing info for this file from the collection metadata """
+        files = self.collection.get('files', [])
+        info = None
+        count = 0
+        for f in files:
+            m = re.match(f['regex'], os.path.basename(filename))
+            if m is not None:
+                count += 1
+                info = f
+                access = f.get('bucket', 'public')
+                bucket = self.bucket.get(access, None)
+                if bucket is not None:
+                    prefix = f.get('url_path', self.collection.get('url_path', ''))
+                    s3_url = os.path.join('s3://', bucket, prefix, os.path.basename(filename))
+                    http_url = 'http://%s.s3.amazonaws.com' % bucket if access == 'public' else self.default_url
+                    http_url = os.path.join(http_url, prefix, os.path.basename(filename))
+                    info.update({'s3': s3_url, 'http': http_url})
+        if (count) > 1:
+            raise Exception('More than one regex matches %s' % filename)
+        return info
+
+    # ## Utility functions
 
     @classmethod
     def dicttoxml(cls, meta, pretty=False, root='Granule'):
@@ -193,32 +188,6 @@ class Process(object):
         with open(fout, 'w') as f:
             f.write(xml)
 
-    def clean(self):
-        """ Remove input and output files """
-        self.logger.info('Cleaning local files')
-        for f in self.local_in.values():
-            if os.path.exists(f):
-                os.remove(f)
-        for gran in self.local_out.values():
-            for f in gran.values():
-                if os.path.exists(f):
-                    os.remove(f)
-
-    def run(self, noclean=False):
-        """ Run all steps and log: process, upload """
-        try:
-            self.logger.info('begin processing')
-            self.process()
-            self.upload()
-            if noclean is False:
-                self.clean()
-            self.logger.info('processing completed')
-        except Exception as e:
-            import traceback
-            self.logger.error({'message': 'Run error with granule: %s' % str(e),
-                              'error': traceback.format_exc()})
-            raise e
-
     def run_command(self, cmd):
         """ Run cmd as a system command """
         try:
@@ -230,33 +199,22 @@ class Process(object):
             self.logger.debug(str(e))
             raise RuntimeError('Error running %s' % cmd)
 
-    @classmethod
-    def add_parser_args(cls, parser):
-        """ Add class specific arguments to the parser """
-        return parser
+    # ## Handlers
 
     @classmethod
     def cli(cls):
         cli(cls)
 
     @classmethod
-    def activity(cls, arn=os.getenv('ACTIVITY_ARN')):
-        activity(cls, arn=arn)
+    def activity(cls, arn):
+        activity_handler(cls, arn=arn)
 
     @classmethod
-    def run_with_payload(cls, payload, **kwargs):
-        return run(cls, payload, **kwargs)
-
-    def process(self, **kwargs):
-        """ Process a granule locally to produce one or more output granules """
-        """
-            The Granule class automatically fetches input files and uploads output files, while
-            validating both, before and after this process() function. Therefore, the process function
-            can retrieve the files from self.input_files[key] where key is the name given to that input
-            file (e.g., "hdf-data", "hdf-thumbnail").
-            The Granule class takes care of logging, validating, writing out metadata, and reporting on timing
-        """
-        return {}
+    def run(cls, noclean=False, **kwargs):
+        """ Run this payload with the given Process class """
+        process = cls(**kwargs)
+        process.process(noclean=noclean)
+        return process.output
 
 
 if __name__ == "__main__":

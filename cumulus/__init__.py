@@ -9,4 +9,3 @@ logging.getLogger('dicttoxml').setLevel(logging.CRITICAL)
 
 
 from cumulus.process import Process
-from cumulus.payload import Payload
