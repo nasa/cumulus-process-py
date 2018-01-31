@@ -25,12 +25,6 @@ references:
       paths:
         - ~/project  
 
-  restore_dependencies27: &restore_dependencies27
-    restore_cache:
-      keys:
-        - v0-dependencies27-{{ checksum "requirements.txt" }}
-        - v0-dependencies27
-
   restore_dependencies36: &restore_dependencies36
     restore_cache:
       keys:
@@ -45,31 +39,6 @@ jobs:
       - *restore_repo
       - checkout
       - *save_repo
-
-  install_and_test_27:
-    <<: *container_python27
-    steps:  
-      - *restore_repo
-      - *restore_dependencies27:
-      - run:
-          name: Install virtualenv
-          command: pip install virtualenv
-      - run: 
-          name: Install dependencies
-          command: |
-            virtualenv ~/venv27
-            . ~/venv27/bin/activate
-            pip install -r requirements.txt
-            pip install -r requirements-dev.txt
-      - save_cache:
-          key: v0-dependencies27-{{ checksum "requirements.txt"}}
-          paths:
-            - ~/venv27
-      - run :
-          name: Run tests
-          command: |
-            . ~/venv36/bin/activate
-            nosetests -v --with-coverage --cover-package cumulus
 
   install_and_test_36:
     <<: *container_python36
