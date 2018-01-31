@@ -4,10 +4,7 @@ This testing module relies on some testing data available in s3://cumulus-intern
 
 import os
 import sys
-from nose.tools import raises
-from mock import patch, PropertyMock
 import unittest
-import logging
 from cumulus.process import Process
 from cumulus.cli import parse_args, cli
 
@@ -27,15 +24,15 @@ class Test(unittest.TestCase):
             fouts[out] = fout
         return fouts
 
-    @raises(SystemExit)
     def test_parse_no_args(self):
         """ Parse arguments for CLI to a Granule class """
-        parse_args(Process, '')
+        with self.assertRaises(SystemExit) as context:
+            parse_args(Process, '')
 
-    @raises(SystemExit)
     def test_parse_args_version(self):
         """ Parse version arguments """
-        parse_args(Process, ['--version'])
+        with self.assertRaises(SystemExit) as context:
+            parse_args(Process, ['--version'])
 
     def test_parse_args_recipe(self):
         """ Parse arguments given input files """
