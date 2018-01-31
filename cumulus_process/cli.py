@@ -5,7 +5,7 @@ import sys
 import argparse
 import json
 import logging
-from cumulus.version import __version__
+from cumulus_process.version import __version__
 
 logger = logging.getLogger(__name__)
 

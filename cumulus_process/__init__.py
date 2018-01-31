@@ -8,4 +8,4 @@ logging.getLogger('s3transfer').setLevel(logging.CRITICAL)
 logging.getLogger('dicttoxml').setLevel(logging.CRITICAL)
 
 
-from cumulus.process import Process
+from cumulus_process.process import Process

@@ -5,8 +5,8 @@ This testing module relies on some testing data available in s3://cumulus-intern
 import os
 import sys
 import unittest
-from cumulus.process import Process
-from cumulus.cli import parse_args, cli
+from cumulus_process import Process
+from cumulus_process.cli import parse_args, cli
 
 
 class Test(unittest.TestCase):

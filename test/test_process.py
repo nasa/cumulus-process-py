@@ -6,7 +6,7 @@ import os
 import unittest
 from mock import patch
 import cumulus.s3 as s3
-from cumulus.process import Process
+from cumulus_process import Process
 
 
 # mocked function replaced Granule.process

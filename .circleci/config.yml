@@ -69,7 +69,7 @@ jobs:
           name: Run tests
           command: |
             . ~/venv27/bin/activate
-            nosetests -v --with-coverage --cover-package cumulus
+            nosetests -v --with-coverage --cover-package cumulus_process
 
   install_and_test_36:
     <<: *container_python36
@@ -86,7 +86,7 @@ jobs:
             . ~/venv36/bin/activate
             pip install -r requirements.txt
             pip install -r requirements-dev.txt
-            nosetests -v --with-coverage --cover-package cumulus
+            nosetests -v --with-coverage --cover-package cumulus_process
       - save_cache:
           key: v0-dependencies36-{{ checksum "requirements.txt"}}
           paths:
@@ -95,7 +95,7 @@ jobs:
           name: Run tests
           command: |
             . ~/venv36/bin/activate
-            nosetests -v --with-coverage --cover-package cumulus
+            nosetests -v --with-coverage --cover-package cumulus_process
 
   deploy:
     <<: *container_python36
@@ -108,7 +108,7 @@ jobs:
           command: |
             mkdir -p ~/.ssh
             ssh-keyscan github.com >> ~/.ssh/known_hosts
-            VERSION=`awk -F\' '{print $2,$4}' cumulus/version.py`
+            VERSION=`awk -F\' '{print $2,$4}' cumulus_process/version.py`
             git tag $VERSION
             git push origin $VERSION
       - run:

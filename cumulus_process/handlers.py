@@ -4,7 +4,7 @@ import boto3
 import traceback
 from botocore.client import Config
 from botocore.vendored.requests.exceptions import ReadTimeout
-from cumulus.loggers import getLogger
+from cumulus_process.loggers import getLogger
 #from run_cumulus_task import run_cumulus_task
 
 logger = getLogger(__name__)
