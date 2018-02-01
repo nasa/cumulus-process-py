@@ -5,7 +5,7 @@ import subprocess
 import logging
 from dicttoxml import dicttoxml
 from xml.dom.minidom import parseString
-import cumulus.s3 as s3
+import cumulus_process.s3 as s3
 from cumulus_process.loggers import getLogger
 from cumulus_process.cli import cli
 from cumulus_process.handlers import activity_handler
