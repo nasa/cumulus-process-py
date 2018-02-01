@@ -8,7 +8,8 @@ from xml.dom.minidom import parseString
 import cumulus_process.s3 as s3
 from cumulus_process.loggers import getLogger
 from cumulus_process.cli import cli
-from cumulus_process.handlers import activity_handler
+from cumulus_process.handlers import activity
+from run_cumulus_task import run_cumulus_task
 
 logger = getLogger(__name__)
 
@@ -202,12 +203,21 @@ class Process(object):
     # ## Handlers
 
     @classmethod
+    def handler(cls, event, context=None):
+        process = cls(**event)
+        return process.process()
+
+    @classmethod
+    def cumulus_handler(cls, event, context=None):
+        return run_cumulus_task(cls.handler, event, context)
+
+    @classmethod
     def cli(cls):
         cli(cls)
 
     @classmethod
     def activity(cls, arn):
-        activity_handler(cls, arn=arn)
+        activity(cls.handler, arn=arn)
 
     @classmethod
     def run(cls, noclean=False, **kwargs):

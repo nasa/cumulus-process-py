@@ -5,7 +5,6 @@ import traceback
 from botocore.client import Config
 from botocore.vendored.requests.exceptions import ReadTimeout
 from cumulus_process.loggers import getLogger
-#from run_cumulus_task import run_cumulus_task
 
 logger = getLogger(__name__)
 
@@ -16,20 +15,14 @@ cls is the Process subclass for a specific data source, such as MODIS, ASTER, et
 SFN_PAYLOAD_LIMIT = 32768
 
 
-def lambda_handler(cls, payload):
-    """ Handler for AWS Lambda function """
-    process = cls(**payload)
-    return process.run()
-
-
-def activity_handler(cls, arn=os.getenv('ACTIVITY_ARN')):
+def activity(handler, arn=os.getenv('ACTIVITY_ARN')):
     """ An activity service for use with AWS Step Functions """
     sfn = boto3.client('stepfunctions', config=Config(read_timeout=70))
     while True:
-        get_and_run_task(cls, sfn, arn)
+        get_and_run_task(handler, sfn, arn)
 
 
-def get_and_run_task(cls, sfn, arn):
+def get_and_run_task(handler, sfn, arn):
     """ Get and run a single task as part of an activity """
     logger.info('query for task')
     try:
@@ -49,10 +42,7 @@ def get_and_run_task(cls, sfn, arn):
         #if 's3uri' in payload:
         #    payload = download_json(payload['s3uri'])
 
-        # run job
-        process = cls(**payload)
-        # return sucess with result
-        output = json.dumps(process.run())
+        output = json.dumps(handler.handler(**payload))
 
         # check payload size
         #if len(output) >= SFN_PAYLOAD_LIMIT:
