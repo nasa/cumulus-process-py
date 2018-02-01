@@ -46,7 +46,7 @@ class Test(unittest.TestCase):
         """ Test argument parsing """
         cmd = 'process test-1.txt test-2.txt'
         args = parse_args(Process, cmd.split(' '))
-        self.assertEqual(args['filenames'], ['test-1.txt', 'test-2.txt'])
+        self.assertEqual(args['input'], ['test-1.txt', 'test-2.txt'])
 
     def _test_cli_recipe(self):
         """ Test CLI function with a recipe """

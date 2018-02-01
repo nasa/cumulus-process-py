@@ -1,16 +1,14 @@
 {
-  "resources": {
+  "config": {
     "buckets": {
-      "internal": "cumulus-internal",
-      "private": "cumulus-internal",
-      "public": "cumulus-internal",
-      "protected": "cumulus-internal"
+      "internal": "cumulus",
+      "private": "cumulus",
+      "public": "cumulus",
+      "protected": "cumulus"
     },
-    "distribution_endpoint": "https://cumulus.developmentseed.org/distribution/"
-  },
-  "collection": {
-    "name": "CollectionA",
-    "meta": {
+    "distribution_endpoint": "https://cumulus..com",
+    "collection": {
+      "name": "CollectionA",
       "url_path": "testing/cumulus-py",
       "granuleIdExtraction": "(.+?)\\.[^.]*$|$",
       "files": [
@@ -37,13 +35,13 @@
         }]
     }
   },
-  "payload": {
+  "input": {
     "granules": [
       {
         "granuleId": "TestGranule",
-        "files": [
-          {"filename": "s3://cumulus-internal/testing/cumulus-py/input-1.txt"},
-          {"filename": "s3://cumulus-internal/testing/cumulus-py/input-2.txt"}
+        "filenames": [
+          "s3://cumulus/testing/cumulus-py/input-1.txt",
+          "s3://cumulus/testing/cumulus-py/input-2.txt"
         ]
       }
     ]
