@@ -5,7 +5,7 @@ This testing module relies on some testing data available in s3://cumulus-intern
 import os
 import unittest
 from mock import patch
-import cumulus.s3 as s3
+import cumulus_process.s3 as s3
 from cumulus_process import Process
 
 
