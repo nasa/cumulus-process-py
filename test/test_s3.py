@@ -1,7 +1,7 @@
 import os
 import unittest
 import logging
-import cumulus.s3 as s3
+import cumulus_process.s3 as s3
 try:
     from mock import patch
 except ImportError:
@@ -32,12 +32,12 @@ class Test(unittest.TestCase):
         self.assertEqual(s3_obj['key'], 'test/file.txt')
         self.assertEqual(s3_obj['filename'], 'file.txt')
 
-    @patch('cumulus.s3.boto3')
+    @patch('cumulus_process.s3.boto3')
     def test_exists_true(self, boto3):
         """ Check for existence of object that exists """
         self.assertTrue(s3.exists(os.path.join(self.s3path, 'arealkey')))
 
-    @patch('cumulus.s3.boto3')
+    @patch('cumulus_process.s3.boto3')
     def test_exists_false(self, boto3):
         """ Check for existence of object that doesn't exists """
         class err(Exception):
@@ -45,20 +45,20 @@ class Test(unittest.TestCase):
         boto3.client().get_object.side_effect = err()
         self.assertFalse(s3.exists(os.path.join(self.s3path, 'nosuchkey')))
 
-    @patch('cumulus.s3.boto3')
+    @patch('cumulus_process.s3.boto3')
     def test_list_nothing(self, boto3):
         """ Get list of objects under a non-existent path on S3 """
         uris = s3.list(os.path.join(self.s3path, 'nosuchkey'))
         self.assertEqual(len(uris), 0)
 
-    @patch('cumulus.s3.boto3')
+    @patch('cumulus_process.s3.boto3')
     def test_upload(self, boto3):
         """ Upload file to S3 then delete """
         uri = s3.upload(__file__, self.s3path)
         self.assertEqual(uri, os.path.join(self.s3path, os.path.basename(__file__)))
         self.assertTrue(boto3.client().upload_fileobj.called)
 
-    @patch('cumulus.s3.boto3')
+    @patch('cumulus_process.s3.boto3')
     def test_download(self, boto3):
         """ Download file from S3 """
         fout = s3.download('s3://test/file.txt', path=self.path)
@@ -66,7 +66,7 @@ class Test(unittest.TestCase):
         boto3.client.assert_called_with('s3')
         self.assertTrue(boto3.client().download_fileobj.called)
 
-    @patch('cumulus.s3.boto3')
+    @patch('cumulus_process.s3.boto3')
     def _test_download_json(self, boto3):
         """ Download file from S3 as JSON """
         boto3.client().get_object().read.return_value = "{'Body': '{}''}"
