@@ -4,36 +4,37 @@ from codecs import open
 from setuptools import setup, find_packages
 import imp
 
-here = os.path.abspath(os.path.dirname(__file__))
-__version__ = imp.load_source('cumulus.version', 'cumulus/version.py').__version__
+__version__ = imp.load_source('cumulus_process.version', 'cumulus_process/version.py').__version__
 
-# get the dependencies and installs
+# get dependencies
+here = os.path.abspath(os.path.dirname(__file__))
 with open(os.path.join(here, 'requirements.txt'), encoding='utf-8') as f:
     all_reqs = f.read().split('\n')
-
 install_requires = [x.strip() for x in all_reqs if 'git+' not in x]
-dependency_links = [x.strip().replace('git+', '') for x in all_reqs if 'git+' not in x]
+with open(os.path.join(here, 'requirements-dev.txt'), encoding='utf-8') as f:
+    all_reqs = f.read().split('\n')
+tests_require = [x.strip() for x in all_reqs if 'git+' not in x]
 
 
 setup(
-    name='cumulus',
+    name='cumulus_process',
     version=__version__,
-    author='Matthew Hanson (matthewhanson), Miles Watkins (mileswwatkins), Alireza J (scisco)',
-    description='Library for creating sensor command line utils',
-    url='https://github.com/nasa-cumulus/cumulus-py',
+    author='Matthew Hanson (matthewhanson), Alireza J (scisco)',
+    description='Library for creating Cumulus Process tasks in Python',
+    url='https://github.com/nasa-cumulus/cumulus-process-py',
     license='Apache 2.0',
     classifiers=[
-        'Framework :: Pytest',
+        'Topic :: Software Development :: Libraries',
         'Topic :: Scientific/Engineering',
         'Intended Audience :: Developers',
         'Intended Audience :: Science/Research',
-        'License :: Freeware',
+        'License :: OSI Approved :: Apache Software License',
         'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3.5',
+        'Programming Language :: Python :: 3.6'
     ],
     packages=find_packages(exclude=['docs', 'tests*']),
     include_package_data=True,
     install_requires=install_requires,
-    dependency_links=dependency_links,
-    tests_require=['nose'],
+    tests_require=tests_require,
 )

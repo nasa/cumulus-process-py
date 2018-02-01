@@ -5,8 +5,8 @@ This testing module relies on some testing data available in s3://cumulus-intern
 import os
 import unittest
 from mock import patch
-import cumulus.s3 as s3
-from cumulus.process import Process
+import cumulus_process.s3 as s3
+from cumulus_process import Process
 
 
 # mocked function replaced Granule.process
@@ -20,7 +20,7 @@ def fake_process(self):
     self.local_out['TestGranule'] = local_out
 
 
-class Test(unittest.TestCase):
+class _Test(unittest.TestCase):
     """ Test utiltiies for publishing data on AWS PDS """
 
     path = os.path.dirname(__file__)
@@ -122,7 +122,7 @@ class Test(unittest.TestCase):
         for f in self.output_files.values():
             self.assertFalse(os.path.exists(f))
 
-    def check_and_remove_remote_out(self, uris):
+    def _check_and_remove_remote_out(self, uris):
         """ Check for existence of remote files, then remove them """
         for uri in uris:
             self.assertTrue(s3.exists(uri))

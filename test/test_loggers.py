@@ -1,16 +1,9 @@
 
-import os
 import logging
 import unittest
 from ast import literal_eval
 from testfixtures import log_capture, compare, Comparison as C
-from cumulus.loggers import getLogger
-from dotenv import load_dotenv
-
-# load envvars
-env_file = os.path.join(os.path.dirname(__file__), '.env')
-if os.path.exists(env_file):
-    load_dotenv(env_file)
+from cumulus_process.loggers import getLogger
 
 
 class TestLoggers(unittest.TestCase):

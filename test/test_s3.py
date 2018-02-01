@@ -1,7 +1,11 @@
 import os
 import unittest
 import logging
-import cumulus.s3 as s3
+import cumulus_process.s3 as s3
+try:
+    from mock import patch
+except ImportError:
+    from unittest.mock import patch
 
 # quiet these loggers
 logging.getLogger('boto3').setLevel(logging.CRITICAL)
@@ -10,13 +14,13 @@ logging.getLogger('nose').setLevel(logging.CRITICAL)
 logging.getLogger('s3transfer').setLevel(logging.CRITICAL)
 
 
-class TestS3(unittest.TestCase):
+class Test(unittest.TestCase):
     """ Test utiltiies for publishing data on AWS PDS """
 
-    bucket = 'cumulus-internal'
+    bucket = 'cumulus-py'
     payload = os.path.join(os.path.dirname(__file__), 'payload.json')
     path = os.path.dirname(__file__)
-    s3path = 's3://%s/testing/cumulus-py' % bucket
+    s3path = 's3://%s/test' % bucket
 
     def uri(self, key):
         return 's3://%s' % os.path.join(self.bucket, key)
@@ -25,41 +29,48 @@ class TestS3(unittest.TestCase):
         """ Parse S3 URI """
         s3_obj = s3.uri_parser(os.path.join(self.s3path, 'file.txt'))
         self.assertEqual(s3_obj['bucket'], self.bucket)
-        self.assertEqual(s3_obj['key'], 'testing/cumulus-py/file.txt')
+        self.assertEqual(s3_obj['key'], 'test/file.txt')
         self.assertEqual(s3_obj['filename'], 'file.txt')
 
-    def test_not_exists(self):
-        """ Check for existence of fake object """
+    @patch('cumulus_process.s3.boto3')
+    def test_exists_true(self, boto3):
+        """ Check for existence of object that exists """
+        self.assertTrue(s3.exists(os.path.join(self.s3path, 'arealkey')))
+
+    @patch('cumulus_process.s3.boto3')
+    def test_exists_false(self, boto3):
+        """ Check for existence of object that doesn't exists """
+        class err(Exception):
+            response = {'Error': {'Code': 'NoSuchKey'}}
+        boto3.client().get_object.side_effect = err()
         self.assertFalse(s3.exists(os.path.join(self.s3path, 'nosuchkey')))
 
-    def test_list_nothing(self):
+    @patch('cumulus_process.s3.boto3')
+    def test_list_nothing(self, boto3):
         """ Get list of objects under a non-existent path on S3 """
         uris = s3.list(os.path.join(self.s3path, 'nosuchkey'))
         self.assertEqual(len(uris), 0)
 
-    def test_upload_and_delete(self):
+    @patch('cumulus_process.s3.boto3')
+    def test_upload(self, boto3):
         """ Upload file to S3 then delete """
         uri = s3.upload(__file__, self.s3path)
-        self.assertTrue(s3.exists(uri))
-        self.assertTrue(s3.delete(uri))
-        self.assertFalse(s3.exists(uri))
+        self.assertEqual(uri, os.path.join(self.s3path, os.path.basename(__file__)))
+        self.assertTrue(boto3.client().upload_fileobj.called)
 
-    def test_download(self):
+    @patch('cumulus_process.s3.boto3')
+    def test_download(self, boto3):
         """ Download file from S3 """
-        fout = os.path.join(self.path, 'input-1.txt')
-        with open(fout, 'w') as f:
-            f.write('testing cumulus-py')
-        uri = s3.upload(fout, self.s3path)
-        os.remove(fout)
-        self.assertFalse(os.path.exists(fout))
-        f = s3.download(uri, path=self.path)
-        self.assertEqual(f, fout)
-        self.assertTrue(os.path.exists(f))
-        os.remove(f)
+        fout = s3.download('s3://test/file.txt', path=self.path)
+        self.assertEqual(fout, os.path.join(self.path, 'file.txt'))
+        boto3.client.assert_called_with('s3')
+        self.assertTrue(boto3.client().download_fileobj.called)
 
-    def test_download_as_text(self):
+    @patch('cumulus_process.s3.boto3')
+    def _test_download_json(self, boto3):
         """ Download file from S3 as JSON """
-        uri = s3.upload(self.payload, self.s3path)
-        record = s3.download_json(uri)
-        self.assertTrue('resources' in record.keys())
-        s3.delete(uri)
+        boto3.client().get_object().read.return_value = "{'Body': '{}''}"
+        out = s3.download_json('s3://bucket/prefix/test.json')
+        self.assertEqual(out, {})
+        self.assertTrue(boto3.client().get_object.called)
+        boto3.client().get_object.called_with('bucket', 'prefix/test.json')
