@@ -160,7 +160,6 @@ class Process(object):
                     http_url = 'http://%s.s3.amazonaws.com' % bucket if access == 'public' else self.default_url
                     http_url = os.path.join(http_url, prefix, os.path.basename(filename))
                     info.update({'s3': s3_url, 'http': http_url})
-                import pdb; pdb.set_trace()
         if (count) > 1:
             raise Exception('More than one regex matches %s' % filename)
         return info
