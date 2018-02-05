@@ -173,9 +173,9 @@ class Process(object):
         singular_key_func = lambda x: x[:-1]
         # convert to XML
         if root is None:
-            xml = dicttoxml(meta, root=False, attr_type=False, item_func=singular_key_func)
+            xml = str(dicttoxml(meta, root=False, attr_type=False, item_func=singular_key_func))
         else:
-            xml = dicttoxml(meta, custom_root=root, attr_type=False, item_func=singular_key_func)
+            xml = str(dicttoxml(meta, custom_root=root, attr_type=False, item_func=singular_key_func))
         # The <Point> XML tag does not follow the same rule as singular
         # of parent since the parent in CMR is <Boundary>. Create metadata
         # with the <Points> parent, and this removes that tag
