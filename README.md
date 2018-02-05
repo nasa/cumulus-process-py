@@ -1,6 +1,6 @@
 # cumulus-py
 
-[![CircleCI](https://circleci.com/gh/cumulus-nasa/cumulus-py.svg?style=svg&circle-token=6564d296f06c4d8d2925e220c4a213267dc70c00)](https://circleci.com/gh/cumulus-nasa/cumulus-py)
+[![CircleCI](https://circleci.com/gh/cumulus-nasa/cumulus-process-py.svg?style=svg&circle-token=6564d296f06c4d8d2925e220c4a213267dc70c00)](https://circleci.com/gh/cumulus-nasa/cumulus-process-py)
 
 cumulus-py is a collection of python utilities and a base Docker image for the NASA Cumulus project. The base Docker image (developmentseed/cumulus:base) contains all of the system libraries needed as well as the Python 'cumulus' library. This repository also contains a templtae directory, called project-seed containing basic files needed to create a new Cumulus Docker image for processing data of a new collection.
 

@@ -3,6 +3,7 @@ This testing module relies on some testing data available in s3://cumulus-intern
 """
 
 import os
+import json
 import unittest
 from mock import patch
 import cumulus_process.s3 as s3
@@ -14,13 +15,11 @@ def fake_process(self):
     """ Create local output files as if process did something """
     # produce one fake granu
     Test.create_files(Test.output_files.values())
-    local_out = {}
     for f in Test.output_files:
-        local_out[f] = Test.output_files[f]
-    self.local_out['TestGranule'] = local_out
+        self.output[f] = Test.output_files[f]
 
 
-class _Test(unittest.TestCase):
+class Test(unittest.TestCase):
     """ Test utiltiies for publishing data on AWS PDS """
 
     path = os.path.dirname(__file__)
@@ -56,7 +55,7 @@ class _Test(unittest.TestCase):
         return fouts
 
     @classmethod
-    def setUpClass(cls):
+    def _setUpClass(cls):
         """ Put some input files up on S3 """
         fouts = cls.create_files(cls.input_files)
         for f in fouts:
@@ -65,14 +64,17 @@ class _Test(unittest.TestCase):
 
     def get_test_process(self):
         """ Get Process class for testing """
+        with open(os.path.join(self.path, 'payload.json')) as f:
+            print(type(f))
+            payload = json.loads(f.read())
+        return Process(**payload)
         return Process(self.input_files, path=self.path, url_paths=self.urls)
 
     def test_init(self):
         """ Initialize Granule with JSON payload """
-        granule = self.get_test_process()
-        self.assertTrue(granule.gid, "test_granule")
-        self.assertTrue(granule.remote_in['input-1'], self.input_files[0])
-        self.assertTrue(granule.remote_in['input-2'], self.input_files[1])
+        process = self.get_test_process()
+        self.assertTrue(process.input[0], self.input_files[0])
+        self.assertTrue(process.input[1], self.input_files[1])
 
     def test_write_metadata(self):
         """ Write an XML metadata file from a dictionary """
@@ -83,44 +85,46 @@ class _Test(unittest.TestCase):
 
     def test_publish_public_files(self):
         """ Get files to publish + endpoint prefixes """
-        granule = self.get_test_process()
+        process = self.get_test_process()
         # add fake some remote output files
-        granule.local_out['TestGranule'] = {
-            'output-1': 'nowhere/output-1',
-            'output-2': 'nowhere/output-2'
+        process.output['TestGranule'] = {
+            'output-1': 'nowhere/output-1.txt',
+            'output-2': 'nowhere/output-2.txt'
         }
-        urls = granule.publish()
-        self.assertEqual(urls[urls.keys()[0]]['output-1'], 'http://cumulus.com/testing/cumulus-py/output-1')
+        for f in process.output['TestGranule'].values():
+            info = process.get_publish_info(f)
+            self.assertEqual(os.path.basename(info['s3']), os.path.basename(f))
+            self.assertEqual(os.path.basename(info['http']), os.path.basename(f))
 
     @patch.object(Process, 'process', fake_process)
     def test_upload(self):
         """ Upload output files """
-        granule = self.get_test_process()
-        granule.process()
-        uploads = granule.upload()
-        self.assertEqual(len(uploads), 1)
-        for u in uploads:
-            self.check_and_remove_remote_out(u)
-        granule.clean()
-        self.assertFalse(os.path.exists(os.path.join(self.path, 'output-1.txt')))
+        process = self.get_test_process()
+        process.process()
+        #uploads = granule.upload()
+        #self.assertEqual(len(uploads), 1)
+        #for u in uploads:
+        #    self.check_and_remove_remote_out(u)
+        process.clean_all()
+        #self.assertFalse(os.path.exists(os.path.join(self.path, 'output-1.txt')))
 
     @patch.object(Process, 'process', fake_process)
     def test_run(self):
         """ Make complete run """
-        granule = Process(self.input_files, path=self.path, url_paths=self.urls)
-        granule.run(noclean=True)
+        output = Process.run(self.input_files, path=self.path, url_paths=self.urls, noclean=True)
         # check for local output files
         for f in self.output_files.values():
             self.assertTrue(os.path.exists(f))
+            self.assertTrue(f in output.values())
 
         # check for remote files
-        uris = [uri for f in granule.remote_out.values() for uri in f.values()]
-        self.assertTrue(len(uris) > 1)
-        self.check_and_remove_remote_out(uris)
+        #uris = [uri for f in granule.remote_out.values() for uri in f.values()]
+        #self.assertTrue(len(uris) > 1)
+        #self.check_and_remove_remote_out(uris)
 
-        granule.clean()
-        for f in self.output_files.values():
-            self.assertFalse(os.path.exists(f))
+        #process.clean_all()
+        #for f in self.output_files.values():
+        #    self.assertFalse(os.path.exists(f))
 
     def _check_and_remove_remote_out(self, uris):
         """ Check for existence of remote files, then remove them """

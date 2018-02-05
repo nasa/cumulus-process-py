@@ -8,7 +8,8 @@ from xml.dom.minidom import parseString
 import cumulus_process.s3 as s3
 from cumulus_process.loggers import getLogger
 from cumulus_process.cli import cli
-from cumulus_process.handlers import activity_handler
+from cumulus_process.handlers import activity
+from run_cumulus_task import run_cumulus_task
 
 logger = getLogger(__name__)
 
@@ -24,7 +25,7 @@ class Process(object):
             'input-2': r'^.*-2.txt$'
         }
 
-    def process(self, **kwargs):
+    def process(self):
         """ Process data to produce one or more output granules """
         return {}
 
@@ -46,6 +47,7 @@ class Process(object):
             gid = os.path.commonprefix([os.path.basename(f) for f in self.input])
         if gid == '':
             # make gid the basename within extension of first file
+            #import pdb; pdb.set_trace()
             gid = os.path.splitext(os.path.basename(self.input[0]))[0]
         return gid
 
@@ -54,28 +56,31 @@ class Process(object):
         """ Add class specific arguments to the parser """
         return parser
 
-    def __init__(self, filenames, path='./', **kwargs):
+    def __init__(self, input, path='./', config={}, **kwargs):
         """ Initialize a Process with input filenames and optional kwargs """
         self.path = path
+        self.config = config
         self.kwargs = kwargs
 
         # list of input filenames
-        self.input = filenames
+        if isinstance(input, dict):
+            self.input = input.get('granules')[0]['filenames']
+        else:
+            self.input = input
         # output granules
         self.output = {}
-
         # set up logger
         extra = {'granuleId': self.gid}
         self.logger = logging.LoggerAdapter(logger, extra)
 
     def get_filenames(self, key, remote=False):
         """ Get local (default) or remote input filename """
-        regex = self.input.get(key, None)
+        regex = self.input_keys.get(key, None)
         if regex is None:
             raise Exception('No files matching %s' % regex)
         outfiles = []
-        for f in self.input_keys:
-            m = re.match(regex, f)
+        for f in self.input:
+            m = re.match(regex, os.path.basename(f))
             if m is not None:
                 # if remote desired, or input is already local
                 if remote or os.path.exists(f):
@@ -112,8 +117,8 @@ class Process(object):
 
     def clean_output(self):
         """ Remove local output files """
-        for gran in self.output.values():
-            for f in gran.values():
+        for f in self.output.values():
+            #for f in gran.values():
                 if os.path.exists(f):
                     os.remove(f)
 
@@ -126,16 +131,16 @@ class Process(object):
     # properties to access payload parameters for publishing
     @property
     def buckets(self):
-        return self.kwargs.get('buckets', None)
+        return self.config.get('buckets', {})
 
     @property
     def collection(self):
-        return self.kwargs.get('collection', None)
+        return self.config.get('collection', {})
 
     @property
     def default_url(self):
         """ Get default endpoint """
-        return self.collection.get('distribution_endpoint', 'https://cumulus.com')
+        return self.config.get('distribution_endpoint', 'https://cumulus.com')
 
     def get_publish_info(self, filename):
         """ Get publishing info for this file from the collection metadata """
@@ -148,7 +153,7 @@ class Process(object):
                 count += 1
                 info = f
                 access = f.get('bucket', 'public')
-                bucket = self.bucket.get(access, None)
+                bucket = self.buckets.get(access, None)
                 if bucket is not None:
                     prefix = f.get('url_path', self.collection.get('url_path', ''))
                     s3_url = os.path.join('s3://', bucket, prefix, os.path.basename(filename))
@@ -168,9 +173,9 @@ class Process(object):
         singular_key_func = lambda x: x[:-1]
         # convert to XML
         if root is None:
-            xml = dicttoxml(meta, root=False, attr_type=False, item_func=singular_key_func)
+            xml = str(dicttoxml(meta, root=False, attr_type=False, item_func=singular_key_func))
         else:
-            xml = dicttoxml(meta, custom_root=root, attr_type=False, item_func=singular_key_func)
+            xml = str(dicttoxml(meta, custom_root=root, attr_type=False, item_func=singular_key_func))
         # The <Point> XML tag does not follow the same rule as singular
         # of parent since the parent in CMR is <Boundary>. Create metadata
         # with the <Points> parent, and this removes that tag
@@ -202,18 +207,30 @@ class Process(object):
     # ## Handlers
 
     @classmethod
+    def handler(cls, event, context=None):
+        process = cls(**event)
+        return process.process()
+
+    @classmethod
+    def cumulus_handler(cls, event, context=None):
+        return run_cumulus_task(cls.handler, event, context)
+
+    @classmethod
     def cli(cls):
         cli(cls)
 
     @classmethod
     def activity(cls, arn):
-        activity_handler(cls, arn=arn)
+        activity(cls.handler, arn=arn)
 
     @classmethod
-    def run(cls, noclean=False, **kwargs):
+    def run(cls, *args, **kwargs):
         """ Run this payload with the given Process class """
-        process = cls(**kwargs)
-        process.process(noclean=noclean)
+        noclean = kwargs.pop('noclean', False)
+        process = cls(*args, **kwargs)
+        process.process()
+        if not noclean:
+            process.clean_all()
         return process.output
 
 
