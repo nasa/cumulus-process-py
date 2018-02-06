@@ -16,7 +16,7 @@ def fake_process(self):
     # produce one fake granu
     Test.create_files(Test.output_files.values())
     for f in Test.output_files:
-        self.output[f] = Test.output_files[f]
+        self.output.append(Test.output_files[f])
 
 
 class Test(unittest.TestCase):
@@ -87,11 +87,8 @@ class Test(unittest.TestCase):
         """ Get files to publish + endpoint prefixes """
         process = self.get_test_process()
         # add fake some remote output files
-        process.output['TestGranule'] = {
-            'output-1': 'nowhere/output-1.txt',
-            'output-2': 'nowhere/output-2.txt'
-        }
-        for f in process.output['TestGranule'].values():
+        process.output = ['nowhere/output-1.txt', 'nowhere/output-2.txt']
+        for f in process.output:
             info = process.get_publish_info(f)
             self.assertEqual(os.path.basename(info['s3']), os.path.basename(f))
             self.assertEqual(os.path.basename(info['http']), os.path.basename(f))
@@ -115,7 +112,7 @@ class Test(unittest.TestCase):
         # check for local output files
         for f in self.output_files.values():
             self.assertTrue(os.path.exists(f))
-            self.assertTrue(f in output.values())
+            self.assertTrue(f in output)
 
         # check for remote files
         #uris = [uri for f in granule.remote_out.values() for uri in f.values()]
