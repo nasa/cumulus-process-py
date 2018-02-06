@@ -85,6 +85,7 @@ class Process(object):
                     outfiles.append(f)
                 else:
                     outfiles.append(s3.download(f, path=self.path))
+        return outfiles
 
     def fetch_all(self, remote=False):
         """ Download all files in remote_in """
