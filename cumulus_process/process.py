@@ -43,11 +43,10 @@ class Process(object):
                 gid = ''.join(m.groups())
         if gid is None:
             # try and determine an GID from a commonprefix
-            gid = os.path.commonprefix([os.path.basename(f) for f in self.input])
+            gid = os.path.commonprefix([self.basename(f) for f in self.input])
         if gid == '':
             # make gid the basename within extension of first file
-            #import pdb; pdb.set_trace()
-            gid = os.path.splitext(os.path.basename(self.input[0]))[0]
+            gid = self.basename(self.input[0])
         return gid
 
     @classmethod
@@ -201,6 +200,11 @@ class Process(object):
         except Exception as e:
             self.logger.debug(str(e))
             raise RuntimeError('Error running %s' % cmd)
+
+    @classmethod
+    def basename(cls, filename):
+        """ Strip path and extension """
+        return os.path.splitext(os.path.basename(filename))[0]
 
     # ## Handlers
 
