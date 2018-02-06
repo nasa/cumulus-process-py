@@ -9,7 +9,6 @@ import cumulus_process.s3 as s3
 from cumulus_process.loggers import getLogger
 from cumulus_process.cli import cli
 from cumulus_process.handlers import activity
-from run_cumulus_task import run_cumulus_task
 
 logger = getLogger(__name__)
 
@@ -68,12 +67,12 @@ class Process(object):
         else:
             self.input = input
         # output granules
-        self.output = {}
+        self.output = []
         # set up logger
         extra = {'granuleId': self.gid}
         self.logger = logging.LoggerAdapter(logger, extra)
 
-    def get_filenames(self, key, remote=False):
+    def fetch(self, key, remote=False):
         """ Get local (default) or remote input filename """
         regex = self.input_keys.get(key, None)
         if regex is None:
@@ -88,9 +87,9 @@ class Process(object):
                 else:
                     outfiles.append(s3.download(f, path=self.path))
 
-    def get_all_filenames(self, remote=False):
+    def fetch_all(self, remote=False):
         """ Download all files in remote_in """
-        return {key: self.get_filenames(key=key, remote=remote) for key in self.input_keys}
+        return {key: self.fetch(key=key, remote=remote) for key in self.input_keys}
 
     def upload_file(self, filename):
         """ Upload a local file to s3 if collection payload provided """
@@ -117,10 +116,9 @@ class Process(object):
 
     def clean_output(self):
         """ Remove local output files """
-        for f in self.output.values():
-            #for f in gran.values():
-                if os.path.exists(f):
-                    os.remove(f)
+        for f in self.output:
+            if os.path.exists(f):
+                os.remove(f)
 
     def clean_all(self):
         """ Remove all local files """
@@ -210,10 +208,6 @@ class Process(object):
     def handler(cls, event, context=None):
         process = cls(**event)
         return process.process()
-
-    @classmethod
-    def cumulus_handler(cls, event, context=None):
-        return run_cumulus_task(cls.handler, event, context)
 
     @classmethod
     def cli(cls):
