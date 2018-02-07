@@ -57,6 +57,7 @@ class Process(object):
 
     def __init__(self, input, path='./', config={}, **kwargs):
         """ Initialize a Process with input filenames and optional kwargs """
+        # local work directory files will be stored
         self.path = path
         self.config = config
         self.kwargs = kwargs
@@ -112,7 +113,7 @@ class Process(object):
         """ Remove input files """
         self.logger.info('Cleaning local input files')
         for f in self.input:
-            if os.path.exists(f):
+            if os.path.exists(f) and f not in self.output:
                 os.remove(f)
 
     def clean_output(self):
