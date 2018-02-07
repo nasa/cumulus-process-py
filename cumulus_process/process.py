@@ -95,9 +95,12 @@ class Process(object):
     def upload_file(self, filename):
         """ Upload a local file to s3 if collection payload provided """
         info = self.get_publish_info(filename)
+        import pdb
         try:
             uri = None
+            pdb.set_trace()
             if info.get('s3', None) is not None:
+                pdb.set_trace()
                 extra = {'ACL': 'public-read'} if info.get('bucket', 'public') == 'public' else {}
                 uri = s3.upload(filename, info['s3'], extra=extra)
             return uri
