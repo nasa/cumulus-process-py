@@ -105,7 +105,7 @@ class Process(object):
 
     def upload_output_files(self):
         """ Uploads all self.outputs """
-        return [self.upload_file(f) for f in self.outputs]
+        return [self.upload_file(f) for f in self.output]
 
     def clean_input(self):
         """ Remove input files """
