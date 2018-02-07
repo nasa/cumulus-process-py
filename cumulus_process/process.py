@@ -85,8 +85,6 @@ class Process(object):
                     outfiles.append(f)
                 else:
                     outfiles.append(s3.download(f, path=self.path))
-        if len(outfiles) == 0:
-            raise Exception('No files matching %s' % regex)
         return outfiles
 
     def fetch_all(self, remote=False):
