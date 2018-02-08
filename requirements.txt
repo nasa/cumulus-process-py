@@ -1,6 +1,5 @@
 boto3~=1.4
 python-json-logger~=0.1
 dicttoxml~=1.7
-aws~=0.2.5
 git+git://github.com/cumulus-nasa/cumulus-message-adapter-python.git#egg=cumulus_message_adapter_python
-git+git://github.com/cumulus-nasa/cumulus-message-adapter.git#egg=cumulus_message_adapter
+git+git://github.com/cumulus-nasa/cumulus-message-adapter.git@master
