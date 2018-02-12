@@ -1,6 +1,7 @@
 
 import os
 import re
+import gzip
 import subprocess
 import logging
 from dicttoxml import dicttoxml
@@ -203,6 +204,17 @@ class Process(object):
         except Exception as e:
             self.logger.debug(str(e))
             raise RuntimeError('Error running %s' % cmd)
+
+    @classmethod
+    def gunzip(cls, fname, remove=False):
+        """ Unzip a file, creating new file """
+        f = os.path.splitext(fname)[0]
+        with gzip.open(fname, 'rb') as fin:
+            with open(f, 'wb') as fout:
+                fout.write(fin.read())
+        if remove:
+            os.remove(fname)
+        return f
 
     @classmethod
     def basename(cls, filename):
