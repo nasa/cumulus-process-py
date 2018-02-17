@@ -35,16 +35,9 @@
         }]
     }
   },
-  "input": {
-    "granules": [
-      {
-        "granuleId": "TestGranule",
-        "filenames": [
-          "s3://cumulus/testing/cumulus-py/input-1.txt",
-          "s3://cumulus/testing/cumulus-py/input-2.txt"
-        ]
-      }
-    ]
-  }
+  "input": [
+    "s3://cumulus/testing/cumulus-py/input-1.txt",
+    "s3://cumulus/testing/cumulus-py/input-2.txt"
+  ]
 }
 

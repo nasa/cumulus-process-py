@@ -64,12 +64,13 @@ class Process(object):
         self.kwargs = kwargs
 
         # list of input filenames
-        if isinstance(input, dict):
-            self.input = input.get('granules')[0]['filenames']
-        else:
-            self.input = input
+        if not isinstance(input, list):
+            raise Exception('cumulus-process-py expects to receive input as a list')
+        self.input = input
+
         # output granules
         self.output = []
+
         # set up logger
         extra = {'granuleId': self.gid}
         self.logger = logging.LoggerAdapter(logger, extra)
