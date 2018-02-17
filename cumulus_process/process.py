@@ -144,7 +144,7 @@ class Process(object):
 
     def get_publish_info(self, filename):
         """ Get publishing info for this file from the collection metadata """
-        files = self.collection.get('files', [])
+        files = self.config.get('files_config', [])
         info = None
         count = 0
         for f in files:
@@ -155,7 +155,7 @@ class Process(object):
                 access = f.get('bucket', 'public')
                 bucket = self.buckets.get(access, None)
                 if bucket is not None:
-                    prefix = f.get('url_path', self.collection.get('url_path', ''))
+                    prefix = f.get('url_path', self.config.get('url_path', ''))
                     s3_url = os.path.join('s3://', bucket, prefix, os.path.basename(filename))
                     http_url = 'http://%s.s3.amazonaws.com' % bucket if access == 'public' else self.default_url
                     http_url = os.path.join(http_url, prefix, os.path.basename(filename))
