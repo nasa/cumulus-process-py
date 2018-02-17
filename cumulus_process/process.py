@@ -34,9 +34,7 @@ class Process(object):
     def gid(self):
         """ Get GID based on regex if provided """
         gid = None
-        regex = None
-        if self.collection is not None:
-            regex = self.collection.get('granuleIdExtraction', None)
+        regex = self.config.get('granuleIdExtraction', None)
         if regex is not None:
             # get first file passed in
             file0 = self.input[0]

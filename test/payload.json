@@ -1,5 +1,6 @@
 {
   "config": {
+    "granuleIdExtraction": "(.+?)\\.[^.]*$|$",
     "buckets": {
       "internal": "cumulus",
       "private": "cumulus",
@@ -10,7 +11,6 @@
     "collection": {
       "name": "CollectionA",
       "url_path": "testing/cumulus-py",
-      "granuleIdExtraction": "(.+?)\\.[^.]*$|$",
       "files": [
         {
             "regex": "^input-1.txt$",
