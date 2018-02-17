@@ -43,6 +43,15 @@ class Test(unittest.TestCase):
         }
     }
 
+    test_config = {
+        'granuleIdExtraction': '',
+        'files_config': [],
+        'url_path': '',
+        'buckets': {},
+        'distribution_endpoint': ''
+    }
+
+
     @classmethod
     def create_files(cls, filenames):
         """ Create small files for testing """
@@ -88,7 +97,16 @@ class Test(unittest.TestCase):
         with open(os.path.join(self.path, 'payload.json')) as f:
             payload = json.loads(f.read())
             del payload['config']['granuleIdExtraction']
-            self.assertRaises(Process(**payload))
+            with self.assertRaises(Exception):
+                Process(**payload)
+    
+    def test_failure_if_input_is_not_list(self):
+        """ Test process class fails if the input is not a list """
+        with open(os.path.join(self.path, 'payload.json')) as f:
+            payload = json.loads(f.read())
+            payload['input'] = { 'files': [] }
+            with self.assertRaises(Exception):
+                Process(**payload)
 
     def test_publish_public_files(self):
         """ Get files to publish + endpoint prefixes """
@@ -115,7 +133,8 @@ class Test(unittest.TestCase):
     @patch.object(Process, 'process', fake_process)
     def test_run(self):
         """ Make complete run """
-        output = Process.run(self.input_files, path=self.path, url_paths=self.urls, noclean=True)
+        output = Process.run(self.input_files, path=self.path,
+                             config=self.test_config, noclean=True)
         # check for local output files
         for f in self.output_files.values():
             self.assertTrue(os.path.exists(f))
