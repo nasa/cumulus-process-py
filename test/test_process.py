@@ -82,6 +82,14 @@ class Test(unittest.TestCase):
         self.assertTrue(os.path.exists(fout))
         os.remove(fout)
 
+    def test_missing_config_keys(self):
+        """ Make sure process class fails to initialize
+        if there are missing configurations """
+        with open(os.path.join(self.path, 'payload.json')) as f:
+            payload = json.loads(f.read())
+            del payload['config']['granuleIdExtraction']
+            self.assertRaises(Process(**payload))
+
     def test_publish_public_files(self):
         """ Get files to publish + endpoint prefixes """
         process = self.get_test_process()

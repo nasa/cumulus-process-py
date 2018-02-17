@@ -61,6 +61,14 @@ class Process(object):
         self.config = config
         self.kwargs = kwargs
 
+        # check for required configs
+        required = ['granuleIdExtraction', 'files_config', 'url_path',
+            'buckets', 'distribution_endpoint']
+        
+        for key in self.config.keys():
+            if key not in required:
+                raise Exception('%s config key is missing' % key)
+
         # list of input filenames
         if not isinstance(input, list):
             raise Exception('cumulus-process-py expects to receive input as a list')
