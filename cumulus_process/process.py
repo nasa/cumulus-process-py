@@ -62,8 +62,7 @@ class Process(object):
         self.kwargs = kwargs
 
         # check for required configs
-        required = ['granuleIdExtraction', 'files_config', 'url_path',
-            'buckets', 'distribution_endpoint']
+        required = ['granuleIdExtraction', 'files_config', 'buckets']
         
         for requirement in required:
             if requirement not in self.config.keys():
