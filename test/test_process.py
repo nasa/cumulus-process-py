@@ -65,7 +65,6 @@ class Test(unittest.TestCase):
     def get_test_process(self):
         """ Get Process class for testing """
         with open(os.path.join(self.path, 'payload.json')) as f:
-            print(type(f))
             payload = json.loads(f.read())
         return Process(**payload)
         return Process(self.input_files, path=self.path, url_paths=self.urls)
