@@ -237,16 +237,7 @@ class Process(object):
     @classmethod
     def cumulus_handler(cls, event, context=None):
         """ General event handler using Cumulus messaging (cumulus-message-adapter) """
-        outputs = run_cumulus_task(cls.handler, event, context)
-        files = []
-        for f in outputs:
-            uri = s3.uri_parser(f)
-            files.append({
-                'filename': f,
-                'name': uri['filename'],
-                'bucket': uri['bucket']
-            })
-        return files
+        return run_cumulus_task(cls.handler, event, context)
 
     @classmethod
     def cli(cls):
