@@ -65,9 +65,9 @@ class Process(object):
         required = ['granuleIdExtraction', 'files_config', 'url_path',
             'buckets', 'distribution_endpoint']
         
-        for key in self.config.keys():
-            if key not in required:
-                raise Exception('%s config key is missing' % key)
+        for requirement in required:
+            if requirement not in self.config.keys():
+                raise Exception('%s config key is missing' % requirement)
 
         # list of input filenames
         if not isinstance(input, list):
