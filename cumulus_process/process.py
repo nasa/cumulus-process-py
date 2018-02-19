@@ -4,6 +4,7 @@ import re
 import gzip
 import subprocess
 import logging
+from tempfile import mkdtemp
 from dicttoxml import dicttoxml
 from xml.dom.minidom import parseString
 import cumulus_process.s3 as s3
@@ -54,10 +55,11 @@ class Process(object):
         """ Add class specific arguments to the parser """
         return parser
 
-    def __init__(self, input, path='./', config={}, **kwargs):
+    def __init__(self, input, path=None, config={}, **kwargs):
         """ Initialize a Process with input filenames and optional kwargs """
         # local work directory files will be stored
-        self.path = path
+        if not path:
+            self.path = mkdtemp()
         self.config = config
         self.kwargs = kwargs
 
