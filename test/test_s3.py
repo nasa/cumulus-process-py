@@ -54,8 +54,10 @@ class Test(unittest.TestCase):
     @patch('cumulus_process.s3.boto3')
     def test_upload(self, boto3):
         """ Upload file to S3 then delete """
-        uri = s3.upload(__file__, self.s3path)
-        self.assertEqual(uri, os.path.join(self.s3path, os.path.basename(__file__)))
+        filename = os.path.basename(__file__)
+        s3_uri = os.path.join(self.s3path, filename)
+        uri = s3.upload(__file__, s3_uri)
+        self.assertEqual(uri, s3_uri)
         self.assertTrue(boto3.client().upload_fileobj.called)
 
     @patch('cumulus_process.s3.boto3')

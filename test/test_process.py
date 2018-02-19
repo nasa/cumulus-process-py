@@ -17,6 +17,7 @@ def fake_process(self):
     Test.create_files(Test.output_files.values())
     for f in Test.output_files:
         self.output.append(Test.output_files[f])
+    return self.output
 
 
 class Test(unittest.TestCase):
