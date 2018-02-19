@@ -238,7 +238,9 @@ class Process(object):
     @classmethod
     def cumulus_handler(cls, event, context=None):
         """ General event handler using Cumulus messaging (cumulus-message-adapter) """
-        return run_cumulus_task(cls.handler, event, context)
+        a = run_cumulus_task(cls.handler, event, context)
+        print(a)
+        return a
 
     @classmethod
     def cli(cls):
@@ -259,7 +261,7 @@ class Process(object):
         """ Run this payload with the given Process class """
         noclean = kwargs.pop('noclean', False)
         process = cls(*args, **kwargs)
-        process.process()
+        process.output = process.process()
         if not noclean:
             process.clean_all()
         return process.output
