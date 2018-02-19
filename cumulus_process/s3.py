@@ -19,6 +19,9 @@ def uri_parser(uri):
 
     uri_obj = uri.replace('s3://', '').split('/')
 
+    # remove empty items
+    uri_obj = list(filter(lambda x: x, uri_obj))
+
     return {
         'bucket': uri_obj[0],
         'key': '/'.join(uri_obj[1:]),
@@ -66,14 +69,13 @@ def upload(filename, uri, extra={}):
     logger.debug("Uploading %s to %s" % (filename, uri))
     s3 = get_client()
     s3_uri = uri_parser(uri)
-    bname = os.path.basename(filename)
-    uri_out = 's3://%s' % os.path.join(s3_uri['bucket'], os.path.join(s3_uri['key'], bname))
+    uri_out = 's3://%s' % os.path.join(s3_uri['bucket'], s3_uri['key'])
     with open(filename, 'rb') as data:
-        s3.upload_fileobj(data, s3_uri['bucket'], os.path.join(s3_uri['key'], bname), ExtraArgs=extra)
+        s3.upload_fileobj(data, s3_uri['bucket'], s3_uri['key'], ExtraArgs=extra)
     return uri_out
 
 
-def list(uri):
+def list_objects(uri):
     """ Get list of objects within bucket and path """
     logger.debug("Listing contents of %s" % uri)
     s3 = get_client()

@@ -48,14 +48,16 @@ class Test(unittest.TestCase):
     @patch('cumulus_process.s3.boto3')
     def test_list_nothing(self, boto3):
         """ Get list of objects under a non-existent path on S3 """
-        uris = s3.list(os.path.join(self.s3path, 'nosuchkey'))
+        uris = s3.list_objects(os.path.join(self.s3path, 'nosuchkey'))
         self.assertEqual(len(uris), 0)
 
     @patch('cumulus_process.s3.boto3')
     def test_upload(self, boto3):
         """ Upload file to S3 then delete """
-        uri = s3.upload(__file__, self.s3path)
-        self.assertEqual(uri, os.path.join(self.s3path, os.path.basename(__file__)))
+        filename = os.path.basename(__file__)
+        s3_uri = os.path.join(self.s3path, filename)
+        uri = s3.upload(__file__, s3_uri)
+        self.assertEqual(uri, s3_uri)
         self.assertTrue(boto3.client().upload_fileobj.called)
 
     @patch('cumulus_process.s3.boto3')
