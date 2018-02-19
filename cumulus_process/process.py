@@ -238,9 +238,7 @@ class Process(object):
     @classmethod
     def cumulus_handler(cls, event, context=None):
         """ General event handler using Cumulus messaging (cumulus-message-adapter) """
-        a = run_cumulus_task(cls.handler, event, context)
-        print(a)
-        return a
+        return run_cumulus_task(cls.handler, event, context)
 
     @classmethod
     def cli(cls):
