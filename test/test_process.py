@@ -17,6 +17,7 @@ def fake_process(self):
     Test.create_files(Test.output_files.values())
     for f in Test.output_files:
         self.output.append(Test.output_files[f])
+    return self.output
 
 
 class Test(unittest.TestCase):
@@ -43,6 +44,15 @@ class Test(unittest.TestCase):
         }
     }
 
+    test_config = {
+        'granuleIdExtraction': '',
+        'files_config': [],
+        'url_path': '',
+        'buckets': {},
+        'distribution_endpoint': ''
+    }
+
+
     @classmethod
     def create_files(cls, filenames):
         """ Create small files for testing """
@@ -65,7 +75,6 @@ class Test(unittest.TestCase):
     def get_test_process(self):
         """ Get Process class for testing """
         with open(os.path.join(self.path, 'payload.json')) as f:
-            print(type(f))
             payload = json.loads(f.read())
         return Process(**payload)
         return Process(self.input_files, path=self.path, url_paths=self.urls)
@@ -82,6 +91,23 @@ class Test(unittest.TestCase):
         Process.write_metadata({'key1': 'val1'}, fout)
         self.assertTrue(os.path.exists(fout))
         os.remove(fout)
+
+    def test_missing_config_keys(self):
+        """ Make sure process class fails to initialize
+        if there are missing configurations """
+        with open(os.path.join(self.path, 'payload.json')) as f:
+            payload = json.loads(f.read())
+            del payload['config']['granuleIdExtraction']
+            with self.assertRaises(Exception):
+                Process(**payload)
+    
+    def test_failure_if_input_is_not_list(self):
+        """ Test process class fails if the input is not a list """
+        with open(os.path.join(self.path, 'payload.json')) as f:
+            payload = json.loads(f.read())
+            payload['input'] = { 'files': [] }
+            with self.assertRaises(Exception):
+                Process(**payload)
 
     def test_publish_public_files(self):
         """ Get files to publish + endpoint prefixes """
@@ -108,7 +134,8 @@ class Test(unittest.TestCase):
     @patch.object(Process, 'process', fake_process)
     def test_run(self):
         """ Make complete run """
-        output = Process.run(self.input_files, path=self.path, url_paths=self.urls, noclean=True)
+        output = Process.run(self.input_files, path=self.path,
+                             config=self.test_config, noclean=True)
         # check for local output files
         for f in self.output_files.values():
             self.assertTrue(os.path.exists(f))

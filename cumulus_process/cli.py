@@ -49,21 +49,31 @@ def cli(cls):
 
     logger.setLevel(args.pop('loglevel') * 10)
     cmd = args.pop('command')
+    config = {
+        'granuleIdExtraction': '',
+        'files_config': [],
+        'url_path': '',
+        'buckets': {},
+        'distribution_endpoint': ''
+    }
 
     # process local files
     if cmd == 'process':
         logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
-        process = cls.run(noclean=True, **args)
+        process = cls.run(config=config, noclean=True, **args)
+
     # process with a recipe
     elif cmd == 'recipe':
         logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
-        payload = cls.run(**args)
+        payload = cls.run(config=config, **args)
         bname = os.path.splitext(os.path.basename(args['recipe']))[0]
         fname = os.path.join(args['path'], bname + '_out.json')
         with open(fname, 'w') as f:
             f.write(json.dumps(payload))
+
     # run as a service
     elif cmd == 'activity':
         cls.activity(args['arn'])
+
     else:
         logger.error('Unknown command %s (choose between: process, recipe, activity)' % cmd)

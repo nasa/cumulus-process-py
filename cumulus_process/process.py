@@ -1,8 +1,10 @@
 
 import os
 import re
+import gzip
 import subprocess
 import logging
+from tempfile import mkdtemp
 from dicttoxml import dicttoxml
 from xml.dom.minidom import parseString
 import cumulus_process.s3 as s3
@@ -33,9 +35,7 @@ class Process(object):
     def gid(self):
         """ Get GID based on regex if provided """
         gid = None
-        regex = None
-        if self.collection is not None:
-            regex = self.collection.get('granuleIdExtraction', None)
+        regex = self.config.get('granuleIdExtraction', None)
         if regex is not None:
             # get first file passed in
             file0 = self.input[0]
@@ -55,20 +55,29 @@ class Process(object):
         """ Add class specific arguments to the parser """
         return parser
 
-    def __init__(self, input, path='./', config={}, **kwargs):
+    def __init__(self, input, path=None, config={}, **kwargs):
         """ Initialize a Process with input filenames and optional kwargs """
         # local work directory files will be stored
-        self.path = path
+        if not path:
+            self.path = mkdtemp()
         self.config = config
         self.kwargs = kwargs
 
+        # check for required configs
+        required = ['granuleIdExtraction', 'files_config', 'buckets']
+        
+        for requirement in required:
+            if requirement not in self.config.keys():
+                raise Exception('%s config key is missing' % requirement)
+
         # list of input filenames
-        if isinstance(input, dict):
-            self.input = input.get('granules')[0]['filenames']
-        else:
-            self.input = input
+        if not isinstance(input, list):
+            raise Exception('cumulus-process-py expects to receive input as a list')
+        self.input = input
+
         # output granules
         self.output = []
+
         # set up logger
         extra = {'granuleId': self.gid}
         self.logger = logging.LoggerAdapter(logger, extra)
@@ -144,7 +153,7 @@ class Process(object):
 
     def get_publish_info(self, filename):
         """ Get publishing info for this file from the collection metadata """
-        files = self.collection.get('files', [])
+        files = self.config.get('files_config', [])
         info = None
         count = 0
         for f in files:
@@ -155,7 +164,9 @@ class Process(object):
                 access = f.get('bucket', 'public')
                 bucket = self.buckets.get(access, None)
                 if bucket is not None:
-                    prefix = f.get('url_path', self.collection.get('url_path', ''))
+                    prefix = f.get('url_path', self.config.get('url_path', ''))
+                    if prefix is None:
+                        prefix = ''
                     s3_url = os.path.join('s3://', bucket, prefix, os.path.basename(filename))
                     http_url = 'http://%s.s3.amazonaws.com' % bucket if access == 'public' else self.default_url
                     http_url = os.path.join(http_url, prefix, os.path.basename(filename))
@@ -205,6 +216,17 @@ class Process(object):
             raise RuntimeError('Error running %s' % cmd)
 
     @classmethod
+    def gunzip(cls, fname, remove=False):
+        """ Unzip a file, creating new file """
+        f = os.path.splitext(fname)[0]
+        with gzip.open(fname, 'rb') as fin:
+            with open(f, 'wb') as fout:
+                fout.write(fin.read())
+        if remove:
+            os.remove(fname)
+        return f
+
+    @classmethod
     def basename(cls, filename):
         """ Strip path and extension """
         return os.path.splitext(os.path.basename(filename))[0]
@@ -218,16 +240,7 @@ class Process(object):
     @classmethod
     def cumulus_handler(cls, event, context=None):
         """ General event handler using Cumulus messaging (cumulus-message-adapter) """
-        outputs = run_cumulus_task(cls.handler, event, context)
-        files = []
-        for f in outputs:
-            uri = s3.uri_parser(f)
-            files.append({
-                'filename': f,
-                'name': uri['filename'],
-                'bucket': uri['bucket']
-            })
-        return files
+        return run_cumulus_task(cls.handler, event, context)
 
     @classmethod
     def cli(cls):
@@ -248,7 +261,7 @@ class Process(object):
         """ Run this payload with the given Process class """
         noclean = kwargs.pop('noclean', False)
         process = cls(*args, **kwargs)
-        process.process()
+        process.output = process.process()
         if not noclean:
             process.clean_all()
         return process.output
