@@ -48,7 +48,7 @@ class Test(unittest.TestCase):
     @patch('cumulus_process.s3.boto3')
     def test_list_nothing(self, boto3):
         """ Get list of objects under a non-existent path on S3 """
-        uris = s3.list(os.path.join(self.s3path, 'nosuchkey'))
+        uris = s3.list_objects(os.path.join(self.s3path, 'nosuchkey'))
         self.assertEqual(len(uris), 0)
 
     @patch('cumulus_process.s3.boto3')

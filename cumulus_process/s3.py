@@ -20,7 +20,7 @@ def uri_parser(uri):
     uri_obj = uri.replace('s3://', '').split('/')
 
     # remove empty items
-    uri_obj = filter(lambda x: x, uri_obj)
+    uri_obj = list(filter(lambda x: x, uri_obj))
 
     return {
         'bucket': uri_obj[0],
@@ -75,7 +75,7 @@ def upload(filename, uri, extra={}):
     return uri_out
 
 
-def list(uri):
+def list_objects(uri):
     """ Get list of objects within bucket and path """
     logger.debug("Listing contents of %s" % uri)
     s3 = get_client()
