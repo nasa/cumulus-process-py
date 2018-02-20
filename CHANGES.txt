@@ -1,5 +1,6 @@
 v0.5.1:
 - Fix passing in of a local path for saving files and output
+- Properly clean up downloaded files
 
 v0.5.0:
 - Multiple bug fixes to work with Cumulus deployment
