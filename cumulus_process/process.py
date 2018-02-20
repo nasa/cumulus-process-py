@@ -77,7 +77,7 @@ class Process(object):
         self.input = input
 
         # save downloaded files so we can clean up later
-        self.downloaded = []
+        self.downloads = []
 
         # output granules
         self.output = []
@@ -101,7 +101,7 @@ class Process(object):
                 else:
                     fname = s3.download(f, path=self.path)
                     outfiles.append(fname)
-                    self.local_input.append(fname)
+                    self.downloads.append(fname)
         return outfiles
 
     def fetch_all(self, remote=False):
