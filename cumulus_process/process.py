@@ -58,14 +58,15 @@ class Process(object):
     def __init__(self, input, path=None, config={}, **kwargs):
         """ Initialize a Process with input filenames and optional kwargs """
         # local work directory files will be stored
-        if not path:
-            self.path = mkdtemp()
+        if path is None:
+            path = mkdtemp()
+        self.path = path
         self.config = config
         self.kwargs = kwargs
 
         # check for required configs
         required = ['granuleIdExtraction', 'files_config', 'buckets']
-        
+
         for requirement in required:
             if requirement not in self.config.keys():
                 raise Exception('%s config key is missing' % requirement)
