@@ -58,14 +58,15 @@ class Process(object):
     def __init__(self, input, path=None, config={}, **kwargs):
         """ Initialize a Process with input filenames and optional kwargs """
         # local work directory files will be stored
-        if not path:
-            self.path = mkdtemp()
+        if path is None:
+            path = mkdtemp()
+        self.path = path
         self.config = config
         self.kwargs = kwargs
 
         # check for required configs
         required = ['granuleIdExtraction', 'files_config', 'buckets']
-        
+
         for requirement in required:
             if requirement not in self.config.keys():
                 raise Exception('%s config key is missing' % requirement)
@@ -74,6 +75,9 @@ class Process(object):
         if not isinstance(input, list):
             raise Exception('cumulus-process-py expects to receive input as a list')
         self.input = input
+
+        # save downloaded files so we can clean up later
+        self.downloads = []
 
         # output granules
         self.output = []
@@ -95,7 +99,9 @@ class Process(object):
                 if remote or os.path.exists(f):
                     outfiles.append(f)
                 else:
-                    outfiles.append(s3.download(f, path=self.path))
+                    fname = s3.download(f, path=self.path)
+                    outfiles.append(fname)
+                    self.downloads.append(fname)
         return outfiles
 
     def fetch_all(self, remote=False):
@@ -118,10 +124,10 @@ class Process(object):
         """ Uploads all self.outputs """
         return [self.upload_file(f) for f in self.output]
 
-    def clean_input(self):
+    def clean_downloads(self):
         """ Remove input files """
-        self.logger.info('Cleaning local input files')
-        for f in self.input:
+        self.logger.info('Cleaning downloaded files')
+        for f in self.downloads:
             if os.path.exists(f) and f not in self.output:
                 os.remove(f)
 
@@ -133,7 +139,7 @@ class Process(object):
 
     def clean_all(self):
         """ Remove all local files """
-        self.clean_input()
+        self.clean_downloads()
         self.clean_output()
 
     # ## Publishing functions
