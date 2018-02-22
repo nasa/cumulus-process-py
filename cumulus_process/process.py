@@ -239,9 +239,9 @@ class Process(object):
 
     # ## Handlers
     @classmethod
-    def handler(cls, event, context=None):
+    def handler(cls, event, context=None, path=None, noclean=False):
         """ General event handler """
-        return cls.run(**event)
+        return cls.run(path=path, noclean=noclean, **event)
 
     @classmethod
     def cumulus_handler(cls, event, context=None):

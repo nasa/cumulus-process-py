@@ -34,11 +34,11 @@ class Test(unittest.TestCase):
         with self.assertRaises(SystemExit) as context:
             parse_args(Process, ['--version'])
 
-    def test_parse_args_recipe(self):
+    def test_parse_args_payload(self):
         """ Parse arguments given input files """
-        cmd = 'recipe test/payload.json --path test/ --noclean'
+        cmd = 'payload test/payload.json --path test/ --noclean'
         args = parse_args(Process, cmd.split(' '))
-        self.assertEqual(args['recipe'], 'test/payload.json')
+        self.assertEqual(args['payload'], 'test/payload.json')
         self.assertEqual(args['path'], 'test/')
         self.assertEqual(args['noclean'], True)
 
@@ -48,16 +48,16 @@ class Test(unittest.TestCase):
         args = parse_args(Process, cmd.split(' '))
         self.assertEqual(args['input'], ['test-1.txt', 'test-2.txt'])
 
-    def _test_cli_recipe(self):
-        """ Test CLI function with a recipe """
+    def _test_cli_payload(self):
+        """ Test CLI function with a payload """
         pl = os.path.join(self.testdir, 'payload.json')
-        sys.argv = ('program recipe %s --path %s --loglevel 5' % (pl, (self.testdir))).split(' ')
+        sys.argv = ('program payload %s --path %s --loglevel 5' % (pl, (self.testdir))).split(' ')
         cli(Process)
         for f in ['input-1', 'input-2']:
             fname = os.path.join(self.testdir, f + '.txt')
             self.assertFalse(os.path.exists(fname))
 
     def test_cli(self):
-        """ Test CLI function without recipe """
+        """ Test CLI function without payload """
         sys.argv = ('program process test-1.txt test-2.txt --path %s' % self.testdir).split(' ')
         cli(Process)
