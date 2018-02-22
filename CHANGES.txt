@@ -1,3 +1,6 @@
+v0.5.2:
+- Fix CLI for processing payloads
+
 v0.5.1:
 - Fix passing in of a local path for saving files and output
 - Properly clean up downloaded files
