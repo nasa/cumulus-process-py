@@ -5,6 +5,7 @@ import sys
 import argparse
 import json
 import logging
+from cumulus_process import s3
 from cumulus_process.version import __version__
 
 logger = logging.getLogger(__name__)
@@ -27,8 +28,8 @@ def parse_args(cls, args):
     parser = subparsers.add_parser('process', parents=[pparser], help='Process local files', formatter_class=dhf)
     parser.add_argument('input', nargs='*', default=[])
 
-    recipe_parser = subparsers.add_parser('recipe', parents=[pparser], help='Process recipe file', formatter_class=dhf)
-    recipe_parser.add_argument('recipe', help='Granule recipe (JSON, S3 address, or local file)')
+    recipe_parser = subparsers.add_parser('payload', parents=[pparser], help='Process message', formatter_class=dhf)
+    recipe_parser.add_argument('payload', help='Process message recipe (JSON, S3 address, or local file)')
     recipe_parser.add_argument('--noclean', action='store_true', default=False,
                                help='Do not remove local files when done')
 
@@ -41,6 +42,24 @@ def parse_args(cls, args):
     parsed_args = vars(parser0.parse_args(args))
 
     return parsed_args
+
+
+def process_payload(payload):
+    """ Process payload file into payload """
+    if isinstance(payload, str):
+        if payload[0:5] == 's3://':
+            # s3 location
+            payload = s3.download_json(payload)
+        else:
+            if os.path.exists(payload):
+                with open(payload, 'r') as f:
+                    payload = json.loads(f.read())
+            else:
+                try:
+                    payload = json.loads(payload)
+                except:
+                    raise ValueError("Invalid payload: %s" % payload)
+    return payload
 
 
 def cli(cls):
@@ -62,14 +81,15 @@ def cli(cls):
         logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
         process = cls.run(config=config, noclean=True, **args)
 
-    # process with a recipe
-    elif cmd == 'recipe':
+    # process with a message
+    elif cmd == 'payload':
         logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
-        payload = cls.run(config=config, **args)
-        bname = os.path.splitext(os.path.basename(args['recipe']))[0]
-        fname = os.path.join(args['path'], bname + '_out.json')
-        with open(fname, 'w') as f:
-            f.write(json.dumps(payload))
+        output = cls.handler(args['payload'], **args)
+        print(output)
+        #bname = os.path.splitext(os.path.basename(args['payload']))[0]
+        #fname = os.path.join(args['path'], bname + '_out.json')
+        #with open(fname, 'w') as f:
+        #    f.write(json.dumps(payload))
 
     # run as a service
     elif cmd == 'activity':
