@@ -84,7 +84,7 @@ def cli(cls):
     # process with a message
     elif cmd == 'payload':
         logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
-        output = cls.handler(args['payload'], **args)
+        output = cls.handler(args.pop('payload'), **args)
         print(output)
         #bname = os.path.splitext(os.path.basename(args['payload']))[0]
         #fname = os.path.join(args['path'], bname + '_out.json')
