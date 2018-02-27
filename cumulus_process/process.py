@@ -135,6 +135,7 @@ class Process(object):
 
     def clean_output(self):
         """ Remove local output files """
+        import pdb; pdb.set_trace()
         for f in self.output:
             if os.path.exists(f):
                 os.remove(f)
@@ -270,6 +271,7 @@ class Process(object):
         noclean = kwargs.pop('noclean', False)
         process = cls(*args, **kwargs)
         process.output = process.process()
+        import pdb; pdb.set_trace()
         if not noclean:
             process.clean_all()
         return process.output
