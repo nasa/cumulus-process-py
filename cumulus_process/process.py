@@ -112,7 +112,7 @@ class Process(object):
         """ Upload a local file to s3 if collection payload provided """
         info = self.get_publish_info(filename)
         if info is None:
-            return None
+            return filename
         try:
             uri = None
             if info.get('s3', None) is not None:
@@ -269,10 +269,10 @@ class Process(object):
         """ Run this payload with the given Process class """
         noclean = kwargs.pop('noclean', False)
         process = cls(*args, **kwargs)
-        process.process()
+        output = process.process()
         if not noclean:
             process.clean_all()
-        return process.output
+        return output
 
 
 if __name__ == "__main__":
