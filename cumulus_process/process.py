@@ -111,6 +111,8 @@ class Process(object):
     def upload_file(self, filename):
         """ Upload a local file to s3 if collection payload provided """
         info = self.get_publish_info(filename)
+        if info is None:
+            return None
         try:
             uri = None
             if info.get('s3', None) is not None:
