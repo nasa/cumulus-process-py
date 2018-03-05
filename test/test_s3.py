@@ -1,7 +1,7 @@
 import os
 import unittest
 import logging
-import cumulus_process.s3 as s3
+from cumulus_process import s3
 try:
     from mock import patch
 except ImportError:
