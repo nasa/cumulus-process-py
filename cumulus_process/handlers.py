@@ -42,7 +42,7 @@ def get_and_run_task(handler, sfn, arn):
         #if 's3uri' in payload:
         #    payload = download_json(payload['s3uri'])
 
-        output = json.dumps(handler.handler(**payload))
+        output = json.dumps(handler(event=payload))
 
         # check payload size
         #if len(output) >= SFN_PAYLOAD_LIMIT:
