@@ -1,3 +1,6 @@
+v0.5.6:
+- Fix imports for python3
+
 v0.5.5:
 - Peg version of cumulus-message-adapter-python
 
