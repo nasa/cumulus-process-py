@@ -1,3 +1,6 @@
+v0.5.5:
+- Peg version of cumulus-message-adapter-python
+
 v0.5.4:
 - Fix activity handler for cumulus
 
