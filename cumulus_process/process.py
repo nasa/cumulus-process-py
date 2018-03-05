@@ -7,7 +7,7 @@ import logging
 from tempfile import mkdtemp
 from dicttoxml import dicttoxml
 from xml.dom.minidom import parseString
-import cumulus_process.s3 as s3
+from cumulus_process.s3 import download, upload
 from cumulus_process.loggers import getLogger
 from cumulus_process.cli import cli
 from cumulus_process.handlers import activity
@@ -99,7 +99,7 @@ class Process(object):
                 if remote or os.path.exists(f):
                     outfiles.append(f)
                 else:
-                    fname = s3.download(f, path=self.path)
+                    fname = download(f, path=self.path)
                     outfiles.append(fname)
                     self.downloads.append(fname)
         return outfiles
@@ -117,7 +117,7 @@ class Process(object):
             uri = None
             if info.get('s3', None) is not None:
                 extra = {'ACL': 'public-read'} if info.get('bucket', 'public') == 'public' else {}
-                uri = s3.upload(filename, info['s3'], extra=extra)
+                uri = upload(filename, info['s3'], extra=extra)
             return uri
         except Exception as e:
             self.logger.error("Error uploading file %s: %s" % (os.path.basename(os.path.basename(filename)), str(e)))
