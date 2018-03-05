@@ -257,7 +257,7 @@ class Process(object):
     @classmethod
     def activity(cls, arn=os.getenv('ACTIVITY_ARN')):
         """ Run an AWS activity for a step function """
-        activity(cls.cumulus_handler, arn)
+        activity(cls.handler, arn)
 
     @classmethod
     def cumulus_activity(cls, arn=os.getenv('ACTIVITY_ARN')):

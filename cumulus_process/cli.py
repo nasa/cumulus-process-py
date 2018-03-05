@@ -93,7 +93,7 @@ def cli(cls):
 
     # run as a service
     elif cmd == 'activity':
-        cls.activity(args['arn'])
+        cls.cumulus_activity(args['arn'])
 
     else:
-        logger.error('Unknown command %s (choose between: process, recipe, activity)' % cmd)
+        logger.error('Unknown command %s (choose between: process, payload, activity)' % cmd)
