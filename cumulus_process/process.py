@@ -18,9 +18,15 @@ logger = getLogger(__name__)
 
 class Process(object):
     """ Class representing a data granule on S3 and processing that granule """
-
     @property
     def input_keys(self):
+        try:
+            return self.config['input_keys']
+        except:
+            return self.default_keys
+
+    @property
+    def default_keys(self):
         """ Keys used to reference files internally """
         return {
             'input-1': r'^.*-1.txt$',
