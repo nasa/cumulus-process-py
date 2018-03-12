@@ -20,10 +20,8 @@ class Process(object):
     """ Class representing a data granule on S3 and processing that granule """
     @property
     def input_keys(self):
-        try:
-            return self.config['input_keys']
-        except:
-            return self.default_keys
+        keys = self.config.get('input_keys')
+        return self.default_keys if keys == None else keys
 
     @property
     def default_keys(self):
