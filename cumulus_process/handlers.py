@@ -54,12 +54,12 @@ def get_and_run_task(handler, sfn, arn):
         err = str(e)
         logger.error("Memory error when running task: %s" % err)
         tb = traceback.format_exc()
-        err = (e[252] + ' ...') if len(err) > 252 else err
+        err = (err[252] + ' ...') if len(err) > 252 else err
         sfn.send_task_failure(taskToken=task['taskToken'], error=str(err), cause=tb)
         raise e
     except Exception as e:
         err = str(e)
         logger.error("Exception when running task: %s" % err)
         tb = traceback.format_exc()
-        err = (e[252] + ' ...') if len(err) > 252 else err
+        err = (err[252] + ' ...') if len(err) > 252 else err
         sfn.send_task_failure(taskToken=task['taskToken'], error=str(err), cause=tb)
