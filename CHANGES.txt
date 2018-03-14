@@ -1,6 +1,11 @@
+v0.5.7:
+- allow input_keys to be specified in payload
+- move existing hardcoded regex to default_keys, used if none in payload
+
 v0.5.6:
 - truncate error strings passed to sfn.send_task_failure()
 - log exceptions raised in the handler
+
 v0.5.5:
 - Peg version of cumulus-message-adapter-python
 - Update imports for Python3
