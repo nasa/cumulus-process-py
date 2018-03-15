@@ -1,6 +1,7 @@
 v0.5.7:
 - allow input_keys to be specified in payload
 - move existing hardcoded regex to default_keys, used if none in payload
+- backwards-compatible, but child classes should rename input_keys to default_keys or they will override inherited logic
 
 v0.5.6:
 - truncate error strings passed to sfn.send_task_failure()
