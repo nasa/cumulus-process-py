@@ -26,7 +26,9 @@ To test:
 
 ## Usage
 
-To use the library, subclass `Process` class from `cumulus_process` and implement the `process` method.
+To use the library, subclass `Process` class from `cumulus_process` and implement:
+1. the `process` method,
+2. a `default_keys` property (needed for functionality such as `self.fetch()` unless you are overriding input_keys in config)
 
 Example:
 
@@ -76,7 +78,11 @@ Example Cumulus Message input:
       "public": "cumulus",
       "protected": "cumulus"
     },
-    "distribution_endpoint": "https://cumulus..com"
+    "distribution_endpoint": "https://cumulus..com",
+    "input_keys": {
+      "input-1": "^.*-1.txt$",
+      "input-2": "^.*-2.txt$"
+    }
   },
   "input": [
     "s3://cumulus/testing/cumulus-py/input-1.txt",
