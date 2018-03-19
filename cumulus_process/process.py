@@ -18,10 +18,15 @@ logger = getLogger(__name__)
 
 class Process(object):
     """ Class representing a data granule on S3 and processing that granule """
-
     @property
     def input_keys(self):
+        keys = self.config.get('input_keys')
+        return self.default_keys if keys == None else keys
+
+    @property
+    def default_keys(self):
         """ Keys used to reference files internally """
+        self.has_default_keys = True
         return {
             'input-1': r'^.*-1.txt$',
             'input-2': r'^.*-2.txt$'
@@ -70,6 +75,10 @@ class Process(object):
         for requirement in required:
             if requirement not in self.config.keys():
                 raise Exception('%s config key is missing' % requirement)
+        
+        # check valid input keys
+        if not isinstance(self.input_keys, dict):
+            raise Exception('Input keys must be a dictionary')
 
         # list of input filenames
         if not isinstance(input, list):

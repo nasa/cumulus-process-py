@@ -101,6 +101,29 @@ class Test(unittest.TestCase):
             with self.assertRaises(Exception):
                 Process(**payload)
     
+    def test_config_input_keys(self):
+        """ Test getting input_keys from config """
+        with open(os.path.join(self.path, 'payload.json')) as f:
+            payload = json.loads(f.read())
+            process = Process(**payload)
+            assert process.input_keys['from_config']
+
+    def test_invalid_input_keys(self):
+        """ Test getting invalid input_keys from config """
+        with open(os.path.join(self.path, 'payload.json')) as f:
+            payload = json.loads(f.read())
+            payload['config']['input_keys'] = 'not a dict'
+            with self.assertRaises(Exception):
+                Process(**payload)
+
+    def test_missing_input_keys(self):
+        """ Test use default_keys if no input_keys in payload """
+        with open(os.path.join(self.path, 'payload.json')) as f:
+            payload = json.loads(f.read())
+            del payload['config']['input_keys']
+            process = Process(**payload)
+            assert process.has_default_keys
+
     def test_failure_if_input_is_not_list(self):
         """ Test process class fails if the input is not a list """
         with open(os.path.join(self.path, 'payload.json')) as f:
