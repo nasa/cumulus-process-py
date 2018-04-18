@@ -21,9 +21,9 @@
     {
         "regex": "^output-3.cmr.xml$",
         "bucket": "public",
-        "url_path": "testing/cumulus-py/otherfolder"
+        "fileStagingDir": "testing/cumulus-py/otherfolder"
     }],
-    "url_path": "testing/cumulus-py",
+    "fileStagingDir": "testing/cumulus-py",
     "buckets": {
       "internal": "cumulus",
       "private": "cumulus",

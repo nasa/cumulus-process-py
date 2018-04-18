@@ -181,7 +181,7 @@ class Process(object):
                 access = f.get('bucket', 'public')
                 bucket = self.buckets.get(access, None)
                 if bucket is not None:
-                    prefix = f.get('url_path', self.config.get('url_path', ''))
+                    prefix = f.get('fileStagingDir', self.config.get('fileStagingDir', ''))
                     if prefix is None:
                         prefix = ''
                     s3_url = os.path.join('s3://', bucket, prefix, os.path.basename(filename))

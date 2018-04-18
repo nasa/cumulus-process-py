@@ -47,7 +47,7 @@ class Test(unittest.TestCase):
     test_config = {
         'granuleIdExtraction': '',
         'files_config': [],
-        'url_path': '',
+        'fileStagingDir': '',
         'buckets': {},
         'distribution_endpoint': ''
     }
