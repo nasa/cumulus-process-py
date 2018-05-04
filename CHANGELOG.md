@@ -6,10 +6,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
-## [0.5.8]
+## [0.6.0]
 
-### Fixed
+### Changed 
 - Removed the built-in assumptions about the config and input to the Process class when the class is initialized. [CUMULUS-543]
+- A new property called `self.regex` is introduced. This property should be set for the `self.gid` property to work properly.  
 
 ## [0.5.7]
 - allow input_keys to be specified in payload
@@ -55,8 +56,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - added support for multiple output granules
 - use regex to determine which input files are which so order does not matter (only that all needed files are supplied, in any order)
 
-[Unreleased]: https://github.com/cumulus-nasa/cumulus-process-py/compare/0.5.8...HEAD
-[0.6.0]: https://github.com/cumulus-nasa/cumulus-process-py/compare/0.5.7...0.5.8
+[Unreleased]: https://github.com/cumulus-nasa/cumulus-process-py/compare/0.6.0...HEAD
+[0.6.0]: https://github.com/cumulus-nasa/cumulus-process-py/compare/0.5.7...0.6.0
 [0.5.7]: https://github.com/cumulus-nasa/cumulus-process-py/compare/0.5.6...0.5.7
 [0.5.6]: https://github.com/cumulus-nasa/cumulus-process-py/compare/0.5.5...0.5.6
 [0.5.5]: https://github.com/cumulus-nasa/cumulus-process-py/compare/0.5.4...0.5.5

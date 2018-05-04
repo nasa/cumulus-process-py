@@ -37,17 +37,17 @@ class Process(object):
         return {}
 
     @property
-    def gid(self, regex=None):
+    def gid(self):
         """ Get GID based on regex if provided """
         gid = None
 
         if not isinstance(self.input, list):
             return gid
 
-        if regex is not None:
+        if self.regex is not None:
             # get first file passed in
             file0 = self.input[0]
-            m = re.match(regex, os.path.basename(file0))
+            m = re.match(self.regex, os.path.basename(file0))
             if m is not None:
                 gid = ''.join(m.groups())
         if gid is None:
@@ -73,6 +73,7 @@ class Process(object):
         self.config = config
         self.kwargs = kwargs
         self.input = input
+        self.regex = None;
 
         # check valid input keys
         if not isinstance(self.input_keys, dict):
