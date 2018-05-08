@@ -92,15 +92,6 @@ class Test(unittest.TestCase):
         self.assertTrue(os.path.exists(fout))
         os.remove(fout)
 
-    def test_missing_config_keys(self):
-        """ Make sure process class fails to initialize
-        if there are missing configurations """
-        with open(os.path.join(self.path, 'payload.json')) as f:
-            payload = json.loads(f.read())
-            del payload['config']['granuleIdExtraction']
-            with self.assertRaises(Exception):
-                Process(**payload)
-    
     def test_config_input_keys(self):
         """ Test getting input_keys from config """
         with open(os.path.join(self.path, 'payload.json')) as f:
@@ -123,14 +114,6 @@ class Test(unittest.TestCase):
             del payload['config']['input_keys']
             process = Process(**payload)
             assert process.has_default_keys
-
-    def test_failure_if_input_is_not_list(self):
-        """ Test process class fails if the input is not a list """
-        with open(os.path.join(self.path, 'payload.json')) as f:
-            payload = json.loads(f.read())
-            payload['input'] = { 'files': [] }
-            with self.assertRaises(Exception):
-                Process(**payload)
 
     def test_publish_public_files(self):
         """ Get files to publish + endpoint prefixes """
