@@ -40,11 +40,14 @@ class Process(object):
     def gid(self):
         """ Get GID based on regex if provided """
         gid = None
-        regex = self.config.get('granuleIdExtraction', None)
-        if regex is not None:
+
+        if not isinstance(self.input, list):
+            return gid
+
+        if self.regex is not None:
             # get first file passed in
             file0 = self.input[0]
-            m = re.match(regex, os.path.basename(file0))
+            m = re.match(self.regex, os.path.basename(file0))
             if m is not None:
                 gid = ''.join(m.groups())
         if gid is None:
@@ -60,6 +63,7 @@ class Process(object):
         """ Add class specific arguments to the parser """
         return parser
 
+
     def __init__(self, input, path=None, config={}, **kwargs):
         """ Initialize a Process with input filenames and optional kwargs """
         # local work directory files will be stored
@@ -68,22 +72,12 @@ class Process(object):
         self.path = path
         self.config = config
         self.kwargs = kwargs
+        self.input = input
+        self.regex = None;
 
-        # check for required configs
-        required = ['granuleIdExtraction', 'files_config', 'buckets']
-
-        for requirement in required:
-            if requirement not in self.config.keys():
-                raise Exception('%s config key is missing' % requirement)
-        
         # check valid input keys
         if not isinstance(self.input_keys, dict):
             raise Exception('Input keys must be a dictionary')
-
-        # list of input filenames
-        if not isinstance(input, list):
-            raise Exception('cumulus-process-py expects to receive input as a list')
-        self.input = input
 
         # save downloaded files so we can clean up later
         self.downloads = []
