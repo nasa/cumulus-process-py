@@ -137,10 +137,14 @@ class Test(unittest.TestCase):
         process = self.get_test_process()
         # add fake some remote output files
         process.output = ['nowhere/output-1.txt', 'nowhere/output-2.txt']
-        for f in process.output:
-            info = process.get_publish_info(f)
-            self.assertEqual(os.path.basename(info['s3']), os.path.basename(f))
-            self.assertEqual(os.path.basename(info['http']), os.path.basename(f))
+
+        info = process.get_publish_info('nowhere/output-1.txt')
+        self.assertEqual(info['s3'], 's3://cumulus-public/testing/cumulus-py/output-1.txt')
+        self.assertEqual(info['http'], 'http://cumulus-public.s3.amazonaws.com/testing/cumulus-py/output-1.txt')
+
+        info = process.get_publish_info('nowhere/output-2.txt')
+        self.assertEqual(info['s3'], 's3://cumulus-private/testing/cumulus-py/output-2.txt')
+        self.assertEqual(info['http'], 'https://cumulus.com/testing/cumulus-py/output-2.txt')
 
     @patch.object(Process, 'process', fake_process)
     def test_upload(self):

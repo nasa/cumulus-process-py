@@ -73,10 +73,22 @@ Example Cumulus Message input:
     }],
     "url_path": "testing/cumulus-py",
     "buckets": {
-      "internal": "cumulus",
-      "private": "cumulus",
-      "public": "cumulus",
-      "protected": "cumulus"
+      "internal": {
+        "name": "cumulus-internal",
+        "type": "internal"
+      },
+      "private": {
+        "name": "cumulus-private",
+        "type": "private"
+      },
+      "protected": {
+        "name": "cumulus-protected",
+        "type": "protected"
+      },
+      "public": {
+        "name": "cumulus-public",
+        "type": "public"
+      }
     },
     "distribution_endpoint": "https://cumulus..com",
     "input_keys": {

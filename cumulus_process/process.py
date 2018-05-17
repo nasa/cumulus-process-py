@@ -178,14 +178,14 @@ class Process(object):
             if m is not None:
                 count += 1
                 info = f
-                access = f.get('bucket', 'public')
-                bucket = self.buckets.get(access, None)
+                file_bucket = f.get('bucket', 'public')
+                bucket = self.buckets.get(file_bucket, None)
                 if bucket is not None:
                     prefix = f.get('fileStagingDir', self.config.get('fileStagingDir', ''))
                     if prefix is None:
                         prefix = ''
-                    s3_url = os.path.join('s3://', bucket, prefix, os.path.basename(filename))
-                    http_url = 'http://%s.s3.amazonaws.com' % bucket if access == 'public' else self.default_url
+                    s3_url = os.path.join('s3://', bucket['name'], prefix, os.path.basename(filename))
+                    http_url = 'http://%s.s3.amazonaws.com' % bucket['name'] if bucket['type'] == 'public' else self.default_url
                     http_url = os.path.join(http_url, prefix, os.path.basename(filename))
                     info.update({'s3': s3_url, 'http': http_url})
         if (count) > 1:

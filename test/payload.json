@@ -25,12 +25,24 @@
     }],
     "fileStagingDir": "testing/cumulus-py",
     "buckets": {
-      "internal": "cumulus",
-      "private": "cumulus",
-      "public": "cumulus",
-      "protected": "cumulus"
+      "internal": {
+        "name": "cumulus-internal",
+        "type": "internal"
+      },
+      "private": {
+        "name": "cumulus-private",
+        "type": "private"
+      },
+      "protected": {
+        "name": "cumulus-protected",
+        "type": "protected"
+      },
+      "public": {
+        "name": "cumulus-public",
+        "type": "public"
+      }
     },
-    "distribution_endpoint": "https://cumulus..com",
+    "distribution_endpoint": "https://cumulus.com",
     "input_keys": {
       "input-1": "^.*-1.txt$",
       "input-2": "^.*-2.txt$",
