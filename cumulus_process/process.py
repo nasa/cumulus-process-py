@@ -73,7 +73,7 @@ class Process(object):
         self.config = config
         self.kwargs = kwargs
         self.input = input
-        self.regex = None;
+        self.regex = None
 
         # check valid input keys
         if not isinstance(self.input_keys, dict):
@@ -119,7 +119,11 @@ class Process(object):
         try:
             uri = None
             if info.get('s3', None) is not None:
-                extra = {'ACL': 'public-read'} if info.get('bucket', 'public') == 'public' else {}
+                bucket = self.buckets.get(info.get('bucket', 'public'), None)
+                bucketType = None
+                if bucket is not None:
+                    bucketType = bucket['type']
+                extra = {'ACL': 'public-read'} if bucketType == 'public' else {}
                 uri = upload(filename, info['s3'], extra=extra)
             return uri
         except Exception as e:
