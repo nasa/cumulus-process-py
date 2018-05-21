@@ -183,7 +183,7 @@ class Process(object):
                 if bucket is not None:
                     prefix = f.get('fileStagingDir', self.config.get('fileStagingDir', ''))
                     if prefix is None:
-                        prefix = ''
+                        prefix = f.get('url_path', self.config.get('url_path', ''))
                     s3_url = os.path.join('s3://', bucket['name'], prefix, os.path.basename(filename))
                     http_url = 'http://%s.s3.amazonaws.com' % bucket['name'] if bucket['type'] == 'public' else self.default_url
                     http_url = os.path.join(http_url, prefix, os.path.basename(filename))
