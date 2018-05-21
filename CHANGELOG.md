@@ -6,6 +6,15 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+### Changed
+- **CUMULUS-456** Use the fileStagingDir to create the URL paths and if none exists, use url_path
+- **CUMULUS-477** Updates to use the new bucket structure where each bucket is no longer a string, but an object with name and type
+
+## [0.6.1]
+
+### Changed 
+- Get cumulus-message-adapter-python from pypi instead of github  
+
 ## [0.6.0]
 
 ### Changed 
@@ -56,7 +65,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - added support for multiple output granules
 - use regex to determine which input files are which so order does not matter (only that all needed files are supplied, in any order)
 
-[Unreleased]: https://github.com/cumulus-nasa/cumulus-process-py/compare/0.6.0...HEAD
+[Unreleased]: https://github.com/cumulus-nasa/cumulus-process-py/compare/0.6.1...HEAD
+[0.6.1]: https://github.com/cumulus-nasa/cumulus-process-py/compare/0.6.0...0.6.1
 [0.6.0]: https://github.com/cumulus-nasa/cumulus-process-py/compare/0.5.7...0.6.0
 [0.5.7]: https://github.com/cumulus-nasa/cumulus-process-py/compare/0.5.6...0.5.7
 [0.5.6]: https://github.com/cumulus-nasa/cumulus-process-py/compare/0.5.5...0.5.6
