@@ -92,15 +92,6 @@ class Test(unittest.TestCase):
         self.assertTrue(os.path.exists(fout))
         os.remove(fout)
 
-    def test_missing_config_keys(self):
-        """ Make sure process class fails to initialize
-        if there are missing configurations """
-        with open(os.path.join(self.path, 'payload.json')) as f:
-            payload = json.loads(f.read())
-            del payload['config']['granuleIdExtraction']
-            with self.assertRaises(Exception):
-                Process(**payload)
-    
     def test_config_input_keys(self):
         """ Test getting input_keys from config """
         with open(os.path.join(self.path, 'payload.json')) as f:
@@ -124,23 +115,19 @@ class Test(unittest.TestCase):
             process = Process(**payload)
             assert process.has_default_keys
 
-    def test_failure_if_input_is_not_list(self):
-        """ Test process class fails if the input is not a list """
-        with open(os.path.join(self.path, 'payload.json')) as f:
-            payload = json.loads(f.read())
-            payload['input'] = { 'files': [] }
-            with self.assertRaises(Exception):
-                Process(**payload)
-
     def test_publish_public_files(self):
         """ Get files to publish + endpoint prefixes """
         process = self.get_test_process()
         # add fake some remote output files
         process.output = ['nowhere/output-1.txt', 'nowhere/output-2.txt']
-        for f in process.output:
-            info = process.get_publish_info(f)
-            self.assertEqual(os.path.basename(info['s3']), os.path.basename(f))
-            self.assertEqual(os.path.basename(info['http']), os.path.basename(f))
+
+        info = process.get_publish_info('nowhere/output-1.txt')
+        self.assertEqual(info['s3'], 's3://cumulus-public/testing/cumulus-py/output-1.txt')
+        self.assertEqual(info['http'], 'http://cumulus-public.s3.amazonaws.com/testing/cumulus-py/output-1.txt')
+
+        info = process.get_publish_info('nowhere/output-2.txt')
+        self.assertEqual(info['s3'], 's3://cumulus-private/testing/cumulus-py/output-2.txt')
+        self.assertEqual(info['http'], 'https://cumulus.com/testing/cumulus-py/output-2.txt')
 
     @patch.object(Process, 'process', fake_process)
     def test_upload(self):
