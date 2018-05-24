@@ -9,6 +9,38 @@ logger = logging.getLogger(__name__)
 
 
 def get_client(client='s3'):
+    """ creates and return a boto3 (aws) client """
+    local_stack_ports = { 
+        'apigateway': 4567,
+        'cloudformation': 4581,
+        'cloudwatch': 4582,
+        'cloudwatchevents': 4582,
+        'dynamodb': 4569,
+        'dynamodbstreams': 4570,
+        'es': 4571,
+        'firehose': 4573,
+        'kinesis': 4568,
+        'lambda': 4574,
+        'redshift': 4577,
+        'route53': 4580,
+        's3': 4572,
+        'ses': 4579,
+        'sns': 4575,
+        'sqs': 4576,
+        'ssm': 4583
+    }
+
+    localstack = os.getenv('LOCALSTACK_HOST')
+    if localstack:
+        return boto3.client(
+            client,
+            region_name='us-east-1',
+            endpoint_url='http://%s:%s' % (localstack, local_stack_ports[client]),
+            use_ssl=False,
+            aws_access_key_id='fake-key',
+            aws_secret_access_key='fake-secret'
+        )
+
     return boto3.client(client)
 
 
