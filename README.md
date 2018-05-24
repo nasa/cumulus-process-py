@@ -90,7 +90,7 @@ Example Cumulus Message input:
         "type": "public"
       }
     },
-    "distribution_endpoint": "https://cumulus..com",
+    "distribution_endpoint": "https://cumulus.com",
     "input_keys": {
       "input-1": "^.*-1.txt$",
       "input-2": "^.*-2.txt$"
