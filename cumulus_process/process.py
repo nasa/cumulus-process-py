@@ -94,8 +94,7 @@ class Process(object):
         self.output = []
 
         # set up logger
-        extra = {'granuleId': self.gid}
-        self.logger = logging.LoggerAdapter(logger, extra)
+        self.logger = logging.LoggerAdapter(logger, {})
 
     def fetch(self, key, remote=False):
         """ Get local (default) or remote input filename """
