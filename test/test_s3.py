@@ -73,6 +73,7 @@ class Test(unittest.TestCase):
         fout = s3.download(uri, path=self.path)
         self.assertEqual(fout, os.path.join(self.path, 'file.txt'))
         s3.delete(uri)
+        os.remove(fout)
 
     def test_download_json(self):
         """ Download file from S3 as JSON """
