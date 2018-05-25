@@ -3,8 +3,10 @@ This testing module relies on some testing data available in s3://cumulus-intern
 """
 
 import os
+import uuid
 import json
 import unittest
+from tempfile import mkdtemp
 from mock import patch
 import cumulus_process.s3 as s3
 from cumulus_process import Process
@@ -23,9 +25,11 @@ def fake_process(self):
 class Test(unittest.TestCase):
     """ Test utiltiies for publishing data on AWS PDS """
 
-    path = os.path.dirname(__file__)
+    path = mkdtemp() 
+    payload = os.path.join(os.path.dirname(__file__), 'payload.json')
 
-    s3path = 's3://cumulus-internal/testing/cumulus-py'
+    bucket = str(uuid.uuid4()) 
+    s3path = 's3://%s/testing/cumulus-py' % bucket
     input_files = [
         os.path.join(s3path, "input-1.txt"),
         os.path.join(s3path, "input-2.txt")
@@ -45,11 +49,8 @@ class Test(unittest.TestCase):
     }
 
     test_config = {
-        'granuleIdExtraction': '',
-        'files_config': [],
-        'url_path': '',
-        'buckets': {},
-        'distribution_endpoint': ''
+        'fileStagingDir': '',
+        'bucket': bucket 
     }
 
 
@@ -74,7 +75,7 @@ class Test(unittest.TestCase):
 
     def get_test_process(self):
         """ Get Process class for testing """
-        with open(os.path.join(self.path, 'payload.json')) as f:
+        with open(self.payload) as f:
             payload = json.loads(f.read())
         return Process(**payload)
         return Process(self.input_files, path=self.path, url_paths=self.urls)
@@ -94,14 +95,14 @@ class Test(unittest.TestCase):
 
     def test_config_input_keys(self):
         """ Test getting input_keys from config """
-        with open(os.path.join(self.path, 'payload.json')) as f:
+        with open(self.payload) as f:
             payload = json.loads(f.read())
             process = Process(**payload)
             assert process.input_keys['from_config']
 
     def test_invalid_input_keys(self):
         """ Test getting invalid input_keys from config """
-        with open(os.path.join(self.path, 'payload.json')) as f:
+        with open(self.payload) as f:
             payload = json.loads(f.read())
             payload['config']['input_keys'] = 'not a dict'
             with self.assertRaises(Exception):
@@ -109,52 +110,28 @@ class Test(unittest.TestCase):
 
     def test_missing_input_keys(self):
         """ Test use default_keys if no input_keys in payload """
-        with open(os.path.join(self.path, 'payload.json')) as f:
+        with open(self.payload) as f:
             payload = json.loads(f.read())
             del payload['config']['input_keys']
             process = Process(**payload)
             assert process.has_default_keys
-
-    def test_publish_public_files(self):
-        """ Get files to publish + endpoint prefixes """
-        process = self.get_test_process()
-        # add fake some remote output files
-        process.output = ['nowhere/output-1.txt', 'nowhere/output-2.txt']
-        for f in process.output:
-            info = process.get_publish_info(f)
-            self.assertEqual(os.path.basename(info['s3']), os.path.basename(f))
-            self.assertEqual(os.path.basename(info['http']), os.path.basename(f))
 
     @patch.object(Process, 'process', fake_process)
     def test_upload(self):
         """ Upload output files """
         process = self.get_test_process()
         process.process()
-        #uploads = granule.upload()
-        #self.assertEqual(len(uploads), 1)
-        #for u in uploads:
-        #    self.check_and_remove_remote_out(u)
         process.clean_all()
-        #self.assertFalse(os.path.exists(os.path.join(self.path, 'output-1.txt')))
 
     @patch.object(Process, 'process', fake_process)
     def test_run(self):
         """ Make complete run """
-        output = Process.run(self.input_files, path=self.path,
+        output = Process.run(self.input_files, path=mkdtemp(),
                              config=self.test_config, noclean=True)
         # check for local output files
         for f in self.output_files.values():
             self.assertTrue(os.path.exists(f))
             self.assertTrue(f in output)
-
-        # check for remote files
-        #uris = [uri for f in granule.remote_out.values() for uri in f.values()]
-        #self.assertTrue(len(uris) > 1)
-        #self.check_and_remove_remote_out(uris)
-
-        #process.clean_all()
-        #for f in self.output_files.values():
-        #    self.assertFalse(os.path.exists(f))
 
     def _check_and_remove_remote_out(self, uris):
         """ Check for existence of remote files, then remove them """

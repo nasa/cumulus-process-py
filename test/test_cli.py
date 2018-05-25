@@ -10,7 +10,7 @@ from cumulus_process.cli import parse_args, cli
 
 
 class Test(unittest.TestCase):
-    """ Test utiltiies for publishing data on AWS PDS """
+    """ Test utilities for publishing data on AWS PDS """
 
     testdir = os.path.dirname(__file__)
 
