@@ -72,7 +72,7 @@ class Process(object):
         return parser
 
 
-    def __init__(self, input, path=None, config={}, **kwargs):
+    def __init__(self, i, path=None, config={}, **kwargs):
         """ Initialize a Process with input filenames and optional kwargs """
         # local work directory files will be stored
         if path is None:
@@ -80,7 +80,7 @@ class Process(object):
         self.path = path
         self.config = config
         self.kwargs = kwargs
-        self.input = input
+        self.input = i
         self.regex = None
 
         # check valid input keys
@@ -127,7 +127,7 @@ class Process(object):
         """ Upload a local file to s3 if collection payload provided """
         warnings.warn(
             'upload_file method is deprecated and will be removed in the next release. ' +
-            'use helper functions from the helper module instead',
+            'use upload functions in s3 module instead',
             DeprecationWarning
         )
         info = self.get_publish_info(filename)
