@@ -134,12 +134,7 @@ class Test(unittest.TestCase):
         """ Upload output files """
         process = self.get_test_process()
         process.process()
-        #uploads = granule.upload()
-        #self.assertEqual(len(uploads), 1)
-        #for u in uploads:
-        #    self.check_and_remove_remote_out(u)
         process.clean_all()
-        #self.assertFalse(os.path.exists(os.path.join(self.path, 'output-1.txt')))
 
     @patch.object(Process, 'process', fake_process)
     def test_run(self):
@@ -150,15 +145,6 @@ class Test(unittest.TestCase):
         for f in self.output_files.values():
             self.assertTrue(os.path.exists(f))
             self.assertTrue(f in output)
-
-        # check for remote files
-        #uris = [uri for f in granule.remote_out.values() for uri in f.values()]
-        #self.assertTrue(len(uris) > 1)
-        #self.check_and_remove_remote_out(uris)
-
-        #process.clean_all()
-        #for f in self.output_files.values():
-        #    self.assertFalse(os.path.exists(f))
 
     def _check_and_remove_remote_out(self, uris):
         """ Check for existence of remote files, then remove them """

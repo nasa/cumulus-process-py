@@ -5,11 +5,15 @@ references:
   container_python27: &container_python27
     docker:
       - image: circleci/python:2.7.13
+      - name: localstack
+        image: localstack/localstack
     working_dir: ~/project
 
   container_python36: &container_python36
     docker:
       - image: circleci/python:3.6.2
+      - name: localstack
+        image: localstack/localstack
     working_dir: ~/project
 
   restore_repo: &restore_repo
@@ -67,6 +71,8 @@ jobs:
             - ~/venv27
       - run :
           name: Run tests
+          environment:
+            LOCALSTACK_HOST: localstack
           command: |
             . ~/venv27/bin/activate
             nosetests -v --with-coverage --cover-package cumulus_process
@@ -93,6 +99,8 @@ jobs:
             - ~/venv36
       - run :
           name: Run tests
+          environment:
+            LOCALSTACK_HOST: localstack
           command: |
             . ~/venv36/bin/activate
             nosetests -v --with-coverage --cover-package cumulus_process
