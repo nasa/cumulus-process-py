@@ -11,6 +11,7 @@ logging.getLogger('botocore').setLevel(logging.CRITICAL)
 logging.getLogger('nose').setLevel(logging.CRITICAL)
 logging.getLogger('s3transfer').setLevel(logging.CRITICAL)
 
+os.environ['LOCALSTACK_HOST'] = 'localhost'
 
 class Test(unittest.TestCase):
     """ Test utilities for publishing data on AWS PDS """

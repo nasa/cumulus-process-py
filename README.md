@@ -20,7 +20,9 @@ The utilities help writing tasks that involve metadata extraction from input fil
     $ pip install -r requirements.txt
     $ pip install -r requirements-dev.txt
 
-To test:
+## Testing
+
+Testing requires [localstack](https://github.com/localstack/localstack). Follow the instruction for localstack and install it on your machine then:
 
     $ nosetests -v
 

@@ -11,6 +11,7 @@ from mock import patch
 import cumulus_process.s3 as s3
 from cumulus_process import Process
 
+os.environ['LOCALSTACK_HOST'] = 'localhost'
 
 # mocked function replaced Granule.process
 def fake_process(self):

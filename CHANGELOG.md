@@ -13,10 +13,13 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - All methods that have specific assumptions about the structure of the Cumulus message are deprecated. Subclasses should implement these methods in the subclass if they are needed
 - Some of the deprecated methods are moved to a new helpers modules can be used by importing them directly from that module
 
-### Changed
+### Added
 - Add deprecation warning to the followings methods of the Process class (these methods will be removed in v0.8.0)
-- Simplify the structure of Process class to support **CUMULUS-456**  
 - Add example folder with an example implementation of a Process sublcass
+- Add localstack to tests
+
+### Changed
+- Simplify the structure of Process class to support **CUMULUS-456**  
 - `clean_all` method now removes the whole temp folder at the end of the process (this solves the problem of lambda functions running out of temporary storage)
 - **CUMULUS-456** Use the fileStagingDir to create the URL paths and if none exists, use url_path (this is added to deprecation methods)
 - **CUMULUS-477** Updates to use the new bucket structure where each bucket is no longer a string, but an object with name and type (this is added to deprecation methods)

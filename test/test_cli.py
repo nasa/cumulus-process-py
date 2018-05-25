@@ -5,8 +5,11 @@ This testing module relies on some testing data available in s3://cumulus-intern
 import os
 import sys
 import unittest
+from tempfile import mkdtemp
 from cumulus_process import Process
 from cumulus_process.cli import parse_args, cli
+
+os.environ['LOCALSTACK_HOST'] = 'localhost'
 
 
 class Test(unittest.TestCase):
@@ -51,7 +54,7 @@ class Test(unittest.TestCase):
     def _test_cli_payload(self):
         """ Test CLI function with a payload """
         pl = os.path.join(self.testdir, 'payload.json')
-        sys.argv = ('program payload %s --path %s --loglevel 5' % (pl, (self.testdir))).split(' ')
+        sys.argv = ('program payload %s --path %s --loglevel 5' % (pl, mkdtemp())).split(' ')
         cli(Process)
         for f in ['input-1', 'input-2']:
             fname = os.path.join(self.testdir, f + '.txt')
@@ -59,5 +62,5 @@ class Test(unittest.TestCase):
 
     def test_cli(self):
         """ Test CLI function without payload """
-        sys.argv = ('program process test-1.txt test-2.txt --path %s' % self.testdir).split(' ')
+        sys.argv = ('program process test-1.txt test-2.txt --path %s' % mkdtemp()).split(' ')
         cli(Process)
