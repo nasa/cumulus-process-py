@@ -6,41 +6,26 @@ import os
 import uuid
 import json
 import unittest
-from mock import patch
+from shutil import rmtree
+from tempfile import mkdtemp
+from example.main import Modis 
 import cumulus_process.s3 as s3
-from cumulus_process import Process
+from cumulus_process import Process, helpers
 
 
-# mocked function replaced Process.process
-def fake_process(self):
-    """ Create local output files as if process did something """
-    # produce one fake granu
-    TestAWS.create_files(TestAWS.output_files.values())
-    local_out = {}
-    for f in TestAWS.output_files:
-        local_out[f] = TestAWS.output_files[f]
-    self.output = local_out.values();
-    return self.upload_output_files()
-
-
-class TestAWS(unittest.TestCase):
-    """ Test utiltiies for publishing data on AWS PDS """
+class TestExample(unittest.TestCase):
+    """Test the example implementation of the Process class"""
 
     bucket = str(uuid.uuid4()) 
     s3path = 's3://%s/testing/cumulus-py' % bucket
-    path = os.path.dirname(__file__)
-    payload = os.path.join(path, 'payload.json')
+    path = mkdtemp()
+    payload = os.path.join(os.path.dirname(__file__), 'payload.json')
 
     input_files = [
-        os.path.join(s3path, "input-1.txt"),
-        os.path.join(s3path, "input-2.txt")
+        os.path.join(s3path, "MOD09GQ.A2016358.h13v04.006.2016360104606.hdf"),
+        os.path.join(s3path, "MOD09GQ.A2016358.h13v04.006.2016360104606.hdf.met"),
+        os.path.join(s3path, "BROWSE.MOD09GQ.A2016358.h13v04.006.2016360104606.hdf")
     ]
-
-    output_files = {
-        'output-1': os.path.join(path, 'output-1.txt'),
-        'output-2': os.path.join(path, 'output-2.txt'),
-        'meta': os.path.join(path, 'output-3.cmr.xml')
-    }
 
     @classmethod
     def create_files(cls, filenames):
@@ -62,28 +47,29 @@ class TestAWS(unittest.TestCase):
 
         fouts = cls.create_files(cls.input_files)
         for f in fouts:
-            s3.upload(f, cls.s3path)
-            os.remove(f)
-
+            s3.upload(f, os.path.join(cls.s3path, os.path.basename(f)))
+        
     @classmethod
     def tearDownClass(cls):
-        files = s3.list_objects('s3://%s' % cls.bucket)
-        for f in files:
-            s3.delete(f)
-
         # delete the bucket
+        uris = s3.list_objects('s3://%s' % cls.bucket)
+        [s3.delete(uri) for uri in uris]
         cls.s3.delete_bucket(Bucket=cls.bucket)
 
+        # delete temp folder
+        rmtree(cls.path)
 
-    @patch.object(Process, 'process', fake_process)
-    def _test_run(self):
+    def test_example(self):
         """ Make complete run with payload """
         with open(self.payload, 'rb') as data:
-            payload = Process.handler(json.loads(data.read()), path=self.path)
+            input_payload = json.loads(data.read())
+            input_payload['input'] = self.input_files
+            input_payload['config']['bucket'] = self.bucket
+            payload = Modis.run(input_payload['input'], path=self.path, config=input_payload['config'])
             # assumes first granule is input, all others output
-            print(payload)
-            self.assertEqual(len(payload), 3)
-            self.check_and_remove_remote_out(uris)
+            self.assertEqual(len(payload), 4)
+            self.assertEqual(os.path.basename(payload[3]), 'new_file.jpg')
+            self.check_and_remove_remote_out(payload)
 
     def check_and_remove_remote_out(self, uris):
         """ Check for existence of remote files, then remove them """
