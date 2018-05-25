@@ -9,7 +9,8 @@ from tempfile import mkdtemp
 from cumulus_process import Process
 from cumulus_process.cli import parse_args, cli
 
-os.environ['LOCALSTACK_HOST'] = 'localhost'
+if not os.getenv('LOCALSTACK_HOST'):
+    raise Exception('LOCALSTACK_HOST must be set as env variable before running tests')
 
 
 class Test(unittest.TestCase):

@@ -11,7 +11,8 @@ from mock import patch
 import cumulus_process.s3 as s3
 from cumulus_process import Process
 
-os.environ['LOCALSTACK_HOST'] = 'localhost'
+if not os.getenv('LOCALSTACK_HOST'):
+    raise Exception('LOCALSTACK_HOST must be set as env variable before running tests')
 
 # mocked function replaced Granule.process
 def fake_process(self):

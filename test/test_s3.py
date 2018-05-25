@@ -11,7 +11,8 @@ logging.getLogger('botocore').setLevel(logging.CRITICAL)
 logging.getLogger('nose').setLevel(logging.CRITICAL)
 logging.getLogger('s3transfer').setLevel(logging.CRITICAL)
 
-os.environ['LOCALSTACK_HOST'] = 'localhost'
+if not os.getenv('LOCALSTACK_HOST'):
+    raise Exception('LOCALSTACK_HOST must be set as env variable before running tests')
 
 class Test(unittest.TestCase):
     """ Test utilities for publishing data on AWS PDS """
