@@ -72,7 +72,7 @@ class Process(object):
         return parser
 
 
-    def __init__(self, i, path=None, config={}, **kwargs):
+    def __init__(self, input, path=None, config={}, **kwargs):
         """ Initialize a Process with input filenames and optional kwargs """
         # local work directory files will be stored
         if path is None:
@@ -80,7 +80,7 @@ class Process(object):
         self.path = path
         self.config = config
         self.kwargs = kwargs
-        self.input = i
+        self.input = input
         self.regex = None
 
         # check valid input keys
