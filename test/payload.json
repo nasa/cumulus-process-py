@@ -1,47 +1,7 @@
 {
   "config": {
-    "granuleIdExtraction": "(.+?)\\.[^.]*$|$",
-    "files_config": [
-    {
-        "regex": "^input-1.txt$",
-        "bucket": "public"
-    },
-    {
-        "regex": "^input-2.txt$",
-        "bucket": "private"
-    },
-    {
-        "regex": "^output-1.txt$",
-        "bucket": "public"
-    },
-    {
-        "regex": "^output-2.txt$",
-        "bucket": "private"
-    },
-    {
-        "regex": "^output-3.cmr.xml$",
-        "bucket": "public",
-        "fileStagingDir": "testing/cumulus-py/otherfolder"
-    }],
     "fileStagingDir": "testing/cumulus-py",
-    "buckets": {
-      "internal": {
-        "name": "cumulus-internal",
-        "type": "internal"
-      },
-      "private": {
-        "name": "cumulus-private",
-        "type": "private"
-      },
-      "protected": {
-        "name": "cumulus-protected",
-        "type": "protected"
-      },
-      "public": {
-        "name": "cumulus-public",
-        "type": "public"
-      }
-    },
+    "bucket": "cumulus-internal",
     "distribution_endpoint": "https://cumulus.com",
     "input_keys": {
       "input-1": "^.*-1.txt$",
