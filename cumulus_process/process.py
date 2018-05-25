@@ -5,6 +5,7 @@ import gzip
 import subprocess
 import logging
 import warnings
+from shutil import rmtree
 from tempfile import mkdtemp
 from dicttoxml import dicttoxml
 from xml.dom.minidom import parseString
@@ -176,9 +177,8 @@ class Process(object):
                 os.remove(f)
 
     def clean_all(self):
-        """ Remove all local files """
-        self.clean_downloads()
-        self.clean_output()
+        """ Removes anything saved to self.path """
+        rmtree(self.path)
 
     # ## Publishing functions
     # properties to access payload parameters for publishing
