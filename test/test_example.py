@@ -65,7 +65,7 @@ class TestExample(unittest.TestCase):
             input_payload = json.loads(data.read())
             input_payload['input'] = self.input_files
             input_payload['config']['bucket'] = self.bucket
-            payload = Modis.run(input_payload['input'], path=self.path, config=input_payload['config'])
+            payload = Modis.run(input_payload['input'], path=self.path, config=input_payload['config'], noclean=True)
             # assumes first granule is input, all others output
             self.assertEqual(len(payload), 4)
             self.assertEqual(os.path.basename(payload[3]), 'new_file.jpg')

@@ -3,8 +3,10 @@ This testing module relies on some testing data available in s3://cumulus-intern
 """
 
 import os
+import uuid
 import json
 import unittest
+from tempfile import mkdtemp
 from mock import patch
 import cumulus_process.s3 as s3
 from cumulus_process import Process
@@ -23,9 +25,11 @@ def fake_process(self):
 class Test(unittest.TestCase):
     """ Test utiltiies for publishing data on AWS PDS """
 
-    path = os.path.dirname(__file__)
+    path = mkdtemp() 
+    payload = os.path.join(os.path.dirname(__file__), 'payload.json')
 
-    s3path = 's3://cumulus-internal/testing/cumulus-py'
+    bucket = str(uuid.uuid4()) 
+    s3path = 's3://%s/testing/cumulus-py' % bucket
     input_files = [
         os.path.join(s3path, "input-1.txt"),
         os.path.join(s3path, "input-2.txt")
@@ -45,11 +49,8 @@ class Test(unittest.TestCase):
     }
 
     test_config = {
-        'granuleIdExtraction': '',
-        'files_config': [],
         'fileStagingDir': '',
-        'buckets': {},
-        'distribution_endpoint': ''
+        'bucket': bucket 
     }
 
 
@@ -74,7 +75,7 @@ class Test(unittest.TestCase):
 
     def get_test_process(self):
         """ Get Process class for testing """
-        with open(os.path.join(self.path, 'payload.json')) as f:
+        with open(self.payload) as f:
             payload = json.loads(f.read())
         return Process(**payload)
         return Process(self.input_files, path=self.path, url_paths=self.urls)
@@ -94,14 +95,14 @@ class Test(unittest.TestCase):
 
     def test_config_input_keys(self):
         """ Test getting input_keys from config """
-        with open(os.path.join(self.path, 'payload.json')) as f:
+        with open(self.payload) as f:
             payload = json.loads(f.read())
             process = Process(**payload)
             assert process.input_keys['from_config']
 
     def test_invalid_input_keys(self):
         """ Test getting invalid input_keys from config """
-        with open(os.path.join(self.path, 'payload.json')) as f:
+        with open(self.payload) as f:
             payload = json.loads(f.read())
             payload['config']['input_keys'] = 'not a dict'
             with self.assertRaises(Exception):
@@ -109,7 +110,7 @@ class Test(unittest.TestCase):
 
     def test_missing_input_keys(self):
         """ Test use default_keys if no input_keys in payload """
-        with open(os.path.join(self.path, 'payload.json')) as f:
+        with open(self.payload) as f:
             payload = json.loads(f.read())
             del payload['config']['input_keys']
             process = Process(**payload)
@@ -125,7 +126,7 @@ class Test(unittest.TestCase):
     @patch.object(Process, 'process', fake_process)
     def test_run(self):
         """ Make complete run """
-        output = Process.run(self.input_files, path=self.path,
+        output = Process.run(self.input_files, path=mkdtemp(),
                              config=self.test_config, noclean=True)
         # check for local output files
         for f in self.output_files.values():
