@@ -6,6 +6,29 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [0.7.0]
+
+### How to upgrade to 0.7.0
+- The cumulus-process-py no longer assumes the structure of input and config given to a processing sublcass. These assumptions have to be added in the `__init__` section of the subclass (see example).
+- All methods that have specific assumptions about the structure of the Cumulus message are deprecated. Subclasses should implement these methods in the subclass if they are needed
+- Some of the deprecated methods are moved to a new helpers modules can be used by importing them directly from that module
+
+### Added
+- Add deprecation warning to the followings methods of the Process class (these methods will be removed in v0.8.0)
+- Add example folder with an example implementation of a Process sublcass
+- Add localstack to tests
+
+### Changed
+- Simplify the structure of Process class to support **CUMULUS-456**  
+- `clean_all` method now removes the whole temp folder at the end of the process (this solves the problem of lambda functions running out of temporary storage)
+- **CUMULUS-456** Use the fileStagingDir to create the URL paths and if none exists, use url_path (this is added to deprecation methods)
+- **CUMULUS-477** Updates to use the new bucket structure where each bucket is no longer a string, but an object with name and type (this is added to deprecation methods)
+
+## [0.6.1]
+
+### Changed 
+- Get cumulus-message-adapter-python from pypi instead of github  
+
 ## [0.6.0]
 
 ### Changed 
@@ -56,7 +79,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - added support for multiple output granules
 - use regex to determine which input files are which so order does not matter (only that all needed files are supplied, in any order)
 
-[Unreleased]: https://github.com/cumulus-nasa/cumulus-process-py/compare/0.6.0...HEAD
+[Unreleased]: https://github.com/cumulus-nasa/cumulus-process-py/compare/0.7.0...HEAD
+[0.7.0]: https://github.com/cumulus-nasa/cumulus-process-py/compare/0.6.1...0.7.0
+[0.6.1]: https://github.com/cumulus-nasa/cumulus-process-py/compare/0.6.0...0.6.1
 [0.6.0]: https://github.com/cumulus-nasa/cumulus-process-py/compare/0.5.7...0.6.0
 [0.5.7]: https://github.com/cumulus-nasa/cumulus-process-py/compare/0.5.6...0.5.7
 [0.5.6]: https://github.com/cumulus-nasa/cumulus-process-py/compare/0.5.5...0.5.6

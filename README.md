@@ -20,7 +20,9 @@ The utilities help writing tasks that involve metadata extraction from input fil
     $ pip install -r requirements.txt
     $ pip install -r requirements-dev.txt
 
-To test:
+## Testing
+
+Testing requires [localstack](https://github.com/localstack/localstack). Follow the instruction for localstack and install it on your machine then:
 
     $ nosetests -v
 
@@ -30,77 +32,6 @@ To use the library, subclass `Process` class from `cumulus_process` and implemen
 1. the `process` method,
 2. a `default_keys` property (needed for functionality such as `self.fetch()` unless you are overriding input_keys in config)
 
-Example:
+## Example:
 
-```python
-from cumulus_process import Process
-
-class MyClass(Process):
-
-  def process(self):
-    print('Hello World Implementation');
-
-```
-
-## Cumulus Message Config
-Example Cumulus Message input:
-
-```json
-{
-  "config": {
-    "granuleIdExtraction": "(.+?)\\.[^.]*$|$",
-    "files_config": [
-    {
-        "regex": "^input-1.txt$",
-        "bucket": "public"
-    },
-    {
-        "regex": "^input-2.txt$",
-        "bucket": "private"
-    },
-    {
-        "regex": "^output-1.txt$",
-        "bucket": "public"
-    },
-    {
-        "regex": "^output-2.txt$",
-        "bucket": "private"
-    },
-    {
-        "regex": "^output-3.cmr.xml$",
-        "bucket": "public",
-        "url_path": "testing/cumulus-py/otherfolder"
-    }],
-    "url_path": "testing/cumulus-py",
-    "buckets": {
-      "internal": "cumulus",
-      "private": "cumulus",
-      "public": "cumulus",
-      "protected": "cumulus"
-    },
-    "distribution_endpoint": "https://cumulus..com",
-    "input_keys": {
-      "input-1": "^.*-1.txt$",
-      "input-2": "^.*-2.txt$"
-    }
-  },
-  "input": [
-    "s3://cumulus/testing/cumulus-py/input-1.txt",
-    "s3://cumulus/testing/cumulus-py/input-2.txt"
-  ]
-}
-```
-
-### Fields
-| field | rqeuired | description
-| ----- | -------  | -----------
-| config.granuleIdExtraction | Y |the regex used for extracting GranuleId from input filenames
-| config.files_config | Y |list of file configurations. Each object in the list must include `regex` and `bucket`
-| config.url_path | N | the folder to upload the generated files to
-| config.buckets | Y | an object of buckets referenced in the files_config
-| config.distribution_endpoint | N | the endpoint to use when generating CMR metadata
-| input | Y | list of S3 uris
-
-
-**Note:** The class expects to receive a list of S3 Uris
-
+See the [example](example) folder.

@@ -86,10 +86,6 @@ def cli(cls):
         logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
         pl = process_payload(args.pop('payload'))
         output = cls.handler(pl, **args)
-        #bname = os.path.splitext(os.path.basename(args['payload']))[0]
-        #fname = os.path.join(args['path'], bname + '_out.json')
-        #with open(fname, 'w') as f:
-        #    f.write(json.dumps(payload))
 
     # run as a service
     elif cmd == 'activity':
