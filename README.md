@@ -1,6 +1,6 @@
 # cumulus-process-py
 
-[![CircleCI](https://circleci.com/gh/cumulus-nasa/cumulus-process-py.svg?style=svg&circle-token=6564d296f06c4d8d2925e220c4a213267dc70c00)](https://circleci.com/gh/cumulus-nasa/cumulus-process-py)
+[![CircleCI](https://circleci.com/gh/nasa/cumulus-process-py.svg?style=svg)](https://circleci.com/gh/nasa/cumulus-process-py)
 [![PyPI version](https://badge.fury.io/py/cumulus-process.svg)](https://badge.fury.io/py/cumulus-process)
 
 cumulus-process-py is a collection of python utilities for the NASA Cumulus project.
