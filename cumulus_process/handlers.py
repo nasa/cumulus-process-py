@@ -13,13 +13,32 @@ cls is the Process subclass for a specific data source, such as MODIS, ASTER, et
 """
 
 SFN_PAYLOAD_LIMIT = 32768
+from apscheduler.schedulers.background import BackgroundScheduler
+from apscheduler.jobstores.mongodb import MongoDBJobStore
+from apscheduler.jobstores.sqlalchemy import SQLAlchemyJobStore
+from apscheduler.executors.pool import ThreadPoolExecutor, ProcessPoolExecutor
+from time import sleep
 
 
 def activity(handler, arn=os.getenv('ACTIVITY_ARN')):
     """ An activity service for use with AWS Step Functions """
     sfn = boto3.client('stepfunctions', config=Config(read_timeout=70))
+    jobstores = {
+        'default': SQLAlchemyJobStore(url='sqlite:///jobs2.sqlite')
+    }
+    executors = {
+        'default': ThreadPoolExecutor(20),
+        'processpool': ProcessPoolExecutor(5)
+    }
+    job_defaults = {
+        'coalesce': False,
+        'max_instances': 300
+    }
+    scheduler = BackgroundScheduler(jobstores=jobstores, executors=executors, job_defaults=job_defaults)
+
+    scheduler.add_job(get_and_run_task, 'interval',minutes=1, kwargs= dict(handler=handler,sfn=sfn, arn=arn) )
     while True:
-        get_and_run_task(handler, sfn, arn)
+        sleep(2)
 
 
 def get_and_run_task(handler, sfn, arn):
