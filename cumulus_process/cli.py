@@ -65,6 +65,7 @@ def process_payload(payload):
 def cli(cls):
     """ Command Line Interface for a specific Granule class """
     args = parse_args(cls, sys.argv[1:])
+    print(args)
 
     logger.setLevel(args.pop('loglevel') * 10)
     cmd = args.pop('command')

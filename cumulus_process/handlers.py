@@ -14,7 +14,6 @@ cls is the Process subclass for a specific data source, such as MODIS, ASTER, et
 
 SFN_PAYLOAD_LIMIT = 32768
 from apscheduler.schedulers.background import BackgroundScheduler
-from apscheduler.jobstores.mongodb import MongoDBJobStore
 from apscheduler.jobstores.sqlalchemy import SQLAlchemyJobStore
 from apscheduler.executors.pool import ThreadPoolExecutor, ProcessPoolExecutor
 from time import sleep
