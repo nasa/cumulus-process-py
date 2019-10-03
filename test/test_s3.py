@@ -3,7 +3,7 @@ import uuid
 import json
 import unittest
 import logging
-from cumulus_process import s3
+from ghrc_process import s3
 
 # quiet these loggers
 logging.getLogger('boto3').setLevel(logging.CRITICAL)

@@ -28,7 +28,7 @@ Testing requires [localstack](https://github.com/localstack/localstack). Follow 
 
 ## Usage
 
-To use the library, subclass `Process` class from `cumulus_process` and implement:
+To use the library, subclass `Process` class from `ghrc_process` and implement:
 1. the `process` method,
 2. a `default_keys` property (needed for functionality such as `self.fetch()` unless you are overriding input_keys in config)
 

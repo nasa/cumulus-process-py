@@ -8,8 +8,8 @@ import json
 import unittest
 from tempfile import mkdtemp
 from mock import patch
-import cumulus_process.s3 as s3
-from cumulus_process import Process
+import ghrc_process.s3 as s3
+from ghrc_process import Process
 
 if not os.getenv('LOCALSTACK_HOST'):
     raise Exception('LOCALSTACK_HOST must be set as env variable before running tests')

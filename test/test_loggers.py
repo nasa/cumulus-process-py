@@ -3,7 +3,7 @@ import logging
 import unittest
 from ast import literal_eval
 from testfixtures import log_capture, compare, Comparison as C
-from cumulus_process.loggers import getLogger
+from ghrc_process.loggers import getLogger
 
 
 class TestLoggers(unittest.TestCase):

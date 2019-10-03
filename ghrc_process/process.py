@@ -9,10 +9,10 @@ from shutil import rmtree
 from tempfile import mkdtemp
 from dicttoxml import dicttoxml
 from xml.dom.minidom import parseString
-from cumulus_process.s3 import download, upload
-from cumulus_process.loggers import getLogger
-from cumulus_process.cli import cli
-from cumulus_process.handlers import activity
+from ghrc_process.s3 import download, upload
+from ghrc_process.loggers import getLogger
+from ghrc_process.cli import cli
+from ghrc_process.handlers import activity
 from run_cumulus_task import run_cumulus_task
 
 logger = getLogger(__name__)
@@ -115,6 +115,20 @@ class Process(object):
                     self.downloads.append(fname)
         return outfiles
 
+    
+    def get_bucket(self, filename, files):
+        """
+        Extract the bucket from the files
+        :param filename: Granule file name
+        :param files: list of collection files
+        :return: Bucket name
+        """
+        filename = filename.split('/')[-1]
+        for file in files:
+            if re.match(file.get('regex', '*.'), filename):
+                return file['bucket']
+        return 'public'    
+    
     def fetch_all(self, remote=False):
         """ Download all files in remote_in """
         warnings.warn(
@@ -125,16 +139,12 @@ class Process(object):
 
     def upload_file(self, filename):
         """ Upload a local file to s3 if collection payload provided """
-        warnings.warn(
-            'upload_file method is deprecated and will be removed in the next release. ' +
-            'use upload functions in s3 module instead',
-            DeprecationWarning
-        )
         info = self.get_publish_info(filename)
         if info is None:
             return filename
         try:
-            return upload(filename, info['s3'], extra={}) if info.get('s3', False) else None
+            uri = upload(filename, info['s3'], extra={}) if info.get('s3') else None
+            return uri
         except Exception as e:
             self.logger.error("Error uploading file %s: %s" % (os.path.basename(os.path.basename(filename)), str(e)))
 

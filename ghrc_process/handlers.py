@@ -4,7 +4,7 @@ import boto3
 import traceback
 from botocore.client import Config
 from botocore.vendored.requests.exceptions import ReadTimeout
-from cumulus_process.loggers import getLogger
+from ghrc_process.loggers import getLogger
 
 logger = getLogger(__name__)
 
@@ -21,7 +21,7 @@ from time import sleep
 
 def activity(handler, arn=os.getenv('ACTIVITY_ARN')):
     """ An activity service for use with AWS Step Functions """
-    sfn = boto3.client('stepfunctions', config=Config(read_timeout=70))
+    
     jobstores = {
         'default': SQLAlchemyJobStore(url='sqlite:///jobs2.sqlite')
     }
@@ -35,14 +35,16 @@ def activity(handler, arn=os.getenv('ACTIVITY_ARN')):
     }
     scheduler = BackgroundScheduler(jobstores=jobstores, executors=executors, job_defaults=job_defaults)
 
-    scheduler.add_job(get_and_run_task, 'interval',minutes=1, kwargs= dict(handler=handler,sfn=sfn, arn=arn) )
+    scheduler.add_job(get_and_run_task, 'interval',seconds=3, kwargs= dict(handler=handler, arn=arn) )
+    scheduler.start()
     while True:
         sleep(2)
 
 
-def get_and_run_task(handler, sfn, arn):
+def get_and_run_task(handler, sfn = None, arn = None):
     """ Get and run a single task as part of an activity """
     logger.info('query for task')
+    sfn = boto3.client('stepfunctions', config=Config(read_timeout=70)) if not sfn else sfn
     try:
         task = sfn.get_activity_task(activityArn=arn, workerName=__name__)
     except ReadTimeout:

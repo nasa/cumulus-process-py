@@ -70,7 +70,7 @@ jobs:
             LOCALSTACK_HOST: localstack
           command: |
             . ~/venv27/bin/activate
-            nosetests -v --with-coverage --cover-package cumulus_process
+            nosetests -v --with-coverage --cover-package ghrc_process
 
   install_and_test_36:
     <<: *container_python36
@@ -99,7 +99,7 @@ jobs:
             LOCALSTACK_HOST: localstack
           command: |
             . ~/venv36/bin/activate
-            nosetests -v --with-coverage --cover-package cumulus_process
+            nosetests -v --with-coverage --cover-package ghrc_process
 
   deploy:
     <<: *container_python36
@@ -112,7 +112,7 @@ jobs:
           command: |
             mkdir -p ~/.ssh
             ssh-keyscan github.com >> ~/.ssh/known_hosts
-            VERSION=`awk -F\' '{print $2,$4}' cumulus_process/version.py`
+            VERSION=`awk -F\' '{print $2,$4}' ghrc_process/version.py`
             
             # Only tag and release if the version doesn't already exist
             if [ -z $(git ls-remote --tags origin | grep $VERSION) ]; then

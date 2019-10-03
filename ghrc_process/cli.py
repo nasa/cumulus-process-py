@@ -5,8 +5,8 @@ import sys
 import argparse
 import json
 import logging
-from cumulus_process import s3
-from cumulus_process.version import __version__
+from ghrc_process import s3
+from ghrc_process.version import __version__
 
 logger = logging.getLogger(__name__)
 

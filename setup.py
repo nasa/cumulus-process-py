@@ -4,7 +4,7 @@ from codecs import open
 from setuptools import setup, find_packages
 import imp
 
-__version__ = imp.load_source('cumulus_process.version', 'cumulus_process/version.py').__version__
+__version__ = imp.load_source('ghrc_process.version', 'ghrc_process/version.py').__version__
 
 # get dependencies
 here = os.path.abspath(os.path.dirname(__file__))
@@ -17,11 +17,11 @@ install_requires = [x.strip() for x in all_reqs if 'git+' not in x]
 
 
 setup(
-    name='cumulus_process',
+    name='ghrc_process',
     version=__version__,
-    author='Matthew Hanson (matthewhanson), Alireza J (scisco)',
+    author='Matthew Hanson (matthewhanson), Alireza J (scisco), Abdelhak Marouane',
     description='Library for creating Cumulus Process tasks in Python',
-    url='https://github.com/nasa-cumulus/cumulus-process-py',
+    url='https://github.com/amarouane-ABDLHAK/cumulus-process-py',
     license='Apache 2.0',
     classifiers=[
         'Topic :: Software Development :: Libraries',
@@ -29,7 +29,6 @@ setup(
         'Intended Audience :: Developers',
         'Intended Audience :: Science/Research',
         'License :: OSI Approved :: Apache Software License',
-        'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6'
     ],

@@ -2,7 +2,7 @@ import os
 import gzip
 from dicttoxml import dicttoxml
 from xml.dom.minidom import parseString
-from cumulus_process.s3 import download, upload
+from ghrc_process.s3 import download, upload
 
 
 def upload_files(files, bucket, prefix):

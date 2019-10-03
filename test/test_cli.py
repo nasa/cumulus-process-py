@@ -6,8 +6,8 @@ import os
 import sys
 import unittest
 from tempfile import mkdtemp
-from cumulus_process import Process
-from cumulus_process.cli import parse_args, cli
+from ghrc_process import Process
+from ghrc_process.cli import parse_args, cli
 
 if not os.getenv('LOCALSTACK_HOST'):
     raise Exception('LOCALSTACK_HOST must be set as env variable before running tests')

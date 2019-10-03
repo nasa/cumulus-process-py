@@ -1,5 +1,5 @@
 import os
-from cumulus_process import Process, helpers
+from ghrc_process import Process, helpers
 
 
 class Modis(Process):
