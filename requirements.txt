@@ -1,4 +1,4 @@
 boto3~=1.4
 python-json-logger~=0.1
 dicttoxml~=1.7
-cumulus-message-adapter-python~=1.0.3
+cumulus-message-adapter-python~=1.1.0
