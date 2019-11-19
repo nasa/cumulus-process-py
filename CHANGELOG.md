@@ -8,7 +8,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [0.8.0]
 
-- Update package to use CMA-py 1.1.x series.   **Please note that [CMA-python](https://github.com/nasa/cumulus-message-adapter-python) utilizes either [CMA](https://github.com/nasa/cumulus-message-adapter) 1.0.x or 1.1.x series.
+- Update package to use CMA-py 1.1.x series.
+
+**Please note that [CMA-python](https://github.com/nasa/cumulus-message-adapter-python) utilizes either [CMA](https://github.com/nasa/cumulus-message-adapter) 1.0.x or 1.1.x series.**
+
 If you wish to continue using the pre 1.1.x series CMA, you will need to explicitly pin it in your project environment if you are pulling the CMA from pypi.
 
 ## [0.7.0]
