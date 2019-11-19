@@ -6,6 +6,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [0.8.0]
+
+- Update package to use CMA-py 1.1.x series.   **Please note that [CMA-python](https://github.com/nasa/cumulus-message-adapter-python) utilizes either [CMA](https://github.com/nasa/cumulus-message-adapter) 1.0.x or 1.1.x series.
+If you wish to continue using the pre 1.1.x series CMA, you will need to explicitly pin it in your project environment if you are pulling the CMA from pypi.
+
 ## [0.7.0]
 
 ### How to upgrade to 0.7.0
@@ -19,21 +24,21 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Add localstack to tests
 
 ### Changed
-- Simplify the structure of Process class to support **CUMULUS-456**  
+- Simplify the structure of Process class to support **CUMULUS-456**
 - `clean_all` method now removes the whole temp folder at the end of the process (this solves the problem of lambda functions running out of temporary storage)
 - **CUMULUS-456** Use the fileStagingDir to create the URL paths and if none exists, use url_path (this is added to deprecation methods)
 - **CUMULUS-477** Updates to use the new bucket structure where each bucket is no longer a string, but an object with name and type (this is added to deprecation methods)
 
 ## [0.6.1]
 
-### Changed 
-- Get cumulus-message-adapter-python from pypi instead of github  
+### Changed
+- Get cumulus-message-adapter-python from pypi instead of github
 
 ## [0.6.0]
 
-### Changed 
+### Changed
 - Removed the built-in assumptions about the config and input to the Process class when the class is initialized. [CUMULUS-543]
-- A new property called `self.regex` is introduced. This property should be set for the `self.gid` property to work properly.  
+- A new property called `self.regex` is introduced. This property should be set for the `self.gid` property to work properly.
 
 ## [0.5.7]
 - allow input_keys to be specified in payload
