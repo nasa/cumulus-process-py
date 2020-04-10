@@ -1,14 +1,6 @@
 # Python CircleCI 2.0 configuration file
 version: 2
-
 references:
-  container_python27: &container_python27
-    docker:
-      - image: circleci/python:2.7.13
-      - name: localstack
-        image: localstack/localstack
-    working_dir: ~/project
-
   container_python36: &container_python36
     docker:
       - image: circleci/python:3.6.2
@@ -27,13 +19,7 @@ references:
     save_cache:
       key: v0-repo-{{ .Branch }}-{{ .Revision }}
       paths:
-        - ~/project  
-
-  restore_dependencies27: &restore_dependencies27
-    restore_cache:
-      keys:
-        - v0-dependencies27-{{ checksum "requirements.txt" }}
-        - v0-dependencies27
+        - ~/project
 
   restore_dependencies36: &restore_dependencies36
     restore_cache:
@@ -42,39 +28,9 @@ references:
         - v0-dependencies36
 
 jobs:
-
-  install_and_test_27:
-    <<: *container_python27
-    steps:  
-      - *restore_repo
-      - checkout
-      - *save_repo
-      - *restore_dependencies27
-      - run:
-          name: Install virtualenv
-          command: pip install virtualenv
-      - run: 
-          name: Install dependencies
-          command: |
-            virtualenv ~/venv27
-            . ~/venv27/bin/activate
-            pip install -r requirements.txt
-            pip install -r requirements-dev.txt
-      - save_cache:
-          key: v0-dependencies27-{{ checksum "requirements.txt"}}
-          paths:
-            - ~/venv27
-      - run :
-          name: Run tests
-          environment:
-            LOCALSTACK_HOST: localstack
-          command: |
-            . ~/venv27/bin/activate
-            nosetests -v --with-coverage --cover-package cumulus_process
-
   install_and_test_36:
     <<: *container_python36
-    steps:  
+    steps:
       - *restore_repo
       - checkout
       - *save_repo
@@ -82,7 +38,7 @@ jobs:
       - run:
           name: Install virtualenv
           command: pip install --user virtualenv
-      - run: 
+      - run:
           name: Install dependencies
           command: |
             ~/.local/bin/virtualenv ~/venv36
@@ -113,7 +69,7 @@ jobs:
             mkdir -p ~/.ssh
             ssh-keyscan github.com >> ~/.ssh/known_hosts
             VERSION=`awk -F\' '{print $2,$4}' cumulus_process/version.py`
-            
+
             # Only tag and release if the version doesn't already exist
             if [ -z $(git ls-remote --tags origin | grep $VERSION) ]; then
               git tag $VERSION
@@ -139,6 +95,3 @@ workflows:
           filters:
             branches:
               only: master
-  build_test_27:
-    jobs:
-      - install_and_test_27
