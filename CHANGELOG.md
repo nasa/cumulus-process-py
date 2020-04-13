@@ -6,6 +6,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [0.9.0]
 
+### BREAKING CHANGES
+
 - **CUMULUS-1799**
   - Update cumulus-process-py requirements to CMA 1.2.0
   - Remove python 2 support
