@@ -341,9 +341,11 @@ class Process(object):
         """ Run this payload with the given Process class """
         noclean = kwargs.pop('noclean', False)
         process = cls(*args, **kwargs)
-        output = process.process()
-        if not noclean:
-            process.clean_all()
+        try:
+            output = process.process()
+        finally:
+            if not noclean:
+                process.clean_all()
         return output
 
 
