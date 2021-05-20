@@ -4,6 +4,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## Unreleased
+
+- Update minimum dependency versions:
+  - boto3:       1.4 -> 1.12.47
+  - dicttoxml:   1.7 -> 1.7.4
+  - cumulus-message-adapter-python: 1.2.0. -> 1.2.1
+- Update minimum dev-dependency versions:
+  - nose:         1.3 -> 1.3.7
+  - coverage:     4.3 -> 5.5
+  - nose-timer:   0.6 -> 1.0.1
+  - testfixtures: 4.13 -> 6.17.1
+  - mock:         1.3 -> 4.0.3
+
 ## [0.9.0]
 
 ### BREAKING CHANGES
