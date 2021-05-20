@@ -1,4 +1,4 @@
-boto3~=1.4
+boto3==1.12.47
 python-json-logger~=0.1
-dicttoxml~=1.7
-cumulus-message-adapter-python~=1.2.0
+dicttoxml~=1.7.4
+cumulus-message-adapter-python~=1.2.1
