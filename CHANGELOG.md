@@ -6,6 +6,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## Unreleased
 
+- Remove `public-read` ACL from S3 object uploads to comply with NGAP access requirements.
 - Update minimum dependency versions:
   - boto3:       1.4 -> 1.12.47
   - dicttoxml:   1.7 -> 1.7.4

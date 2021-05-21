@@ -134,15 +134,7 @@ class Process(object):
         if info is None:
             return filename
         try:
-            uri = None
-            if info.get('s3', None) is not None:
-                bucket = self.buckets.get(info.get('bucket', 'public'), None)
-                bucketType = None
-                if bucket is not None:
-                    bucketType = bucket['type']
-                extra = {'ACL': 'public-read'} if bucketType == 'public' else {}
-                uri = upload(filename, info['s3'], extra=extra)
-            return uri
+            return upload(filename, info['s3'], extra={}) if info.get('s3', False) else None
         except Exception as e:
             self.logger.error("Error uploading file %s: %s" % (os.path.basename(os.path.basename(filename)), str(e)))
 
