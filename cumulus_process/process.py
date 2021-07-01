@@ -23,7 +23,7 @@ class Process(object):
     @property
     def input_keys(self):
         keys = self.config.get('input_keys')
-        return self.default_keys if keys == None else keys
+        return self.default_keys if keys is None else keys
 
     @property
     def default_keys(self):

@@ -44,7 +44,7 @@ If you wish to continue using the pre 1.1.x series CMA, you will need to explici
 - Some of the deprecated methods are moved to a new helpers modules can be used by importing them directly from that module
 
 ### Added
-- Add deprecation warning to the followings methods of the Process class (these methods will be removed in v0.8.0)
+- Add deprecation warning to the following methods of the Process class (these methods will be removed in v0.8.0)
 - Add example folder with an example implementation of a Process sublcass
 - Add localstack to tests
 
