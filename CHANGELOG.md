@@ -7,11 +7,16 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## Unreleased
 
 
-## [0.10.1] -- 1/4/22
+## [1.0.0] -- 1/4/22
+
+### BREAKING CHANGES
 
 - **CUMULUS-2751**
-  - Update CMA dependency to ~2.0.0
+
+  - Update Cumulus Message Adapter dependency to ~2.0.0
+    - This is a breaking change as the underlying behavior of the message adapter has changed See Cumulus Message Adapter release notes for more information.   This update *requires* an update of all Core tasks to use CMA v2.0.0 for message consistency reasons
   - Update boto3 dependency to ~1.18.40
+
 ## [0.10.0] - 5/21/21
 
 - Remove `public-read` ACL from S3 object uploads to comply with NGAP access requirements.
