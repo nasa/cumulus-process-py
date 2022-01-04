@@ -6,6 +6,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## Unreleased
 
+
+## [0.10.1] -- 1/4/22
+
+- **CUMULUS-2751**
+  - Update CMA dependency to ~2.0.0
+  - Update boto3 dependency to ~1.18.40
 ## [0.10.0] - 5/21/21
 
 - Remove `public-read` ACL from S3 object uploads to comply with NGAP access requirements.
