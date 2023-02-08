@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## Unreleased
 
+## [1.1.0] - 2023-02-08
+
+- **CUMULUS-3189**
+  - Update Cumulus Message Adapter python dependency to ~2.1.0
 
 ## [1.0.0] - 1/4/22
 
@@ -120,7 +124,11 @@ If you wish to continue using the pre 1.1.x series CMA, you will need to explici
 - added support for multiple output granules
 - use regex to determine which input files are which so order does not matter (only that all needed files are supplied, in any order)
 
-[Unreleased]: https://github.com/cumulus-nasa/cumulus-process-py/compare/0.7.0...HEAD
+[Unreleased]: https://github.com/cumulus-nasa/cumulus-process-py/compare/1.1.0...HEAD
+[1.1.0]: https://github.com/cumulus-nasa/cumulus-process-py/compare/1.0.0...1.1.0
+[1.0.0]: https://github.com/cumulus-nasa/cumulus-process-py/compare/0.9.0...1.0.0
+[0.9.0]: https://github.com/cumulus-nasa/cumulus-process-py/compare/0.8.0...0.9.0
+[0.8.0]: https://github.com/cumulus-nasa/cumulus-process-py/compare/0.7.0...0.8.0
 [0.7.0]: https://github.com/cumulus-nasa/cumulus-process-py/compare/0.6.1...0.7.0
 [0.6.1]: https://github.com/cumulus-nasa/cumulus-process-py/compare/0.6.0...0.6.1
 [0.6.0]: https://github.com/cumulus-nasa/cumulus-process-py/compare/0.5.7...0.6.0
