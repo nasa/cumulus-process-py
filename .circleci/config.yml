@@ -102,14 +102,16 @@ jobs:
       - run:
           name: Push tag to github
           command: |
-            git config user.name "Dvseed"
-            git config user.email "info@developmentseed.org"
-            git config commit.gpgsign "false"
-
+            echo "getting version"
+            #git config user.name "Dvseed"
+            #git config user.email "info@developmentseed.org"
+            #git config commit.gpgsign "false"
+            
             VERSION=`awk -F\' '{print $2,$4}' cumulus_process/version.py`
-
+            echo "got ${VERSION} version"
             # Only tag and release if the version doesn't already exist
             if [ -z $(git ls-remote --tags origin | grep $VERSION) ]; then
+              echo "HERE"
               VERSION=0.0.1
               git tag $VERSION 
               echo "Pushing tag ${VERSION}"
