@@ -49,6 +49,9 @@ jobs:
           key: v0-dependencies36-{{ checksum "requirements.txt"}}
           paths:
             - ~/venv36
+      - add_ssh_keys:
+          fingerprints:
+            - "36:e7:5e:9a:2e:68:de:9b:f5:8e:03:60:5c:e0:c3:4b"
       - run :
           name: Run tests
           environment:
