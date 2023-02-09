@@ -60,6 +60,7 @@ jobs:
   deploy:
     <<: *container_python36
     steps:
+      - checkout
       - *restore_repo
       - *restore_dependencies36
       - add_ssh_keys:
@@ -89,6 +90,7 @@ jobs:
   testdeploy:
     <<: *container_python36
     steps:
+      - checkout
       - *restore_repo
       - *restore_dependencies36
       - add_ssh_keys:
