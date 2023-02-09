@@ -62,7 +62,7 @@ jobs:
     steps:
       - *restore_repo
       - *restore_dependencies36
-      - add_ssh_keys
+      - add_ssh_keys:
         fingerprints:
             - "e3:e2:f2:ad:45:cc:79:08:79:ad:b3:3f:16:a3:fd:10"
       - run:
@@ -88,7 +88,7 @@ jobs:
     steps:
       - *restore_repo
       - *restore_dependencies36
-      - add_ssh_keys
+      - add_ssh_keys:
         fingerprints:
             - "e3:e2:f2:ad:45:cc:79:08:79:ad:b3:3f:16:a3:fd:10"
       - run:
