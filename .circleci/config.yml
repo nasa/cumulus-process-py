@@ -63,11 +63,11 @@ jobs:
       - *restore_repo
       - *restore_dependencies36
       - add_ssh_keys
+        fingerprints:
+            - "e3:e2:f2:ad:45:cc:79:08:79:ad:b3:3f:16:a3:fd:10"
       - run:
           name: Push tag to github
           command: |
-            mkdir -p ~/.ssh
-            ssh-keyscan github.com >> ~/.ssh/known_hosts
             VERSION=`awk -F\' '{print $2,$4}' cumulus_process/version.py`
 
             # Only tag and release if the version doesn't already exist
@@ -83,6 +83,26 @@ jobs:
             pip install twine
             python setup.py sdist
             twine upload --skip-existing --username "${PYPI_USER}" --password "${PYPI_PASS}" dist/*
+  testdeploy:
+    <<: *container_python36
+    steps:
+      - *restore_repo
+      - *restore_dependencies36
+      - add_ssh_keys
+        fingerprints:
+            - "e3:e2:f2:ad:45:cc:79:08:79:ad:b3:3f:16:a3:fd:10"
+      - run:
+          name: Push tag to github
+          command: |
+            VERSION=`awk -F\' '{print $2,$4}' cumulus_process/version.py`
+
+            # Only tag and release if the version doesn't already exist
+            if [ -z $(git ls-remote --tags origin | grep $VERSION) ]; then
+              VERSION=0.0.1
+              git tag $VERSION 
+              echo "Pushing tag ${VERSION}"
+              git push origin $VERSION
+            fi
 
 workflows:
   version: 2
@@ -95,3 +115,4 @@ workflows:
           filters:
             branches:
               only: master
+      - testdeploy
