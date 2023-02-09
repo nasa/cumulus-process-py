@@ -64,7 +64,7 @@ jobs:
       - *restore_dependencies36
       - add_ssh_keys:
           fingerprints:
-            - "e3:e2:f2:ad:45:cc:79:08:79:ad:b3:3f:16:a3:fd:10"
+            - "36:e7:5e:9a:2e:68:de:9b:f5:8e:03:60:5c:e0:c3:4b"
       - run:
           name: Push tag to github
           command: |
@@ -90,7 +90,7 @@ jobs:
       - *restore_dependencies36
       - add_ssh_keys:
           fingerprints:
-            - "e3:e2:f2:ad:45:cc:79:08:79:ad:b3:3f:16:a3:fd:10"
+            - "36:e7:5e:9a:2e:68:de:9b:f5:8e:03:60:5c:e0:c3:4b"
       - run:
           name: Push tag to github
           command: |
