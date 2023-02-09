@@ -68,6 +68,9 @@ jobs:
       - run:
           name: Push tag to github
           command: |
+            git config user.name "Dvseed"
+            git config user.email "info@developmentseed.org"
+            git config commit.gpgsign "false"
             VERSION=`awk -F\' '{print $2,$4}' cumulus_process/version.py`
 
             # Only tag and release if the version doesn't already exist
@@ -94,6 +97,10 @@ jobs:
       - run:
           name: Push tag to github
           command: |
+            git config user.name "Dvseed"
+            git config user.email "info@developmentseed.org"
+            git config commit.gpgsign "false"
+
             ssh-keyscan github.com >> ~/.ssh/known_hosts
             VERSION=`awk -F\' '{print $2,$4}' cumulus_process/version.py`
 
