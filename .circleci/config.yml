@@ -60,14 +60,15 @@ jobs:
   deploy:
     <<: *container_python36
     steps:
+      - checkout
       - *restore_repo
       - *restore_dependencies36
-      - add_ssh_keys
+      - add_ssh_keys:
+          fingerprints:
+            - "3a:8d:f7:0d:de:79:98:bc:56:10:83:ab:c1:ee:3d:30"
       - run:
           name: Push tag to github
           command: |
-            mkdir -p ~/.ssh
-            ssh-keyscan github.com >> ~/.ssh/known_hosts
             VERSION=`awk -F\' '{print $2,$4}' cumulus_process/version.py`
 
             # Only tag and release if the version doesn't already exist
