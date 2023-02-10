@@ -31,8 +31,8 @@ jobs:
   install_and_test_36:
     <<: *container_python36
     steps:
-      - checkout
       - *restore_repo
+      - checkout
       - *save_repo
       - *restore_dependencies36
       - run:
@@ -49,15 +49,11 @@ jobs:
           key: v0-dependencies36-{{ checksum "requirements.txt"}}
           paths:
             - ~/venv36
-      - add_ssh_keys:
-          fingerprints:
-            - "3a:8d:f7:0d:de:79:98:bc:56:10:83:ab:c1:ee:3d:30"
       - run :
           name: Run tests
           environment:
             LOCALSTACK_HOST: localstack
           command: |
-            git ls-remote --tags origin
             . ~/venv36/bin/activate
             nosetests -v --with-coverage --cover-package cumulus_process
 
