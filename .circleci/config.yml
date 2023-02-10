@@ -51,7 +51,7 @@ jobs:
             - ~/venv36
       - add_ssh_keys:
           fingerprints:
-            - "36:e7:5e:9a:2e:68:de:9b:f5:8e:03:60:5c:e0:c3:4b"
+            - "3a:8d:f7:0d:de:79:98:bc:56:10:83:ab:c1:ee:3d:30"
       - run :
           name: Run tests
           environment:
@@ -69,7 +69,7 @@ jobs:
       - *restore_dependencies36
       - add_ssh_keys:
           fingerprints:
-            - "36:e7:5e:9a:2e:68:de:9b:f5:8e:03:60:5c:e0:c3:4b"
+            - "3a:8d:f7:0d:de:79:98:bc:56:10:83:ab:c1:ee:3d:30"
       - run:
           name: Push tag to github
           command: |
@@ -102,7 +102,7 @@ jobs:
       - *restore_dependencies36
       - add_ssh_keys:
           fingerprints:
-            - "36:e7:5e:9a:2e:68:de:9b:f5:8e:03:60:5c:e0:c3:4b"
+            - "3a:8d:f7:0d:de:79:98:bc:56:10:83:ab:c1:ee:3d:30"
       - run:
           name: Push tag to github
           command: |
