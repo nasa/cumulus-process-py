@@ -73,9 +73,6 @@ jobs:
       - run:
           name: Push tag to github
           command: |
-            git config user.name "Dvseed"
-            git config user.email "info@developmentseed.org"
-            git config commit.gpgsign "false"
             VERSION=`awk -F\' '{print $2,$4}' cumulus_process/version.py`
 
             # Only tag and release if the version doesn't already exist
@@ -91,27 +88,6 @@ jobs:
             pip install twine
             python setup.py sdist
             twine upload --skip-existing --username "${PYPI_USER}" --password "${PYPI_PASS}" dist/*
-  testdeploy:
-    <<: *container_python36
-    steps:
-      - checkout
-      - *restore_repo
-      - *restore_dependencies36
-      - add_ssh_keys:
-          fingerprints:
-            - "3a:8d:f7:0d:de:79:98:bc:56:10:83:ab:c1:ee:3d:30"
-      - run:
-          name: Push tag to github
-          command: |
-            VERSION=`awk -F\' '{print $2,$4}' cumulus_process/version.py`
-            echo "got ${VERSION} version"
-            # Only tag and release if the version doesn't already exist
-            if [ -z $(git ls-remote --tags origin | grep $VERSION) ]; then
-              VERSION=0.0.2
-              git tag $VERSION 
-              echo "Pushing tag ${VERSION}"
-              git push origin $VERSION
-            fi
 
 workflows:
   version: 2
@@ -124,4 +100,3 @@ workflows:
           filters:
             branches:
               only: master
-      - testdeploy
