@@ -70,34 +70,34 @@ jobs:
             . ~/venv36/bin/activate
             nosetests -v --with-coverage --cover-package cumulus_process
 
-    install_and_test_38:
-    <<: *container_python38
-    steps:
-      - *restore_repo
-      - checkout
-      - *save_repo
-      - *restore_dependencies38
-      - run:
-          name: Install virtualenv
-          command: pip install --user virtualenv
-      - run:
-          name: Install dependencies
-          command: |
-            ~/.local/bin/virtualenv ~/venv38
-            . ~/venv36/bin/activate
-            pip install -r requirements.txt
-            pip install -r requirements-dev.txt
-      - save_cache:
-          key: v0-dependencies38-{{ checksum "requirements.txt"}}
-          paths:
-            - ~/venv38
-      - run :
-          name: Run tests
-          environment:
-            LOCALSTACK_HOST: localstack
-          command: |
-            . ~/venv38/bin/activate
-            nosetests -v --with-coverage --cover-package cumulus_process
+  install_and_test_38:
+  <<: *container_python38
+  steps:
+    - *restore_repo
+    - checkout
+    - *save_repo
+    - *restore_dependencies38
+    - run:
+        name: Install virtualenv
+        command: pip install --user virtualenv
+    - run:
+        name: Install dependencies
+        command: |
+          ~/.local/bin/virtualenv ~/venv38
+          . ~/venv36/bin/activate
+          pip install -r requirements.txt
+          pip install -r requirements-dev.txt
+    - save_cache:
+        key: v0-dependencies38-{{ checksum "requirements.txt"}}
+        paths:
+          - ~/venv38
+    - run :
+        name: Run tests
+        environment:
+          LOCALSTACK_HOST: localstack
+        command: |
+          . ~/venv38/bin/activate
+          nosetests -v --with-coverage --cover-package cumulus_process
 
   deploy:
     <<: *container_python36
