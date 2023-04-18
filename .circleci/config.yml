@@ -27,6 +27,19 @@ references:
         - v0-dependencies36-{{ checksum "requirements.txt" }}
         - v0-dependencies36
 
+  container_python38: &container_python38
+    docker:
+      - image: circleci/python:3.8.1
+      - name: localstack
+        image: localstack/localstack:0.11.5
+    working_directory: ~/repo
+
+  restore_dependencies38: &restore_dependencies38
+    restore_cache:
+      keys:
+        - v0-dependencies38-{{ checksum "requirements.txt" }}
+        - v0-dependencies38
+
 jobs:
   install_and_test_36:
     <<: *container_python36
@@ -55,6 +68,35 @@ jobs:
             LOCALSTACK_HOST: localstack
           command: |
             . ~/venv36/bin/activate
+            nosetests -v --with-coverage --cover-package cumulus_process
+
+    install_and_test_38:
+    <<: *container_python38
+    steps:
+      - *restore_repo
+      - checkout
+      - *save_repo
+      - *restore_dependencies38
+      - run:
+          name: Install virtualenv
+          command: pip install --user virtualenv
+      - run:
+          name: Install dependencies
+          command: |
+            ~/.local/bin/virtualenv ~/venv38
+            . ~/venv36/bin/activate
+            pip install -r requirements.txt
+            pip install -r requirements-dev.txt
+      - save_cache:
+          key: v0-dependencies38-{{ checksum "requirements.txt"}}
+          paths:
+            - ~/venv38
+      - run :
+          name: Run tests
+          environment:
+            LOCALSTACK_HOST: localstack
+          command: |
+            . ~/venv38/bin/activate
             nosetests -v --with-coverage --cover-package cumulus_process
 
   deploy:
@@ -96,3 +138,6 @@ workflows:
           filters:
             branches:
               only: master
+  build_test_38_deploy:
+    jobs:
+      - install_and_test_38
