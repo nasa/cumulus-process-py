@@ -1,4 +1,5 @@
 # Python CircleCI 2.0 configuration file
+
 version: 2
 references:
   container_python36: &container_python36
