@@ -101,11 +101,11 @@ jobs:
             nosetests -v --with-coverage --cover-package cumulus_process
 
   deploy:
-    <<: *container_python36
+    <<: *container_python38
     steps:
       - checkout
       - *restore_repo
-      - *restore_dependencies36
+      - *restore_dependencies38
       - add_ssh_keys:
           fingerprints:
             - "3a:8d:f7:0d:de:79:98:bc:56:10:83:ab:c1:ee:3d:30"
@@ -123,7 +123,7 @@ jobs:
       - run:
           name: Deploy to PyPi
           command: |
-            . ~/venv36/bin/activate
+            . ~/venv38/bin/activate
             pip install twine
             python setup.py sdist
             twine upload --skip-existing --username "${PYPI_USER}" --password "${PYPI_PASS}" dist/*
