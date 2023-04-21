@@ -6,6 +6,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## Unreleased
 
+## [1.2.0] - 2023-04-21
+
+- **CUMULUS-3276**
+  - Update CircleCI config to build, test, and deploy on a Python 3.8 container
+
 ## [1.1.0] - 2023-02-08
 
 - **CUMULUS-3189**
