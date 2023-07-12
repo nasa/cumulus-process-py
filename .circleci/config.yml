@@ -58,7 +58,7 @@ jobs:
             LOCALSTACK_HOST: localstack
           command: |
             . ~/venv310/bin/activate
-            nosetests -v --with-coverage --cover-package cumulus_process
+            nose2 -v --with-coverage --cover-package cumulus_process
 
   deploy:
     <<: *container_python310
