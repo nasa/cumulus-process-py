@@ -2,16 +2,9 @@
 
 version: 2
 references:
-  container_python36: &container_python36
+  container_python310: &container_python310
     docker:
-      - image: circleci/python:3.6.2
-      - name: localstack
-        image: localstack/localstack
-    working_dir: ~/project
-
-  container_python38: &container_python38
-    docker:
-      - image: circleci/python:3.8.1
+      - image: circleci/python:3.10
       - name: localstack
         image: localstack/localstack
     working_directory: ~/project
@@ -29,83 +22,50 @@ references:
       paths:
         - ~/project
 
-  restore_dependencies36: &restore_dependencies36
+  restore_dependencies310: &restore_dependencies310
     restore_cache:
       keys:
-        - v0-dependencies36-{{ checksum "requirements.txt" }}
-        - v0-dependencies36
-
-  restore_dependencies38: &restore_dependencies38
-    restore_cache:
-      keys:
-        - v0-dependencies38-{{ checksum "requirements.txt" }}
-        - v0-dependencies38
+        - v0-dependencies310-{{ checksum "requirements.txt" }}
+        - v0-dependencies310
 
 jobs:
-  install_and_test_36:
-    <<: *container_python36
-    steps:
-      - *restore_repo
-      - checkout
-      - *save_repo
-      - *restore_dependencies36
-      - run:
-          name: Install virtualenv
-          command: pip install --user virtualenv
-      - run:
-          name: Install dependencies
-          command: |
-            ~/.local/bin/virtualenv ~/venv36
-            . ~/venv36/bin/activate
-            pip install -r requirements.txt
-            pip install -r requirements-dev.txt
-      - save_cache:
-          key: v0-dependencies36-{{ checksum "requirements.txt"}}
-          paths:
-            - ~/venv36
-      - run :
-          name: Run tests
-          environment:
-            LOCALSTACK_HOST: localstack
-          command: |
-            . ~/venv36/bin/activate
-            nosetests -v --with-coverage --cover-package cumulus_process
 
-  install_and_test_38:
-    <<: *container_python38
+
+  install_and_test_310:
+    <<: *container_python310
     steps:
       - *restore_repo
       - checkout
       - *save_repo
-      - *restore_dependencies38
+      - *restore_dependencies310
       - run:
           name: Install virtualenv
           command: pip install --user virtualenv
       - run:
           name: Install dependencies
           command: |
-            /usr/local/bin/virtualenv ~/venv38
-            . ~/venv38/bin/activate
+            /usr/local/bin/virtualenv ~/venv310
+            . ~/venv310/bin/activate
             pip install -r requirements.txt
             pip install -r requirements-dev.txt
       - save_cache:
-          key: v0-dependencies38-{{ checksum "requirements.txt"}}
+          key: v0-dependencies310-{{ checksum "requirements.txt"}}
           paths:
-            - ~/venv38
+            - ~/venv310
       - run :
           name: Run tests
           environment:
             LOCALSTACK_HOST: localstack
           command: |
-            . ~/venv38/bin/activate
+            . ~/venv310/bin/activate
             nosetests -v --with-coverage --cover-package cumulus_process
 
   deploy:
-    <<: *container_python38
+    <<: *container_python310
     steps:
       - checkout
       - *restore_repo
-      - *restore_dependencies38
+      - *restore_dependencies310
       - add_ssh_keys:
           fingerprints:
             - "3a:8d:f7:0d:de:79:98:bc:56:10:83:ab:c1:ee:3d:30"
@@ -123,22 +83,19 @@ jobs:
       - run:
           name: Deploy to PyPi
           command: |
-            . ~/venv38/bin/activate
+            . ~/venv310/bin/activate
             pip install twine
             python setup.py sdist
             twine upload --skip-existing --username "${PYPI_USER}" --password "${PYPI_PASS}" dist/*
 
 workflows:
   version: 2
-  build_test_36:
+  build_test_310_deploy:
     jobs:
-      - install_and_test_36
-  build_test_38_deploy:
-    jobs:
-      - install_and_test_38
+      - install_and_test_310
       - deploy:
           requires:
-            - install_and_test_38
+            - install_and_test_310
           filters:
             branches:
               only: master
