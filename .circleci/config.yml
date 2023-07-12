@@ -4,7 +4,7 @@ version: 2
 references:
   container_python310: &container_python310
     docker:
-      - image: circleci/python:3.10
+      - image: cimg/python:3.10
       - name: localstack
         image: localstack/localstack
     working_directory: ~/project
@@ -72,6 +72,7 @@ jobs:
       - run:
           name: Push tag to github
           command: |
+            yum update && yum install git
             VERSION=`awk -F\' '{print $2,$4}' cumulus_process/version.py`
 
             # Only tag and release if the version doesn't already exist
