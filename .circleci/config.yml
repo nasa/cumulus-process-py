@@ -44,7 +44,7 @@ jobs:
       - run:
           name: Install dependencies
           command: |
-          . ~/venv310/bin/activate
+            . ~/venv310/bin/activate
             pip install -r requirements.txt
             pip install -r requirements-dev.txt
       - save_cache:
