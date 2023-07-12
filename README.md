@@ -24,7 +24,7 @@ The utilities help writing tasks that involve metadata extraction from input fil
 
 Testing requires [localstack](https://github.com/localstack/localstack). Follow the instruction for localstack and install it on your machine then:
 
-    $ nosetests -v
+    $ nose2 -v
 
 ## Usage
 
