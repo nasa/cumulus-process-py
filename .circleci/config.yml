@@ -4,9 +4,9 @@ version: 2
 references:
   container_python310: &container_python310
     docker:
-      - image: cimg/python:3.10
+      - image: cimg/python:3.10.11
       - name: localstack
-        image: localstack/localstack
+        image: localstack/localstack:2.02
     working_directory: ~/project
 
   restore_repo: &restore_repo
@@ -44,7 +44,6 @@ jobs:
       - run:
           name: Install dependencies
           command: |
-            sudo apt update && sudo apt install virtualenv
             virtualenv ~/venv310
             . ~/venv310/bin/activate
             pip install -r requirements.txt
