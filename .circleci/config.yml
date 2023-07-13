@@ -31,7 +31,7 @@ references:
     restore_cache:
       keys:
         - v0-dependencies310-{{ checksum "requirements.txt" }}-{{ checksum "requirements-dev.txt" }}
-        - v0-dependencies310
+        - v0-dependencies310-
 
 jobs:
   install_and_test_310:
@@ -40,7 +40,6 @@ jobs:
       - *restore_repo
       - checkout
       - *save_repo
-      - *restore_dependencies310
       - run:
           name: Install virtualenv
           command: pip install --user --upgrade virtualenv
@@ -52,7 +51,6 @@ jobs:
             . ~/venv310/bin/activate
             pip install -r requirements.txt
             pip install -r requirements-dev.txt
-      - *save_dependencies310
       - run :
           name: Run tests
           environment:
