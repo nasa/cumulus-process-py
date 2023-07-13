@@ -21,7 +21,7 @@ references:
       key: v0-repo-{{ .Branch }}-{{ .Revision }}
       paths:
         - ~/repo
-  save_dependencies310: &save_cache
+  save_dependencies310: &save_dependencies310
     save_cache:
       key: v0-dependencies310-{{ checksum "requirements.txt"}}--{{ checksum "requirements-dev.txt" }}
       paths:
