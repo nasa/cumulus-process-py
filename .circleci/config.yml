@@ -40,7 +40,7 @@ jobs:
       - *restore_repo
       - checkout
       - *save_repo
-      - *restore_dependencies310
+      # - *restore_dependencies310
       - run:
           name: Install virtualenv
           command: pip install --user --upgrade virtualenv
