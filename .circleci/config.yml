@@ -7,7 +7,7 @@ references:
       - image: cimg/python:3.10.11
       - name: localstack
         image: localstack/localstack:2.0.2
-    working_directory: ~/project
+    working_directory: ~/repo
 
   restore_repo: &restore_repo
     restore_cache:
@@ -20,8 +20,12 @@ references:
     save_cache:
       key: v0-repo-{{ .Branch }}-{{ .Revision }}
       paths:
-        - ~/project
-
+        - ~/repo
+  save_dependencies310: &save_cache
+    save_cache:
+      key: v0-dependencies310-{{ checksum "requirements.txt"}}--{{ checksum "requirements-dev.txt" }}
+      paths:
+        - ~/venv310
   restore_dependencies310: &restore_dependencies310
     restore_cache:
       keys:
@@ -32,25 +36,20 @@ jobs:
   install_and_test_310:
     <<: *container_python310
     steps:
-      - *restore_repo
       - checkout
-      - *save_repo
       - *restore_dependencies310
-
       - run:
           name: Install virtualenv
           command: pip install --user --upgrade virtualenv
       - run:
           name: Install dependencies
           command: |
-            virtualenv workon ~/venv310
+            virtualenv ~/venv310
             . ~/venv310/bin/activate
             pip install -r requirements.txt
             pip install -r requirements-dev.txt
-      - save_cache:
-          key: v0-dependencies310-{{ checksum "requirements.txt"}}
-          paths:
-            - ~/venv310
+      
+      - *save_dependencies310
 
       - run :
           name: Run tests
