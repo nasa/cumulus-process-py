@@ -25,7 +25,7 @@ references:
     save_cache:
       paths:
         - ~/venv310
-      key: v0-dependencies310-{{ checksum "requirements.txt"}}--{{ checksum "requirements-dev.txt" }}
+      key: v0-dependencies310-{{ checksum "requirements.txt"}}-{{ checksum "requirements-dev.txt" }}
 
   restore_dependencies310: &restore_dependencies310
     restore_cache:
