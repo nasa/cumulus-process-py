@@ -37,13 +37,15 @@ jobs:
       - *restore_repo
       - checkout
       - *save_repo
-      - *restore_dependencies310
       - run:
           name: Install virtualenv
           command: pip install --user --upgrade virtualenv
+      - *restore_dependencies310
+
       - run:
           name: Install dependencies
           command: |
+            virtualenv ~/venv310
             . ~/venv310/bin/activate
             pip install -r requirements.txt
             pip install -r requirements-dev.txt
