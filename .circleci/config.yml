@@ -43,10 +43,10 @@ jobs:
       - run:
           name: Install dependencies
           command: |
-            virtualenv ~/venv310
-            # . ~/venv310/bin/activate
-            # pip install -r requirements.txt
-            # pip install -r requirements-dev.txt
+            # virtualenv ~/venv310
+            . ~/venv310/bin/activate
+            pip install -r requirements.txt
+            pip install -r requirements-dev.txt
       - save_cache:
           key: v0-dependencies310-{{ checksum "requirements.txt"}}
           paths:
