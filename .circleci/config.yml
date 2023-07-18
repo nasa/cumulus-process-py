@@ -63,7 +63,7 @@ jobs:
           environment:
             LOCALSTACK_HOST: localstack
           command: |
-            . ~/venv310/bin/activate
+            . ~/venv38/bin/activate
             nose2 -v --with-coverage cumulus_process
 
   install_and_test_310:
