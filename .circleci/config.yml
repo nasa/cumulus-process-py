@@ -43,7 +43,6 @@ jobs:
       - run:
           name: Install virtualenv
           command: pip install --user --upgrade virtualenv
-
       - run:
           name: Install dependencies
           command: |
@@ -51,6 +50,7 @@ jobs:
             . ~/venv310/bin/activate
             pip install -r requirements.txt
             pip install -r requirements-dev.txt
+      - *save_dependencies310
       - run :
           name: Run tests
           environment:
