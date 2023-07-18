@@ -50,7 +50,7 @@ jobs:
       - *save_repo
       - run:
           name: Install virtualenv
-          command: pip install --user --upgrade virtualenv
+          command: pip install --user virtualenv
       - run:
           name: Install dependencies
           command: |
