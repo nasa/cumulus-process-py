@@ -6,14 +6,14 @@ references:
     docker:
       - image: cimg/python:3.10.11
       - name: localstack
-        image: localstack/localstack:2.0.2
+        image: localstack/localstack
     working_directory: ~/repo
 
   container_python38: &container_python38
     docker:
       - image: circleci/python:3.8.1
       - name: localstack
-        image: localstack/localstack:2.0.2
+        image: localstack/localstack
     working_directory: ~/repo
 
 
