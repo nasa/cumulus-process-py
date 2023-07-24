@@ -6,6 +6,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## Unreleased
 
+## [1.3.0] - 2023-07-13
+- **CUMULUS-3270**
+  - Update to python 3.10
+  - Update boto3 to 1.26.90
+  - Update nosetests to nose2
+
 ## [1.2.0] - 2023-04-21
 
 - **CUMULUS-3276**
