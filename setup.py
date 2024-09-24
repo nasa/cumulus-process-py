@@ -24,12 +24,6 @@ setup(
     url='https://github.com/nasa-cumulus/cumulus-process-py',
     license='Apache 2.0',
     classifiers=[
-        'Topic :: Software Development :: Libraries',
-        'Topic :: Scientific/Engineering',
-        'Intended Audience :: Developers',
-        'Intended Audience :: Science/Research',
-        'License :: OSI Approved :: Apache Software License',
-        'Programming Language :: Python :: 3.8',
         'Programming Language :: Python :: 3.10'
     ],
     packages=find_packages(exclude=['docs', 'tests*']),
