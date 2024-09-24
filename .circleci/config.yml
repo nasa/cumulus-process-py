@@ -37,7 +37,6 @@ jobs:
   install_and_test_310:
     <<: *container_python310
     steps:
-      - *restore_repo
       - checkout
       - *save_repo
       - run:
