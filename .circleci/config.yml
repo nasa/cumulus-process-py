@@ -9,14 +9,6 @@ references:
         image: localstack/localstack
     working_directory: ~/repo
 
-  container_python38: &container_python38
-    docker:
-      - image: circleci/python:3.8.1
-      - name: localstack
-        image: localstack/localstack
-    working_directory: ~/repo
-
-
   restore_repo: &restore_repo
     restore_cache:
       keys:
@@ -42,30 +34,6 @@ references:
         - v0-dependencies310-
 
 jobs:
-  install_and_test_38:
-    <<: *container_python38
-    steps:
-      - *restore_repo
-      - checkout
-      - *save_repo
-      - run:
-          name: Install virtualenv
-          command: pip install --user virtualenv
-      - run:
-          name: Install dependencies
-          command: |
-            virtualenv ~/venv38
-            . ~/venv38/bin/activate
-            pip install -r requirements.txt
-            pip install -r requirements-dev.txt
-      - run :
-          name: Run tests
-          environment:
-            LOCALSTACK_HOST: localstack
-          command: |
-            . ~/venv38/bin/activate
-            nose2 -v --with-coverage cumulus_process
-
   install_and_test_310:
     <<: *container_python310
     steps:
