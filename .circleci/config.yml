@@ -65,20 +65,10 @@ jobs:
       - checkout
       - *restore_repo
       - *restore_dependencies310
-      - add_ssh_keys:
-          fingerprints:
-            - "3a:8d:f7:0d:de:79:98:bc:56:10:83:ab:c1:ee:3d:30"
       - run:
           name: Push tag to github
           command: |
-            VERSION=`awk -F\' '{print $2,$4}' cumulus_process/version.py`
-
-            # Only tag and release if the version doesn't already exist
-            if [ -z $(git ls-remote --tags origin | grep $VERSION) ]; then
-              git tag $VERSION
-              echo "Pushing tag ${VERSION}"
-              git push origin $VERSION
-            fi
+            GITHUB_TOKEN=${GITHUB_TOKEN} sh bin/release.sh
       - run:
           name: Deploy to PyPi
           command: |
