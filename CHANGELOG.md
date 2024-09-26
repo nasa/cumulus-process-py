@@ -6,6 +6,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## Unreleased
 
+## [1.4.0] - 2024-09-24
+- **CUMULUS-3838**
+  - remove support for python38
+  - update to cumulus-message-adapter-python 2.3.0
+
 ## [1.3.0] - 2023-07-13
 - **CUMULUS-3270**
   - Update to python 3.10

@@ -9,14 +9,6 @@ references:
         image: localstack/localstack
     working_directory: ~/repo
 
-  container_python38: &container_python38
-    docker:
-      - image: circleci/python:3.8.1
-      - name: localstack
-        image: localstack/localstack
-    working_directory: ~/repo
-
-
   restore_repo: &restore_repo
     restore_cache:
       keys:
@@ -42,34 +34,9 @@ references:
         - v0-dependencies310-
 
 jobs:
-  install_and_test_38:
-    <<: *container_python38
-    steps:
-      - *restore_repo
-      - checkout
-      - *save_repo
-      - run:
-          name: Install virtualenv
-          command: pip install --user virtualenv
-      - run:
-          name: Install dependencies
-          command: |
-            virtualenv ~/venv38
-            . ~/venv38/bin/activate
-            pip install -r requirements.txt
-            pip install -r requirements-dev.txt
-      - run :
-          name: Run tests
-          environment:
-            LOCALSTACK_HOST: localstack
-          command: |
-            . ~/venv38/bin/activate
-            nose2 -v --with-coverage cumulus_process
-
   install_and_test_310:
     <<: *container_python310
     steps:
-      - *restore_repo
       - checkout
       - *save_repo
       - run:
@@ -97,20 +64,10 @@ jobs:
       - checkout
       - *restore_repo
       - *restore_dependencies310
-      - add_ssh_keys:
-          fingerprints:
-            - "3a:8d:f7:0d:de:79:98:bc:56:10:83:ab:c1:ee:3d:30"
       - run:
           name: Push tag to github
           command: |
-            VERSION=`awk -F\' '{print $2,$4}' cumulus_process/version.py`
-
-            # Only tag and release if the version doesn't already exist
-            if [ -z $(git ls-remote --tags origin | grep $VERSION) ]; then
-              git tag $VERSION
-              echo "Pushing tag ${VERSION}"
-              git push origin $VERSION
-            fi
+            GITHUB_TOKEN=${GITHUB_TOKEN} sh bin/release.sh
       - run:
           name: Deploy to PyPi
           command: |
@@ -123,7 +80,6 @@ workflows:
   version: 2
   build_test_310_deploy:
     jobs:
-      - install_and_test_38
       - install_and_test_310
       - deploy:
           requires:
