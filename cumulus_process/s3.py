@@ -36,7 +36,7 @@ def mkdirp(path):
     return path
 
 
-def download(uri, path='', extra):
+def download(uri, path='', extra={}):
     """ Download object from S3 """
     s3_uri = uri_parser(uri)
     fout = os.path.join(path, s3_uri['filename'])
