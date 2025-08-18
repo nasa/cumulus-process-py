@@ -9,6 +9,19 @@ logger = logging.getLogger(__name__)
 
 
 def get_client(client='s3'):
+    """ creates and return a boto3 (aws) client """
+
+    localstack = os.getenv('LOCALSTACK_HOST')
+    if localstack:
+        return boto3.client(
+            client,
+            region_name='us-east-1',
+            endpoint_url='http://%s:%s' % (localstack, 4566),
+            use_ssl=False,
+            aws_access_key_id='fake-key',
+            aws_secret_access_key='fake-secret'
+        )
+
     return boto3.client(client)
 
 

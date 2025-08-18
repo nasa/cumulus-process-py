@@ -7,11 +7,95 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## [Unreleased]
 - Add in extra parameter for s3 download function for s3.download_fileobj ExtraArgs
 
+## [1.4.0] - 2024-09-24
+- **CUMULUS-3838**
+  - remove support for python38
+  - update to cumulus-message-adapter-python 2.3.0
+
+## [1.3.0] - 2023-07-13
+- **CUMULUS-3270**
+  - Update to python 3.10
+  - Update boto3 to 1.26.90
+  - Update nosetests to nose2
+
+## [1.2.0] - 2023-04-21
+
+- **CUMULUS-3276**
+  - Update CircleCI config to build, test, and deploy on a Python 3.8 container
+
+## [1.1.0] - 2023-02-08
+
+- **CUMULUS-3189**
+  - Update Cumulus Message Adapter python dependency to ~2.1.0
+
+## [1.0.0] - 1/4/22
+
+### BREAKING CHANGES
+
+- **CUMULUS-2751**
+
+  - Update Cumulus Message Adapter dependency to ~2.0.0
+    - This is a breaking change as the underlying behavior of the message adapter has changed See Cumulus Message Adapter release notes for more information.   This update *requires* an update of all Core tasks to use CMA v2.0.0 for message consistency reasons
+  - Update boto3 dependency to ~1.18.40
+
+## [0.10.0] - 5/21/21
+
+- Remove `public-read` ACL from S3 object uploads to comply with NGAP access requirements.
+- Update minimum dependency versions:
+  - boto3:       1.4 -> 1.12.47
+  - dicttoxml:   1.7 -> 1.7.4
+  - cumulus-message-adapter-python: 1.2.0. -> 1.2.1
+- Update minimum dev-dependency versions:
+  - nose:         1.3 -> 1.3.7
+  - coverage:     4.3 -> 5.5
+  - nose-timer:   0.6 -> 1.0.1
+  - testfixtures: 4.13 -> 6.17.1
+  - mock:         1.3 -> 4.0.3
+
+## [0.9.0]
+
+### BREAKING CHANGES
+
+- **CUMULUS-1799**
+  - Update cumulus-process-py requirements to CMA 1.2.0
+  - Remove python 2 support
+
+## [0.8.0]
+
+- Update package to use CMA-py 1.1.x series.
+
+**Please note that [CMA-python](https://github.com/nasa/cumulus-message-adapter-python) utilizes either [CMA](https://github.com/nasa/cumulus-message-adapter) 1.0.x or 1.1.x series.**
+
+If you wish to continue using the pre 1.1.x series CMA, you will need to explicitly pin it in your project environment if you are pulling the CMA from pypi.
+
+## [0.7.0]
+
+### How to upgrade to 0.7.0
+- The cumulus-process-py no longer assumes the structure of input and config given to a processing sublcass. These assumptions have to be added in the `__init__` section of the subclass (see example).
+- All methods that have specific assumptions about the structure of the Cumulus message are deprecated. Subclasses should implement these methods in the subclass if they are needed
+- Some of the deprecated methods are moved to a new helpers modules can be used by importing them directly from that module
+
+### Added
+- Add deprecation warning to the followings methods of the Process class (these methods will be removed in v0.8.0)
+- Add example folder with an example implementation of a Process sublcass
+- Add localstack to tests
+
+### Changed
+- Simplify the structure of Process class to support **CUMULUS-456**
+- `clean_all` method now removes the whole temp folder at the end of the process (this solves the problem of lambda functions running out of temporary storage)
+- **CUMULUS-456** Use the fileStagingDir to create the URL paths and if none exists, use url_path (this is added to deprecation methods)
+- **CUMULUS-477** Updates to use the new bucket structure where each bucket is no longer a string, but an object with name and type (this is added to deprecation methods)
+
+## [0.6.1]
+
+### Changed
+- Get cumulus-message-adapter-python from pypi instead of github
+
 ## [0.6.0]
 
-### Changed 
+### Changed
 - Removed the built-in assumptions about the config and input to the Process class when the class is initialized. [CUMULUS-543]
-- A new property called `self.regex` is introduced. This property should be set for the `self.gid` property to work properly.  
+- A new property called `self.regex` is introduced. This property should be set for the `self.gid` property to work properly.
 
 ## [0.5.7]
 - allow input_keys to be specified in payload
@@ -57,7 +141,13 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - added support for multiple output granules
 - use regex to determine which input files are which so order does not matter (only that all needed files are supplied, in any order)
 
-[Unreleased]: https://github.com/cumulus-nasa/cumulus-process-py/compare/0.6.0...HEAD
+[Unreleased]: https://github.com/cumulus-nasa/cumulus-process-py/compare/1.1.0...HEAD
+[1.1.0]: https://github.com/cumulus-nasa/cumulus-process-py/compare/1.0.0...1.1.0
+[1.0.0]: https://github.com/cumulus-nasa/cumulus-process-py/compare/0.9.0...1.0.0
+[0.9.0]: https://github.com/cumulus-nasa/cumulus-process-py/compare/0.8.0...0.9.0
+[0.8.0]: https://github.com/cumulus-nasa/cumulus-process-py/compare/0.7.0...0.8.0
+[0.7.0]: https://github.com/cumulus-nasa/cumulus-process-py/compare/0.6.1...0.7.0
+[0.6.1]: https://github.com/cumulus-nasa/cumulus-process-py/compare/0.6.0...0.6.1
 [0.6.0]: https://github.com/cumulus-nasa/cumulus-process-py/compare/0.5.7...0.6.0
 [0.5.7]: https://github.com/cumulus-nasa/cumulus-process-py/compare/0.5.6...0.5.7
 [0.5.6]: https://github.com/cumulus-nasa/cumulus-process-py/compare/0.5.5...0.5.6

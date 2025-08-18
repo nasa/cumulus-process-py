@@ -38,16 +38,8 @@ def get_and_run_task(handler, sfn, arn):
 
     try:
         payload = json.loads(task['input'])
-        # if need to get payload from s3
-        #if 's3uri' in payload:
-        #    payload = download_json(payload['s3uri'])
 
         output = json.dumps(handler(event=payload))
-
-        # check payload size
-        #if len(output) >= SFN_PAYLOAD_LIMIT:
-        #    s3out = upload_result(result)
-        #    output = json.dumps({'result': {'result_s3_uri': s3out}})
 
         sfn.send_task_success(taskToken=task['taskToken'], output=output)
     except MemoryError as e:
