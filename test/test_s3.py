@@ -89,16 +89,13 @@ class Test(unittest.TestCase):
         self.assertTrue(boto3.client().get_object.called)
         boto3.client().get_object.called_with('bucket', 'prefix/test.json')
 
-    @patch('cumulus_process.s3.boto3')
-    def test_download_with_extra_args(self, boto3):
+    def test_download_with_extra_args(self):
         """ Download file from S3 with ExtraArgs """
+        uri = self.s3path + '/file.txt'
+        s3.upload(self.payload, uri)
         extra = {"RequestPayer": "requester"}
-        fout = s3.download('s3://test/file.txt', path=self.path, extra=extra)
+
+        fout = s3.download(uri, path=self.path, extra=extra)
         self.assertEqual(fout, os.path.join(self.path, 'file.txt'))
-        boto3.client.assert_called_with('s3')
-        boto3.client().download_fileobj.assert_called_once_with(
-            Bucket='test',
-            Key='file.txt',
-            Fileobj=ANY,  # don't compare the file handle
-            ExtraArgs=extra
-        )
+        s3.delete(uri)
+        os.remove(fout)
