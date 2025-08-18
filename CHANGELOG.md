@@ -5,14 +5,19 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [1.5.0] - 2025-08-18
+
 - Add in extra parameter for s3 download function for s3.download_fileobj ExtraArgs
 
 ## [1.4.0] - 2024-09-24
+
 - **CUMULUS-3838**
   - remove support for python38
   - update to cumulus-message-adapter-python 2.3.0
 
 ## [1.3.0] - 2023-07-13
+
 - **CUMULUS-3270**
   - Update to python 3.10
   - Update boto3 to 1.26.90
