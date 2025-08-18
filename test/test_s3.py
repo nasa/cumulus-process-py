@@ -4,10 +4,6 @@ import json
 import unittest
 import logging
 from cumulus_process import s3
-try:
-    from mock import patch, ANY
-except ImportError:
-    from unittest.mock import patch, ANY
 
 # quiet these loggers
 logging.getLogger('boto3').setLevel(logging.CRITICAL)
