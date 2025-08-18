@@ -83,11 +83,16 @@ class Test(unittest.TestCase):
 
     def test_download_json(self):
         """ Download file from S3 as JSON """
-        boto3.client().get_object().read.return_value = "{'Body': '{}''}"
-        out = s3.download_json('s3://bucket/prefix/test.json')
-        self.assertEqual(out, {})
-        self.assertTrue(boto3.client().get_object.called)
-        boto3.client().get_object.called_with('bucket', 'prefix/test.json')
+        json_obj = {
+            'Body': {
+                'this': 'that'
+            }
+        }
+        self.s3.put_object(Bucket=self.bucket, Key='prefix/test.json', Body=json.dumps(json_obj))
+
+        out = s3.download_json('s3://%s/prefix/test.json' % self.bucket)
+        self.assertEqual(out, json_obj)
+        s3.delete('s3://%s/prefix/test.json' % self.bucket)
 
     def test_download_with_extra_args(self):
         """ Download file from S3 with ExtraArgs """
