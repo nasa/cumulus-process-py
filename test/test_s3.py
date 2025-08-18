@@ -4,6 +4,10 @@ import json
 import unittest
 import logging
 from cumulus_process import s3
+try:
+    from mock import patch, ANY
+except ImportError:
+    from unittest.mock import patch, ANY
 
 # quiet these loggers
 logging.getLogger('boto3').setLevel(logging.CRITICAL)
@@ -79,13 +83,22 @@ class Test(unittest.TestCase):
 
     def test_download_json(self):
         """ Download file from S3 as JSON """
-        json_obj = {
-            'Body': {
-                'this': 'that'
-            }
-        }
-        self.s3.put_object(Bucket=self.bucket, Key='prefix/test.json', Body=json.dumps(json_obj))
+        boto3.client().get_object().read.return_value = "{'Body': '{}''}"
+        out = s3.download_json('s3://bucket/prefix/test.json')
+        self.assertEqual(out, {})
+        self.assertTrue(boto3.client().get_object.called)
+        boto3.client().get_object.called_with('bucket', 'prefix/test.json')
 
-        out = s3.download_json('s3://%s/prefix/test.json' % self.bucket)
-        self.assertEqual(out, json_obj)
-        s3.delete('s3://%s/prefix/test.json' % self.bucket)
+    @patch('cumulus_process.s3.boto3')
+    def test_download_with_extra_args(self, boto3):
+        """ Download file from S3 with ExtraArgs """
+        extra = {"RequestPayer": "requester"}
+        fout = s3.download('s3://test/file.txt', path=self.path, extra=extra)
+        self.assertEqual(fout, os.path.join(self.path, 'file.txt'))
+        boto3.client.assert_called_with('s3')
+        boto3.client().download_fileobj.assert_called_once_with(
+            Bucket='test',
+            Key='file.txt',
+            Fileobj=ANY,  # don't compare the file handle
+            ExtraArgs=extra
+        )
