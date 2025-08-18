@@ -89,3 +89,14 @@ class Test(unittest.TestCase):
         out = s3.download_json('s3://%s/prefix/test.json' % self.bucket)
         self.assertEqual(out, json_obj)
         s3.delete('s3://%s/prefix/test.json' % self.bucket)
+
+    def test_download_with_extra_args(self):
+        """ Download file from S3 with ExtraArgs """
+        uri = self.s3path + '/file.txt'
+        s3.upload(self.payload, uri)
+        extra = {"RequestPayer": "requester"}
+
+        fout = s3.download(uri, path=self.path, extra=extra)
+        self.assertEqual(fout, os.path.join(self.path, 'file.txt'))
+        s3.delete(uri)
+        os.remove(fout)

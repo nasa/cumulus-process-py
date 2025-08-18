@@ -49,7 +49,7 @@ def mkdirp(path):
     return path
 
 
-def download(uri, path=''):
+def download(uri, path='', extra={}):
     """ Download object from S3 """
     s3_uri = uri_parser(uri)
     fout = os.path.join(path, s3_uri['filename'])
@@ -63,7 +63,8 @@ def download(uri, path=''):
         s3.download_fileobj(
             Bucket=s3_uri['bucket'],
             Key=s3_uri['key'],
-            Fileobj=f
+            Fileobj=f,
+            ExtraArgs=extra
         )
     return fout
 
