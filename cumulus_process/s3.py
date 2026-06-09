@@ -7,7 +7,7 @@ import boto3
 
 logger = logging.getLogger(__name__)
 
-
+requesterPays = { 'RequestPayer': 'requester' }
 def get_client(client='s3'):
     """ creates and return a boto3 (aws) client """
 
@@ -48,7 +48,7 @@ def mkdirp(path):
 def download(uri, path='', extra=None):
     """ Download object from S3 """
     if extra is None:
-        extra == { 'RequestPayer': 'requester' }
+        extra == requesterPays
     s3_uri = uri_parser(uri)
     fout = os.path.join(path, s3_uri['filename'])
     logger.debug('Downloading %s as %s' % (uri, fout))
@@ -67,7 +67,7 @@ def download(uri, path='', extra=None):
 def download_json(uri, extra=None):
     """ Download object from S3 as JSON """
     if extra is None:
-        extra == { 'RequestPayer': 'requester' }
+        extra == requesterPays
     logger.debug('Downloading %s as JSON' % (uri))
     s3 = get_client()
     s3_uri = uri_parser(uri)
@@ -80,7 +80,7 @@ def download_json(uri, extra=None):
 def upload(filename, uri, extra=None):
     """ Upload object to S3 uri (bucket + prefix), keeping same base filename """
     if extra is None:
-        extra == { 'RequestPayer': 'requester' }
+        extra == requesterPays
     logger.debug('Uploading %s to %s' % (filename, uri))
     s3 = get_client()
     s3_uri = uri_parser(uri)
@@ -93,7 +93,7 @@ def upload(filename, uri, extra=None):
 def list_objects(uri, extra=None):
     """ Get list of objects within bucket and path """
     if extra is None:
-        extra == { 'RequestPayer': 'requester' }
+        extra == requesterPays
     logger.debug('Listing contents of %s' % uri)
     s3 = get_client()
     s3_uri = uri_parser(uri)
@@ -109,7 +109,7 @@ def list_objects(uri, extra=None):
 def delete(uri, extra=None):
     """ Remove an item from S3 """
     if extra is None:
-        extra == { 'RequestPayer': 'requester' }
+        extra == requesterPays
     logger.debug('Deleting %s' % uri)
     s3 = get_client()
     s3_uri = uri_parser(uri)
@@ -124,7 +124,7 @@ def delete(uri, extra=None):
 def exists(uri, extra=None):
     """ Check if this URI exists on S3 """
     if extra is None:
-        extra == { 'RequestPayer': 'requester' }
+        extra == requesterPays
     logger.debug('Checking existence of %s' % uri)
     s3 = get_client()
     s3_uri = uri_parser(uri)
