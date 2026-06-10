@@ -6,7 +6,7 @@ references:
     docker:
       - image: cimg/python:3.12.11
       - name: localstack
-        image: localstack/localstack
+        image: localstack/localstack:2026.5.0
     working_directory: ~/repo
 
   restore_repo: &restore_repo
