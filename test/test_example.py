@@ -10,7 +10,6 @@ from shutil import rmtree
 from tempfile import mkdtemp
 from example.main import Modis 
 import cumulus_process.s3 as s3
-from cumulus_process import Process, helpers
 
 if not os.getenv('LOCALSTACK_HOST'):
     raise Exception('LOCALSTACK_HOST must be set as env variable before running tests')

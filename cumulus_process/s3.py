@@ -7,7 +7,7 @@ import boto3
 
 logger = logging.getLogger(__name__)
 
-
+REQUESTER_PAYS = { 'RequestPayer': 'requester' }
 def get_client(client='s3'):
     """ creates and return a boto3 (aws) client """
 
@@ -19,7 +19,7 @@ def get_client(client='s3'):
             endpoint_url='http://%s:%s' % (localstack, 4566),
             use_ssl=False,
             aws_access_key_id='fake-key',
-            aws_secret_access_key='fake-secret'
+            aws_secret_access_key='fake-secret',
         )
 
     return boto3.client(client)
@@ -35,11 +35,7 @@ def uri_parser(uri):
     # remove empty items
     uri_obj = list(filter(lambda x: x, uri_obj))
 
-    return {
-        'bucket': uri_obj[0],
-        'key': '/'.join(uri_obj[1:]),
-        'filename': uri_obj[-1]
-    }
+    return {'bucket': uri_obj[0], 'key': '/'.join(uri_obj[1:]), 'filename': uri_obj[-1]}
 
 
 def mkdirp(path):
@@ -49,11 +45,13 @@ def mkdirp(path):
     return path
 
 
-def download(uri, path='', extra={}):
+def download(uri, path='', extra=None):
     """ Download object from S3 """
+    if extra is None:
+        extra = REQUESTER_PAYS
     s3_uri = uri_parser(uri)
     fout = os.path.join(path, s3_uri['filename'])
-    logger.debug("Downloading %s as %s" % (uri, fout))
+    logger.debug('Downloading %s as %s' % (uri, fout))
     if path != '':
         mkdirp(path)
 
@@ -61,26 +59,29 @@ def download(uri, path='', extra={}):
 
     with open(fout, 'wb') as f:
         s3.download_fileobj(
-            Bucket=s3_uri['bucket'],
-            Key=s3_uri['key'],
-            Fileobj=f,
-            ExtraArgs=extra
+            Bucket=s3_uri['bucket'], Key=s3_uri['key'], Fileobj=f, ExtraArgs=extra
         )
     return fout
 
 
-def download_json(uri):
+def download_json(uri, extra=None):
     """ Download object from S3 as JSON """
-    logger.debug("Downloading %s as JSON" % (uri))
+    if extra is None:
+        extra = REQUESTER_PAYS
+    logger.debug('Downloading %s as JSON' % (uri))
     s3 = get_client()
     s3_uri = uri_parser(uri)
-    response = s3.get_object(Bucket=s3_uri['bucket'], Key=s3_uri['key'])
+    response = s3.get_object(
+        Bucket=s3_uri['bucket'], Key=s3_uri['key'], **extra
+    )
     return json.loads(response['Body'].read().decode())
 
 
-def upload(filename, uri, extra={}):
+def upload(filename, uri, extra=None):
     """ Upload object to S3 uri (bucket + prefix), keeping same base filename """
-    logger.debug("Uploading %s to %s" % (filename, uri))
+    if extra is None:
+        extra = REQUESTER_PAYS
+    logger.debug('Uploading %s to %s' % (filename, uri))
     s3 = get_client()
     s3_uri = uri_parser(uri)
     uri_out = 's3://%s' % os.path.join(s3_uri['bucket'], s3_uri['key'])
@@ -89,12 +90,14 @@ def upload(filename, uri, extra={}):
     return uri_out
 
 
-def list_objects(uri):
+def list_objects(uri, extra=None):
     """ Get list of objects within bucket and path """
-    logger.debug("Listing contents of %s" % uri)
+    if extra is None:
+        extra = REQUESTER_PAYS
+    logger.debug('Listing contents of %s' % uri)
     s3 = get_client()
     s3_uri = uri_parser(uri)
-    response = s3.list_objects_v2(Bucket=s3_uri['bucket'], Prefix=s3_uri['key'])
+    response = s3.list_objects_v2(Bucket=s3_uri['bucket'], Prefix=s3_uri['key'], **extra)
 
     filenames = []
     if 'Contents' in response.keys():
@@ -103,8 +106,10 @@ def list_objects(uri):
     return filenames
 
 
-def delete(uri):
+def delete(uri, extra=None):
     """ Remove an item from S3 """
+    if extra is None:
+        extra = REQUESTER_PAYS
     logger.debug('Deleting %s' % uri)
     s3 = get_client()
     s3_uri = uri_parser(uri)
@@ -116,8 +121,10 @@ def delete(uri):
         return False
 
 
-def exists(uri):
+def exists(uri, extra=None):
     """ Check if this URI exists on S3 """
+    if extra is None:
+        extra = REQUESTER_PAYS
     logger.debug('Checking existence of %s' % uri)
     s3 = get_client()
     s3_uri = uri_parser(uri)
